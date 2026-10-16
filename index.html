@@ -183,6 +183,25 @@
         .bubble { max-width: 80%; padding: 10px 14px; border-radius: 14px; font-size: 0.88rem; line-height: 1.35; }
         .bubble.loja { align-self: flex-end; background: var(--primary); color: #fff; }
         .bubble.cliente { align-self: flex-start; background: #fff; color: #111; border: 1px solid #e4e4e7; }
+
+        /* Estilos do Horário de Funcionamento Automático */
+        .schedule-box {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px;
+            padding: 16px; margin-bottom: 16px;
+        }
+        .days-chips-row {
+            display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px;
+        }
+        .day-chip {
+            flex: 1; min-width: 44px; padding: 9px 6px; border-radius: 10px;
+            border: 1px solid #cbd5e1; background: #ffffff; color: #64748b;
+            font-weight: 800; font-size: 0.78rem; text-align: center; cursor: pointer;
+            transition: 0.15s; user-select: none;
+        }
+        .day-chip.active {
+            background: var(--dark); color: #ffffff; border-color: var(--dark);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
     </style>
 </head>
 <body>
@@ -317,6 +336,51 @@
             <label>🎟️ Cupons de Desconto Ativos (Formato: CODIGO:10%; OUTRO:5.00)</label>
             <input type="text" id="cfg-cupons" placeholder="Ex: BEMVINDO10:10%; DESCONTO5:5.00">
         </div>
+
+        <!-- Bloco de Horário de Funcionamento Automático -->
+        <div class="schedule-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px;">
+                <div>
+                    <div style="font-weight:900; font-size:0.98rem; color:#0f172a;">⏰ Horário de Funcionamento Automático</div>
+                    <div style="font-size:0.76rem; color:#64748b; font-weight:600; margin-top:2px;">Fecha e abre a loja sozinho no App dos clientes, mesmo com o painel fechado.</div>
+                </div>
+                <label style="display:flex; align-items:center; gap:6px; cursor:pointer; background:#fff; padding:8px 12px; border-radius:20px; border:1px solid #cbd5e1; font-weight:800; font-size:0.8rem; white-space:nowrap;">
+                    <input type="checkbox" id="cfg-auto-horario" onchange="updateSchedulePreviewUI()" style="width:18px; height:18px; accent-color:var(--success);">
+                    <span>Ativar Auto</span>
+                </label>
+            </div>
+
+            <div id="schedule-controls-wrap">
+                <div class="input-group" style="margin-bottom:12px;">
+                    <label>Dias da Semana em que a Loja Abre</label>
+                    <div class="days-chips-row" id="cfg-days-row">
+                        <button type="button" class="day-chip active" data-day="0" onclick="toggleScheduleDay(0)">Dom</button>
+                        <button type="button" class="day-chip active" data-day="1" onclick="toggleScheduleDay(1)">Seg</button>
+                        <button type="button" class="day-chip active" data-day="2" onclick="toggleScheduleDay(2)">Ter</button>
+                        <button type="button" class="day-chip active" data-day="3" onclick="toggleScheduleDay(3)">Qua</button>
+                        <button type="button" class="day-chip active" data-day="4" onclick="toggleScheduleDay(4)">Qui</button>
+                        <button type="button" class="day-chip active" data-day="5" onclick="toggleScheduleDay(5)">Sex</button>
+                        <button type="button" class="day-chip active" data-day="6" onclick="toggleScheduleDay(6)">Sáb</button>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <div class="input-group" style="flex:1; min-width:130px; margin-bottom:0;">
+                        <label>🟢 Abre às</label>
+                        <input type="time" id="cfg-hora-abre" value="18:00" onchange="updateSchedulePreviewUI()" style="background:#fff; font-weight:800;">
+                    </div>
+                    <div class="input-group" style="flex:1; min-width:130px; margin-bottom:0;">
+                        <label>🔴 Fecha às</label>
+                        <input type="time" id="cfg-hora-fecha" value="23:30" onchange="updateSchedulePreviewUI()" style="background:#fff; font-weight:800;">
+                    </div>
+                </div>
+
+                <div id="schedule-live-preview" style="margin-top:12px; padding:10px 12px; border-radius:10px; font-size:0.8rem; font-weight:800; background:#f1f5f9; color:#475569;">
+                    Configure seu horário e clique em Salvar Configurações.
+                </div>
+            </div>
+        </div>
+
         <button class="btn-main" style="background:var(--success);" onclick="saveStoreSettings()">💾 Salvar Configurações</button>
     </div>
 </div>
@@ -443,7 +507,8 @@
         appId: "1:1048831257004:web:8db55b5383206296ad3209" 
     };
 
-    const app = initializeApp(firebaseConfig);
+    // Sessão exclusiva do Painel Lojista para nunca conflitar com o App Cliente aberto no mesmo navegador
+    const app = initializeApp(firebaseConfig, "JuabaLojistaApp");
     const auth = getAuth(app);
     const db = getFirestore(app);
 
@@ -460,6 +525,143 @@
     window.mobileKanbanFilter = 'TODOS';
     window.activeDetailOrderId = null;
     window.defaultCategories = ['Lanches', 'Pizzas', 'Bebidas', 'Petisco', 'Refeições', 'Açaí', 'Sobremesas', 'Combos', 'Porções'];
+    window.selectedScheduleDays = [0, 1, 2, 3, 4, 5, 6];
+    window.lastEffectiveOpenState = null;
+
+    window.isStoreOpenBySchedule = function(loja) {
+        if (!loja) return false;
+        const manualOpen = !(loja.aberto === false || String(loja.aberto).toLowerCase() === 'false');
+        if (!manualOpen) return false;
+
+        if (!loja.horarioAutoAtivo) return true;
+
+        const abreStr = String(loja.horarioAbre || '').trim();
+        const fechaStr = String(loja.horarioFecha || '').trim();
+        if (!abreStr || !fechaStr) return true;
+
+        const now = new Date();
+        const currentDay = now.getDay();
+        const prevDay = (currentDay + 6) % 7;
+        const dias = Array.isArray(loja.diasFuncionamento) ? loja.diasFuncionamento.map(Number) : [0, 1, 2, 3, 4, 5, 6];
+
+        const [abreH, abreM] = abreStr.split(':').map(Number);
+        const [fechaH, fechaM] = fechaStr.split(':').map(Number);
+        if (isNaN(abreH) || isNaN(fechaH)) return true;
+
+        const nowMins = now.getHours() * 60 + now.getMinutes();
+        const abreMins = abreH * 60 + (abreM || 0);
+        const fechaMins = fechaH * 60 + (fechaM || 0);
+
+        if (abreMins === fechaMins) {
+            return dias.includes(currentDay);
+        } else if (abreMins < fechaMins) {
+            if (!dias.includes(currentDay)) return false;
+            return nowMins >= abreMins && nowMins < fechaMins;
+        } else {
+            // Suporte a turnos que viram a madrugada (ex: 18:00 às 02:00)
+            if (nowMins >= abreMins) {
+                return dias.includes(currentDay);
+            } else if (nowMins < fechaMins) {
+                return dias.includes(prevDay);
+            }
+            return false;
+        }
+    };
+
+    window.toggleScheduleDay = function(dayNum) {
+        const idx = window.selectedScheduleDays.indexOf(dayNum);
+        if (idx >= 0) {
+            window.selectedScheduleDays.splice(idx, 1);
+        } else {
+            window.selectedScheduleDays.push(dayNum);
+            window.selectedScheduleDays.sort((a, b) => a - b);
+        }
+        window.renderScheduleDaysChips();
+        window.updateSchedulePreviewUI();
+    };
+
+    window.renderScheduleDaysChips = function() {
+        document.querySelectorAll('#cfg-days-row .day-chip').forEach(btn => {
+            const d = parseInt(btn.getAttribute('data-day'));
+            btn.classList.toggle('active', window.selectedScheduleDays.includes(d));
+        });
+    };
+
+    window.updateSchedulePreviewUI = function() {
+        const autoOn = document.getElementById('cfg-auto-horario')?.checked;
+        const abre = document.getElementById('cfg-hora-abre')?.value || '18:00';
+        const fecha = document.getElementById('cfg-hora-fecha')?.value || '23:30';
+        const previewEl = document.getElementById('schedule-live-preview');
+        const controlsWrap = document.getElementById('schedule-controls-wrap');
+        if (!previewEl) return;
+
+        if (controlsWrap) {
+            controlsWrap.style.opacity = autoOn ? '1' : '0.55';
+        }
+
+        if (!autoOn) {
+            previewEl.style.background = '#f1f5f9';
+            previewEl.style.color = '#475569';
+            previewEl.innerText = '⚪ Modo manual ativo: a loja só abre ou fecha quando você clicar no botão do topo.';
+            return;
+        }
+
+        const mockStore = {
+            aberto: true,
+            horarioAutoAtivo: true,
+            horarioAbre: abre,
+            horarioFecha: fecha,
+            diasFuncionamento: window.selectedScheduleDays
+        };
+        const openNow = window.isStoreOpenBySchedule(mockStore);
+        if (openNow) {
+            previewEl.style.background = '#dcfce7';
+            previewEl.style.color = '#166534';
+            previewEl.innerText = `🟢 Dentro do horário (${abre} às ${fecha}): sua loja está ABERTA agora e fechará sozinha às ${fecha}.`;
+        } else {
+            previewEl.style.background = '#fee2e2';
+            previewEl.style.color = '#991b1b';
+            previewEl.innerText = `🔴 Fora do horário (${abre} às ${fecha}): sua loja ficará FECHADA agora no App e abrirá sozinha às ${abre}.`;
+        }
+    };
+
+    window.refreshHeaderStatusUI = function(notifyTransition = false) {
+        if (!window.currentStore) return;
+        const btnSt = document.getElementById('btn-store-status');
+        if (!btnSt) return;
+
+        const isOpenNow = window.isStoreOpenBySchedule(window.currentStore);
+        const autoOn = Boolean(window.currentStore.horarioAutoAtivo);
+        const manualOpen = !(window.currentStore.aberto === false || String(window.currentStore.aberto).toLowerCase() === 'false');
+
+        btnSt.className = `store-status-btn ${isOpenNow ? 'open' : 'closed'}`;
+        if (isOpenNow) {
+            btnSt.innerText = autoOn ? `🟢 Aberta (⏰ ${window.currentStore.horarioFecha || ''})` : '🟢 Aberta';
+        } else {
+            if (autoOn && manualOpen) {
+                btnSt.innerText = `🔴 Fechada (⏰ Abre ${window.currentStore.horarioAbre || ''})`;
+            } else {
+                btnSt.innerText = '🔴 Fechada';
+            }
+        }
+
+        if (notifyTransition && window.lastEffectiveOpenState !== null && window.lastEffectiveOpenState !== isOpenNow) {
+            if (!isOpenNow && autoOn) {
+                window.showToast(`⏰ Horário encerrado (${window.currentStore.horarioFecha})! Loja fechada automaticamente.`);
+            } else if (isOpenNow && autoOn) {
+                window.showToast(`⏰ Horário iniciado (${window.currentStore.horarioAbre})! Loja aberta automaticamente.`);
+            }
+        }
+        window.lastEffectiveOpenState = isOpenNow;
+    };
+
+    // Verifica a cada 20 segundos se o relógio bateu o horário de fechar ou abrir
+    if (!window.autoScheduleInterval) {
+        window.autoScheduleInterval = setInterval(() => {
+            window.refreshHeaderStatusUI(true);
+            window.updateSchedulePreviewUI();
+        }, 20000);
+    }
 
     window.showToast = function(msg) {
         const t = document.getElementById('toast');
@@ -490,17 +692,7 @@
                 return;
             }
 
-            const cliSnap = await getDoc(doc(db, "clientes", email));
             const lojaSnap = await getDoc(doc(db, "lojas", user.uid));
-
-            if (cliSnap.exists() && !lojaSnap.exists()) {
-                await signOut(auth);
-                document.getElementById('auth-screen').style.display = 'flex';
-                const err = document.getElementById('login-err');
-                err.innerText = "⚠️ Acesso negado: Este e-mail pertence a uma conta de Cliente! Use uma conta de Lojista.";
-                err.style.display = 'block';
-                return;
-            }
 
             if (lojaSnap.exists() && !lojaSnap.data().isSystemConfig) {
                 window.currentStore = { id: user.uid, ...lojaSnap.data() };
@@ -509,6 +701,11 @@
             } else {
                 await signOut(auth);
                 document.getElementById('auth-screen').style.display = 'flex';
+                const err = document.getElementById('login-err');
+                if (err) {
+                    err.innerText = "⚠️ Esta conta não está cadastrada como Loja Parceira.";
+                    err.style.display = 'block';
+                }
             }
         } else {
             window.clearStoreListeners();
@@ -529,11 +726,10 @@
         btn.disabled = true; btn.innerText = "Entrando...";
         try {
             const cred = await signInWithEmailAndPassword(auth, email, pass);
-            const cliSnap = await getDoc(doc(db, "clientes", email));
             const lojaSnap = await getDoc(doc(db, "lojas", cred.user.uid));
-            if (cliSnap.exists() && !lojaSnap.exists()) {
+            if (!lojaSnap.exists() || lojaSnap.data().isSystemConfig) {
                 await signOut(auth);
-                err.innerText = "⚠️ Acesso negado: Este e-mail pertence a uma conta de Cliente!";
+                err.innerText = "⚠️ Acesso negado: Este e-mail não pertence a uma Loja!";
                 err.style.display = 'block';
             }
         } catch(e) {
@@ -608,16 +804,26 @@
                 document.getElementById('header-store-name').innerText = window.currentStore.nome_loja || 'Minha Loja';
                 if (window.currentStore.logo_loja) document.getElementById('header-logo').src = window.currentStore.logo_loja;
 
-                const isOpen = !(window.currentStore.aberto === false || String(window.currentStore.aberto).toLowerCase() === 'false');
-                const btnSt = document.getElementById('btn-store-status');
-                btnSt.className = `store-status-btn ${isOpen ? 'open' : 'closed'}`;
-                btnSt.innerText = isOpen ? '🟢 Aberta' : '🔴 Fechada';
-
                 document.getElementById('cfg-nome').value = window.currentStore.nome_loja || '';
                 document.getElementById('cfg-logo').value = window.currentStore.logo_loja || '';
                 document.getElementById('cfg-wpp').value = window.currentStore.whatsapp || '';
                 document.getElementById('cfg-pix').value = window.currentStore.pix || '';
                 document.getElementById('cfg-cupons').value = window.currentStore.cupons || '';
+
+                const autoCheck = document.getElementById('cfg-auto-horario');
+                if (autoCheck) autoCheck.checked = Boolean(window.currentStore.horarioAutoAtivo);
+                if (document.getElementById('cfg-hora-abre')) {
+                    document.getElementById('cfg-hora-abre').value = window.currentStore.horarioAbre || '18:00';
+                }
+                if (document.getElementById('cfg-hora-fecha')) {
+                    document.getElementById('cfg-hora-fecha').value = window.currentStore.horarioFecha || '23:30';
+                }
+                window.selectedScheduleDays = Array.isArray(window.currentStore.diasFuncionamento)
+                    ? window.currentStore.diasFuncionamento.map(Number)
+                    : [0, 1, 2, 3, 4, 5, 6];
+                window.renderScheduleDaysChips();
+                window.updateSchedulePreviewUI();
+                window.refreshHeaderStatusUI(false);
 
                 window.updateSupportButtonsUI();
                 if (window.isSupportAdminModalOpen) {
@@ -863,21 +1069,58 @@
 
     window.toggleStoreOpen = async function() {
         if (!window.currentStore) return;
-        const currentlyOpen = !(window.currentStore.aberto === false || String(window.currentStore.aberto).toLowerCase() === 'false');
-        await setDoc(doc(db, "lojas", window.currentStore.id), { aberto: !currentlyOpen }, { merge: true });
-        window.showToast(!currentlyOpen ? "🟢 Loja aberta para pedidos!" : "🔴 Loja fechada!");
+        const effectivelyOpen = window.isStoreOpenBySchedule(window.currentStore);
+        const manualOpen = !(window.currentStore.aberto === false || String(window.currentStore.aberto).toLowerCase() === 'false');
+        const autoOn = Boolean(window.currentStore.horarioAutoAtivo);
+
+        if (effectivelyOpen) {
+            await setDoc(doc(db, "lojas", window.currentStore.id), { aberto: false }, { merge: true });
+            window.showToast("🔴 Loja fechada manualmente!");
+        } else {
+            if (autoOn && manualOpen) {
+                // Estava fechada pelo horário automático e o lojista quis abrir fora do horário
+                await setDoc(doc(db, "lojas", window.currentStore.id), {
+                    aberto: true,
+                    horarioAutoAtivo: false
+                }, { merge: true });
+                window.showToast("🟢 Loja aberta manualmente! (Horário automático desativado)");
+            } else {
+                await setDoc(doc(db, "lojas", window.currentStore.id), { aberto: true }, { merge: true });
+                const willBeOpen = window.isStoreOpenBySchedule({ ...window.currentStore, aberto: true });
+                if (willBeOpen) {
+                    window.showToast("🟢 Loja aberta para pedidos!");
+                } else {
+                    window.showToast(`⏰ Modo automático reativado! Abrirá às ${window.currentStore.horarioAbre || '18:00'}.`);
+                }
+            }
+        }
     };
 
     window.saveStoreSettings = async function() {
         if (!window.currentStore) return;
-        await setDoc(doc(db, "lojas", window.currentStore.id), {
+        const autoHorario = Boolean(document.getElementById('cfg-auto-horario')?.checked);
+        const horaAbre = (document.getElementById('cfg-hora-abre')?.value || '18:00').trim();
+        const horaFecha = (document.getElementById('cfg-hora-fecha')?.value || '23:30').trim();
+
+        const payload = {
             nome_loja: document.getElementById('cfg-nome').value.trim(),
             logo_loja: document.getElementById('cfg-logo').value.trim(),
             whatsapp: document.getElementById('cfg-wpp').value.trim(),
             pix: document.getElementById('cfg-pix').value.trim(),
-            cupons: document.getElementById('cfg-cupons').value.trim()
-        }, { merge: true });
-        window.showToast("✅ Configurações salvas!");
+            cupons: document.getElementById('cfg-cupons').value.trim(),
+            horarioAutoAtivo: autoHorario,
+            horarioAbre: horaAbre,
+            horarioFecha: horaFecha,
+            diasFuncionamento: window.selectedScheduleDays
+        };
+
+        // Ao ativar o horário automático, garante que a chave geral esteja habilitada para seguir o relógio
+        if (autoHorario) {
+            payload.aberto = true;
+        }
+
+        await setDoc(doc(db, "lojas", window.currentStore.id), payload, { merge: true });
+        window.showToast("✅ Configurações e horário salvos!");
     };
 
     window.moveOrder = async function(id, nextSt) {
