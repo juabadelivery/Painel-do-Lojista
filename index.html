@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Painel Gestor | JuabaDelivery</title>
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/16705/16705177.png">
+    <title>Painel Gestor | SeuDelivery</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/16206/16206813.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -216,12 +216,22 @@
         <h2 style="font-weight:900; font-size:1.4rem; margin-bottom:4px;">Painel do Lojista</h2>
         <p style="color:#71717a; font-size:0.84rem; margin-bottom:18px; font-weight:600;">Gerencie seus pedidos, cardápio e entregas em tempo real</p>
 
+        <div id="reg-owner-name-box" style="display:none; gap:8px; flex-wrap:wrap;">
+            <div class="input-group" style="flex:1; min-width:130px;">
+                <label>Seu Nome *</label>
+                <input type="text" id="auth-owner-first-name" placeholder="Ex: João">
+            </div>
+            <div class="input-group" style="flex:1; min-width:130px;">
+                <label>Sobrenome *</label>
+                <input type="text" id="auth-owner-last-name" placeholder="Ex: Silva">
+            </div>
+        </div>
         <div class="input-group" id="reg-store-name-box" style="display:none;">
             <label>Nome do seu Restaurante / Loja *</label>
             <input type="text" id="auth-store-name" placeholder="Ex: Burger House">
         </div>
         <div class="input-group" id="reg-store-wpp-box" style="display:none;">
-            <label>WhatsApp da Loja (com DDD)</label>
+            <label>WhatsApp da Loja (com DDD) *</label>
             <input type="text" id="auth-store-wpp" placeholder="Ex: 91988887777">
         </div>
         <div class="input-group">
@@ -238,8 +248,51 @@
             </button>
         </div>
         <button class="btn-main" id="auth-submit-btn" onclick="submitStoreAuth()">Entrar no Painel</button>
+
+        <div style="display:flex; align-items:center; gap:10px; margin:14px 0;">
+            <div style="flex:1; height:1px; background:var(--border);"></div>
+            <span style="font-size:0.72rem; font-weight:800; color:#a1a1aa; text-transform:uppercase;">ou</span>
+            <div style="flex:1; height:1px; background:var(--border);"></div>
+        </div>
+
+        <button type="button" onclick="loginStoreWithGoogle()" style="width:100%; background:#fff; color:#18181b; border:1px solid #d4d4d8; padding:12px; border-radius:12px; font-weight:800; font-size:0.88rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 2px 6px rgba(0,0,0,0.04);">
+            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            <span>Entrar com Conta Google</span>
+        </button>
+
         <button type="button" onclick="toggleStoreAuthMode()" id="auth-toggle-btn" style="background:none; border:none; color:var(--primary); font-weight:800; margin-top:14px; cursor:pointer; font-size:0.84rem;">
             Quero cadastrar minha loja no aplicativo
+        </button>
+    </div>
+</div>
+
+<!-- MODAL PARA COMPLETAR CADASTRO DO LOJISTA APÓS ENTRAR COM GOOGLE -->
+<div class="modal-overlay" id="modal-store-complete-google" style="z-index:6500;">
+    <div class="modal-box" style="text-align:center; max-width:420px;">
+        <div style="font-size:2.3rem; margin-bottom:6px;">🏪</div>
+        <h3 style="font-weight:900; font-size:1.2rem; margin-bottom:4px;">Complete os Dados da Loja</h3>
+        <p style="color:#71717a; font-size:0.82rem; font-weight:600; margin-bottom:14px;">Informe seu nome, o nome do seu estabelecimento e o WhatsApp para atendimento:</p>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <div class="input-group" style="flex:1; min-width:130px;">
+                <label>Seu Nome *</label>
+                <input type="text" id="google-store-first-name" placeholder="Ex: João">
+            </div>
+            <div class="input-group" style="flex:1; min-width:130px;">
+                <label>Sobrenome *</label>
+                <input type="text" id="google-store-last-name" placeholder="Ex: Silva">
+            </div>
+        </div>
+        <div class="input-group">
+            <label>Nome do Restaurante / Loja *</label>
+            <input type="text" id="google-store-name" placeholder="Ex: Burger House">
+        </div>
+        <div class="input-group">
+            <label>WhatsApp da Loja (com DDD) *</label>
+            <input type="tel" id="google-store-wpp" placeholder="Ex: 91988887777" onkeypress="if(event.key==='Enter') saveGoogleStoreCompleteProfile()">
+        </div>
+        <button type="button" class="btn-main" onclick="saveGoogleStoreCompleteProfile()" style="background:var(--success); margin-top:6px;">
+            ✅ Salvar e Abrir Meu Painel
         </button>
     </div>
 </div>
@@ -628,8 +681,8 @@
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://script.google.com/macros/s/AKfycbzQE1PZ3ssBG8JJM-5xoXn37_w_uYoWIg6w3iyMEyg6ARPSwSEHwHz86_RZEiUOI6qayQ/exec";
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, collection, doc, getDoc, setDoc, addDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = { 
@@ -676,6 +729,7 @@
     // Autenticação do Lojista
     window.toggleStoreAuthMode = function() {
         window.isStoreRegMode = !window.isStoreRegMode;
+        document.getElementById('reg-owner-name-box').style.display = window.isStoreRegMode ? 'flex' : 'none';
         document.getElementById('reg-store-name-box').style.display = window.isStoreRegMode ? 'block' : 'none';
         document.getElementById('reg-store-wpp-box').style.display = window.isStoreRegMode ? 'block' : 'none';
         const forgotBox = document.getElementById('store-forgot-pass-box');
@@ -744,18 +798,27 @@
         }
         if (!window.pendingStoreReg) return;
 
-        const { email, pass, nomeLoja, wpp } = window.pendingStoreReg;
+        const { email, pass, nomeLoja, wpp, primeiroNome, sobrenome, nomeProprietario } = window.pendingStoreReg;
         const btn = document.getElementById('btn-store-confirm-pin');
         btn.disabled = true;
         btn.innerText = "Cadastrando Loja...";
 
         try {
             const cred = await createUserWithEmailAndPassword(auth, email, pass);
+            const cliCheck = await getDoc(doc(db, "clientes", cred.user.uid));
+            if (cliCheck.exists()) {
+                await signOut(auth);
+                window.showToast("⚠️ Este e-mail já pertence a um Cliente! Use outro e-mail para sua loja.");
+                return;
+            }
             const nowMs = Date.now();
             const expMs = nowMs + (30 * 24 * 60 * 60 * 1000);
             const dataHoje = new Date(nowMs).toLocaleDateString('pt-BR');
             await setDoc(doc(db, "lojas", cred.user.uid), {
                 nome_loja: nomeLoja,
+                proprietario_nome: nomeProprietario || '',
+                primeiroNome: primeiroNome || '',
+                sobrenome: sobrenome || '',
                 email_loja: email,
                 whatsapp: wpp,
                 logo_loja: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150",
@@ -768,7 +831,8 @@
                 expiraEmMs: expMs,
                 contaExpirada: false,
                 diaVencimento: new Date(expMs).getDate(),
-                valorMensalidade: 50.00
+                valorMensalidade: 50.00,
+                perfilConfirmado: true
             }, { merge: true });
             window.pendingStoreReg = null;
             window.generatedStorePin = null;
@@ -807,12 +871,17 @@
         try {
             window.hasShownExpiredModalThisSession = false;
             if (window.isStoreRegMode) {
+                const primeiroNome = document.getElementById('auth-owner-first-name').value.trim();
+                const sobrenome = document.getElementById('auth-owner-last-name').value.trim();
                 const nomeLoja = document.getElementById('auth-store-name').value.trim();
                 const wpp = document.getElementById('auth-store-wpp').value.trim();
-                if (!nomeLoja) { window.showToast("Informe o nome da loja!"); return; }
+                if (!primeiroNome || !sobrenome) { window.showToast("⚠️ Informe seu Nome e Sobrenome!"); return; }
+                if (!nomeLoja) { window.showToast("⚠️ Informe o nome da loja!"); return; }
+                if (!wpp || wpp.replace(/\D/g, '').length < 8) { window.showToast("⚠️ Informe o WhatsApp da loja com DDD!"); return; }
                 if (pass.length < 6) { window.showToast("A senha deve ter pelo menos 6 caracteres!"); return; }
 
-                window.pendingStoreReg = { email, pass, nomeLoja, wpp };
+                const nomeProprietario = `${primeiroNome} ${sobrenome}`.trim();
+                window.pendingStoreReg = { email, pass, nomeLoja, wpp, primeiroNome, sobrenome, nomeProprietario };
                 window.generatedStorePin = String(Math.floor(1000 + Math.random() * 9000));
                 document.getElementById('store-pin-target-email').innerText = email;
                 document.getElementById('store-pin-code-input').value = '';
@@ -821,12 +890,126 @@
 
                 await window.sendStorePinViaGoogleSheets(email, nomeLoja, window.generatedStorePin);
             } else {
-                await signInWithEmailAndPassword(auth, email, pass);
+                window.isExplicitEmailLogin = true;
+                const cred = await signInWithEmailAndPassword(auth, email, pass);
+                const cliSnap = await getDoc(doc(db, "clientes", cred.user.uid));
+                if (cliSnap.exists()) {
+                    await signOut(auth);
+                    window.showToast("👤 Esta conta pertence a um Cliente! Use o App do Cliente.");
+                    return;
+                }
+                const lojaSnap = await getDoc(doc(db, "lojas", cred.user.uid));
+                if (!lojaSnap.exists()) {
+                    await signOut(auth);
+                    window.showToast("⚠️ Nenhuma loja encontrada para este login! Cadastre sua loja primeiro.");
+                    return;
+                }
                 window.showToast("👋 Bem-vindo ao seu Painel!");
             }
         } catch (err) {
             window.showToast("⚠️ Verifique seu e-mail e senha.");
         }
+    };
+
+    window.loginStoreWithGoogle = async function() {
+        try {
+            window.hasShownExpiredModalThisSession = false;
+            window.isGoogleStoreLoginInProgress = true;
+            const provider = new GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+            const cred = await signInWithPopup(auth, provider);
+            const user = cred.user;
+            if (!user) return;
+
+            // Bloqueia se o e-mail já for de uma conta de Cliente
+            const cliSnap = await getDoc(doc(db, "clientes", user.uid));
+            if (cliSnap.exists()) {
+                window.isGoogleStoreLoginInProgress = false;
+                await signOut(auth);
+                window.showToast("👤 Esta conta Google já está cadastrada como Cliente! Use outra conta para sua loja.");
+                return;
+            }
+
+            const lojaSnap = await getDoc(doc(db, "lojas", user.uid));
+            if (lojaSnap.exists()) {
+                const d = lojaSnap.data() || {};
+                if (d.nome_loja && d.whatsapp && d.primeiroNome && d.sobrenome) {
+                    window.isGoogleStoreLoginInProgress = false;
+                    document.getElementById('auth-screen').style.display = 'none';
+                    window.showToast(`👋 Bem-vindo(a), ${d.nome_loja}!`);
+                    return;
+                }
+            }
+
+            // Abre o modal para preencher Nome, Sobrenome, Nome da Loja e WhatsApp
+            const displayParts = String(user.displayName || '').trim().split(/\s+/);
+            const existingData = lojaSnap.exists() ? (lojaSnap.data() || {}) : {};
+            document.getElementById('google-store-first-name').value = existingData.primeiroNome || displayParts[0] || '';
+            document.getElementById('google-store-last-name').value = existingData.sobrenome || displayParts.slice(1).join(' ') || '';
+            document.getElementById('google-store-name').value = existingData.nome_loja || '';
+            document.getElementById('google-store-wpp').value = existingData.whatsapp || '';
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('modal-store-complete-google').style.display = 'flex';
+        } catch (err) {
+            window.isGoogleStoreLoginInProgress = false;
+            console.error("Erro Login Google Lojista:", err);
+            window.showToast("⚠️ Não foi possível entrar com o Google.");
+        }
+    };
+
+    window.saveGoogleStoreCompleteProfile = async function() {
+        const user = auth.currentUser;
+        if (!user) return;
+        const primeiroNome = document.getElementById('google-store-first-name').value.trim();
+        const sobrenome = document.getElementById('google-store-last-name').value.trim();
+        const nomeLoja = document.getElementById('google-store-name').value.trim();
+        const wpp = document.getElementById('google-store-wpp').value.trim();
+
+        if (!primeiroNome) { window.showToast("⚠️ Digite seu Nome!"); document.getElementById('google-store-first-name').focus(); return; }
+        if (!sobrenome) { window.showToast("⚠️ Digite seu Sobrenome!"); document.getElementById('google-store-last-name').focus(); return; }
+        if (!nomeLoja) { window.showToast("⚠️ Informe o Nome do seu Restaurante / Loja!"); document.getElementById('google-store-name').focus(); return; }
+        if (!wpp || wpp.replace(/\D/g, '').length < 8) { window.showToast("⚠️ Informe o WhatsApp da Loja com DDD!"); document.getElementById('google-store-wpp').focus(); return; }
+
+        const nomeProprietario = `${primeiroNome} ${sobrenome}`.trim();
+        try {
+            await updateProfile(user, { displayName: nomeProprietario });
+        } catch (e) {}
+
+        const lojaRef = doc(db, "lojas", user.uid);
+        const snap = await getDoc(lojaRef);
+        const nowMs = Date.now();
+        const expMs = nowMs + (30 * 24 * 60 * 60 * 1000);
+        const dataHoje = new Date(nowMs).toLocaleDateString('pt-BR');
+
+        const basePayload = snap.exists() ? {} : {
+            logo_loja: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150",
+            nota: "5.0",
+            aberto: true,
+            bloqueada: false,
+            cobrancaAtiva: true,
+            dataCadastro: dataHoje,
+            criadoEmMs: nowMs,
+            expiraEmMs: expMs,
+            contaExpirada: false,
+            diaVencimento: new Date(expMs).getDate(),
+            valorMensalidade: 50.00
+        };
+
+        await setDoc(lojaRef, {
+            ...basePayload,
+            nome_loja: nomeLoja,
+            proprietario_nome: nomeProprietario,
+            primeiroNome,
+            sobrenome,
+            email_loja: user.email || '',
+            whatsapp: wpp,
+            perfilConfirmado: true
+        }, { merge: true });
+
+        window.isGoogleStoreLoginInProgress = false;
+        document.getElementById('modal-store-complete-google').style.display = 'none';
+        document.getElementById('auth-screen').style.display = 'none';
+        window.showToast(`🎉 Loja "${nomeLoja}" configurada com sucesso!`);
     };
 
     window.logoutStore = async function() {
@@ -1673,6 +1856,36 @@
             document.getElementById('auth-screen').style.display = 'flex';
             return;
         }
+
+        // Impede que uma conta cadastrada como Cliente entre no Painel do Lojista
+        try {
+            const cliSnap = await getDoc(doc(db, "clientes", user.uid));
+            if (cliSnap.exists()) {
+                await signOut(auth);
+                document.getElementById('auth-screen').style.display = 'flex';
+                window.showToast("👤 Conta de Cliente detectada! Acesse pelo App do Cliente.");
+                return;
+            }
+
+            const lojaSnap = await getDoc(doc(db, "lojas", user.uid));
+            if (!lojaSnap.exists()) {
+                // Se entrou via Google pela primeira vez, abre o modal para completar os dados da loja
+                const isGoogleUser = (user.providerData || []).some(p => p.providerId === 'google.com');
+                if (isGoogleUser || window.isGoogleStoreLoginInProgress) {
+                    const displayParts = String(user.displayName || '').trim().split(/\s+/);
+                    document.getElementById('google-store-first-name').value = displayParts[0] || '';
+                    document.getElementById('google-store-last-name').value = displayParts.slice(1).join(' ') || '';
+                    document.getElementById('auth-screen').style.display = 'none';
+                    document.getElementById('modal-store-complete-google').style.display = 'flex';
+                } else {
+                    await signOut(auth);
+                    document.getElementById('auth-screen').style.display = 'flex';
+                    window.showToast("⚠️ Conta não encontrada como Lojista. Cadastre sua loja primeiro!");
+                    return;
+                }
+            }
+        } catch (e) {}
+
         document.getElementById('auth-screen').style.display = 'none';
 
         onSnapshot(collection(db, "lojas"), (snap) => {
