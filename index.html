@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Painel Gestor | JuabaDelivery</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/16705/16705177.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ea1d2c;
+            --primary-dark: #c81421;
+            --primary-light: #fff1f2;
+            --success: #16a34a;
+            --warning: #f59e0b;
+            --dark: #18181b;
+            --bg: #f4f4f5;
+            --white: #ffffff;
+            --border: #e4e4e7;
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--dark); font-size: 14px; padding-bottom: calc(90px + var(--safe-bottom)); overflow-x: hidden; }
+
+        /* Tela de Login / Cadastro do Lojista */
+        #auth-screen {
+            position: fixed; inset: 0; background: linear-gradient(135deg, #18181b 0%, #27272a 100%);
+            z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 18px;
+        }
+        .auth-box {
+            background: var(--white); width: 100%; max-width: 400px; border-radius: 24px;
+            padding: 28px 22px; box-shadow: 0 25px 50px rgba(0,0,0,0.45); text-align: center;
+        }
+
+        /* Cabeçalho Principal do Lojista */
+        header {
+            background: var(--white); padding: 12px 14px; position: sticky; top: 0; z-index: 200;
+            display: flex; justify-content: space-between; align-items: center; gap: 8px;
+            border-bottom: 1px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+        .store-header-left { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+        .store-header-left img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); flex-shrink: 0; }
+        .store-header-title { font-weight: 900; font-size: 0.98rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .header-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .btn-pill {
+            border: none; padding: 8px 12px; border-radius: 999px; font-weight: 900;
+            font-size: 0.76rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+        }
+
+        /* Barra do Temporizador de Assinatura no Topo */
+        .sub-timer-bar {
+            background: #18181b; color: #fff; padding: 8px 14px; font-size: 0.76rem; font-weight: 800;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+            border-bottom: 1px solid #27272a;
+        }
+        .sub-timer-bar.expiring-soon { background: #92400e; color: #fef3c7; }
+        .sub-timer-bar.expired { background: #991b1b; color: #fee2e2; }
+        .timer-countdown-badge {
+            background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 8px;
+            font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: 0.3px;
+        }
+
+        /* Aviso Fixo no Canto da Tela quando a Conta está Expirada */
+        .expired-corner-badge {
+            position: fixed; bottom: calc(70px + var(--safe-bottom)); right: 14px; left: 14px;
+            max-width: 440px; margin-left: auto; background: #dc2626; color: #fff;
+            padding: 12px 16px; border-radius: 16px; z-index: 1200;
+            display: none; align-items: center; justify-content: space-between; gap: 10px;
+            box-shadow: 0 12px 28px rgba(220, 38, 38, 0.45); border: 2px solid #fecaca;
+            animation: pulseExpired 2s infinite; cursor: pointer;
+        }
+        @keyframes pulseExpired {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        /* Abas de Navegação */
+        .view-section { display: none; max-width: 1100px; margin: 14px auto; padding: 0 12px; }
+        .view-section.active { display: block; }
+
+        /* Abas Rápidas do Kanban no Mobile */
+        .kanban-mobile-tabs {
+            display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px;
+            scrollbar-width: none;
+        }
+        .kanban-mobile-tabs::-webkit-scrollbar { display: none; }
+        .km-tab {
+            padding: 8px 13px; border-radius: 999px; border: 1px solid var(--border);
+            background: var(--white); color: #3f3f46; font-weight: 900; font-size: 0.76rem;
+            white-space: nowrap; cursor: pointer;
+        }
+        .km-tab.active { background: var(--dark); color: #fff; border-color: var(--dark); }
+
+        /* Colunas e Cards Compactos de Pedidos */
+        .kanban-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-items: start; }
+        .kanban-col {
+            background: #e4e4e7; border-radius: 16px; padding: 10px; min-height: 120px;
+        }
+        .col-header {
+            padding: 9px 12px; border-radius: 10px; font-weight: 900; font-size: 0.8rem;
+            color: #fff; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
+        }
+        .order-compact-card {
+            background: var(--white); border-radius: 13px; padding: 10px 12px; margin-bottom: 8px;
+            border: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .order-compact-top {
+            display: flex; justify-content: space-between; align-items: center; gap: 8px;
+        }
+        .order-client-name {
+            font-weight: 900; font-size: 0.92rem; color: #111; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis; flex: 1;
+        }
+        .order-compact-actions {
+            display: flex; align-items: center; gap: 6px;
+        }
+        .btn-advance {
+            flex: 1; border: none; padding: 8px 10px; border-radius: 9px; font-weight: 900;
+            font-size: 0.78rem; color: #fff; cursor: pointer; text-align: center;
+        }
+        .btn-icon-sq {
+            border: 1px solid var(--border); background: #f4f4f5; height: 33px; padding: 0 10px;
+            border-radius: 9px; font-weight: 900; font-size: 0.8rem; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+        }
+
+        /* Painéis Gerais (Produtos, Vendas, Ajustes) */
+        .card-panel {
+            background: var(--white); border-radius: 18px; padding: 18px; border: 1px solid var(--border);
+            margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .input-group { margin-bottom: 12px; text-align: left; }
+        .input-group label { display: block; font-size: 0.75rem; font-weight: 800; color: #52525b; margin-bottom: 5px; text-transform: uppercase; }
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%; padding: 11px 13px; border: 1px solid #d4d4d8; border-radius: 11px;
+            font-size: 0.9rem; font-weight: 600; outline: none; background: #fff;
+        }
+        .btn-main {
+            width: 100%; background: var(--primary); color: #fff; border: none; padding: 13px;
+            border-radius: 12px; font-weight: 900; font-size: 0.95rem; cursor: pointer;
+        }
+
+        /* Opções de Dias de Funcionamento */
+        .days-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0 12px; }
+        .day-Check {
+            flex: 1; min-width: 44px; text-align: center; padding: 8px 4px; border-radius: 10px;
+            border: 1px solid var(--border); background: #f8fafc; font-weight: 800; font-size: 0.75rem; cursor: pointer;
+        }
+        .day-Check.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+        /* Grupos de Adicionais no Modal de Produto */
+        .addon-group-card {
+            background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px;
+        }
+        .btn-add-group {
+            width: 100%; background: #ecfdf5; color: #059669; border: 1px dashed #34d399;
+            padding: 11px; border-radius: 11px; font-weight: 900; cursor: pointer; margin-bottom: 14px;
+        }
+
+        /* Menu Inferior Fixo */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: calc(60px + var(--safe-bottom));
+            background: var(--white); border-top: 1px solid var(--border);
+            display: flex; justify-content: space-around; align-items: center;
+            padding-bottom: var(--safe-bottom); z-index: 900;
+        }
+        .b-tab {
+            background: none; border: none; color: #71717a; font-weight: 800; font-size: 0.72rem;
+            display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; flex: 1;
+        }
+        .b-tab.active { color: var(--primary); }
+
+        /* Modais */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 3000;
+            display: none; align-items: center; justify-content: center; padding: 14px;
+        }
+        .modal-box {
+            background: var(--white); width: 100%; max-width: 500px; border-radius: 22px;
+            padding: 20px; max-height: 90vh; overflow-y: auto; position: relative;
+        }
+
+        .chat-box {
+            height: 300px; overflow-y: auto; background: #f1f5f9; border-radius: 14px;
+            padding: 12px; display: flex; flex-direction: column; gap: 8px; margin: 12px 0;
+            border: 1px solid var(--border);
+        }
+        .c-bubble { max-width: 82%; padding: 9px 12px; border-radius: 13px; font-size: 0.85rem; line-height: 1.35; word-wrap: break-word; }
+        .c-bubble.me { align-self: flex-end; background: var(--dark); color: #fff; border-bottom-right-radius: 3px; }
+        .c-bubble.them { align-self: flex-start; background: #fff; color: #111; border: 1px solid var(--border); border-bottom-left-radius: 3px; }
+
+        .toast {
+            position: fixed; top: 18px; left: 50%; transform: translateX(-50%) translateY(-150%);
+            background: #18181b; color: #fff; padding: 12px 22px; border-radius: 999px;
+            font-weight: 800; font-size: 0.84rem; z-index: 9999; transition: 0.3s;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+
+        @media (max-width: 768px) {
+            .kanban-board { grid-template-columns: 1fr; gap: 10px; }
+            .kanban-col { min-height: auto; }
+            .kanban-col.hidden-mobile { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="toast" id="toast">Aviso</div>
+
+<!-- TELA DE LOGIN / CADASTRO DO LOJISTA -->
+<div id="auth-screen">
+    <div class="auth-box">
+        <div style="font-size:2.4rem; margin-bottom:6px;">🏪</div>
+        <h2 style="font-weight:900; font-size:1.4rem; margin-bottom:4px;">Painel do Lojista</h2>
+        <p style="color:#71717a; font-size:0.84rem; margin-bottom:18px; font-weight:600;">Gerencie seus pedidos, cardápio e entregas em tempo real</p>
+
+        <div class="input-group" id="reg-store-name-box" style="display:none;">
+            <label>Nome do seu Restaurante / Loja *</label>
+            <input type="text" id="auth-store-name" placeholder="Ex: Burger House">
+        </div>
+        <div class="input-group" id="reg-store-wpp-box" style="display:none;">
+            <label>WhatsApp da Loja (com DDD)</label>
+            <input type="text" id="auth-store-wpp" placeholder="Ex: 91988887777">
+        </div>
+        <div class="input-group">
+            <label>E-mail do Lojista</label>
+            <input type="email" id="auth-email" placeholder="loja@email.com">
+        </div>
+        <div class="input-group">
+            <label>Senha</label>
+            <input type="password" id="auth-pass" placeholder="Sua senha...">
+        </div>
+        <div id="store-forgot-pass-box" style="text-align:right; margin-top:-6px; margin-bottom:12px;">
+            <button type="button" onclick="openStoreForgotModal()" style="background:none; border:none; color:#71717a; font-weight:800; font-size:0.78rem; cursor:pointer; text-decoration:underline;">
+                Esqueci minha senha
+            </button>
+        </div>
+        <button class="btn-main" id="auth-submit-btn" onclick="submitStoreAuth()">Entrar no Painel</button>
+        <button type="button" onclick="toggleStoreAuthMode()" id="auth-toggle-btn" style="background:none; border:none; color:var(--primary); font-weight:800; margin-top:14px; cursor:pointer; font-size:0.84rem;">
+            Quero cadastrar minha loja no aplicativo
+        </button>
+    </div>
+</div>
+
+<!-- MODAL DE VERIFICAÇÃO DE PIN DE 4 DÍGITOS NO CADASTRO DO LOJISTA -->
+<div class="modal-overlay" id="modal-store-verify-pin" style="z-index:6000;">
+    <div class="modal-box" style="text-align:center; max-width:400px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:0.74rem; font-weight:900; color:var(--primary); text-transform:uppercase;">Verificação do Lojista</span>
+            <button type="button" onclick="document.getElementById('modal-store-verify-pin').style.display='none'" style="background:none; border:none; font-size:1.3rem; cursor:pointer;">✕</button>
+        </div>
+        <div style="font-size:2.3rem; margin-bottom:6px;">📩</div>
+        <h3 style="font-weight:900; font-size:1.2rem; margin-bottom:6px;">Verifique o E-mail da Loja</h3>
+        <p style="color:#52525b; font-size:0.84rem; font-weight:600; margin-bottom:14px; line-height:1.4;">
+            Enviamos um PIN de <b>4 dígitos</b> para:<br>
+            <b id="store-pin-target-email" style="color:var(--primary);">loja@email.com</b>
+        </p>
+        <div class="input-group" style="text-align:center;">
+            <label style="text-align:center;">Digite o PIN de 4 dígitos</label>
+            <input type="text" id="store-pin-code-input" maxlength="4" inputmode="numeric" placeholder="0000" style="text-align:center; font-size:1.6rem; font-weight:900; letter-spacing:10px; padding:12px;" onkeypress="if(event.key==='Enter') confirmStoreEmailPin()">
+        </div>
+
+        <div id="store-pin-script-box" style="display:none; background:#fffbeb; border:1px dashed #f59e0b; padding:10px; border-radius:12px; margin-bottom:12px; text-align:left; font-size:0.75rem; color:#92400e;">
+            <div style="font-weight:900; margin-bottom:4px;">⚙️ URL do Google Sheets (Apps Script):</div>
+            <div style="display:flex; gap:6px;">
+                <input type="text" id="store-gsheet-url-input" placeholder="https://script.google.com/macros/s/.../exec" style="flex:1; padding:7px 9px; border:1px solid #fcd34d; border-radius:8px; font-size:0.75rem;">
+                <button type="button" onclick="saveStoreGoogleScriptUrl()" style="background:#d97706; color:#fff; border:none; padding:0 10px; border-radius:8px; font-weight:800; cursor:pointer;">Salvar</button>
+            </div>
+        </div>
+
+        <button type="button" class="btn-main" id="btn-store-confirm-pin" onclick="confirmStoreEmailPin()" style="background:var(--success); margin-bottom:10px;">
+            ✅ Confirmar PIN e Cadastrar Loja
+        </button>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <button type="button" onclick="resendStorePin()" style="background:none; border:none; color:var(--primary); font-weight:800; font-size:0.8rem; cursor:pointer;">🔄 Reenviar PIN</button>
+            <button type="button" onclick="document.getElementById('store-pin-script-box').style.display = document.getElementById('store-pin-script-box').style.display === 'none' ? 'block' : 'none'" style="background:none; border:none; color:#71717a; font-weight:700; font-size:0.75rem; cursor:pointer;">⚙️ Configurar Planilha</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE RECUPERAÇÃO DE SENHA DO LOJISTA -->
+<div class="modal-overlay" id="modal-store-forgot-pass" style="z-index:6000;" onclick="if(event.target===this) this.style.display='none'">
+    <div class="modal-box" style="text-align:center; max-width:400px;">
+        <div style="display:flex; justify-content:flex-end;">
+            <button type="button" onclick="document.getElementById('modal-store-forgot-pass').style.display='none'" style="background:none; border:none; font-size:1.3rem; cursor:pointer;">✕</button>
+        </div>
+        <div style="font-size:2.3rem; margin-bottom:6px;">🔑</div>
+        <h3 style="font-weight:900; font-size:1.2rem; margin-bottom:6px;">Recuperar Senha da Loja</h3>
+        <p style="color:#52525b; font-size:0.84rem; font-weight:600; margin-bottom:14px;">
+            Digite o e-mail da sua loja para receber o link de redefinição de senha:
+        </p>
+        <div class="input-group">
+            <label>E-mail da Loja</label>
+            <input type="email" id="store-forgot-email" placeholder="loja@email.com">
+        </div>
+        <button type="button" class="btn-main" onclick="sendStorePasswordReset()">📩 Enviar Link de Recuperação</button>
+    </div>
+</div>
+
+<!-- CABEÇALHO DO PAINEL -->
+<header>
+    <div class="store-header-left">
+        <img id="hdr-logo" src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150'">
+        <div style="min-width:0;">
+            <div class="store-header-title" id="hdr-name">Carregando...</div>
+            <div id="hdr-sub-mini" style="font-size:0.68rem; font-weight:800; color:#71717a;">Assinatura ativa</div>
+        </div>
+    </div>
+    <div class="header-actions">
+        <button class="btn-pill" id="btn-support-header" onclick="openSupportModal()" style="background:#fef3c7; color:#b45309;">
+            👑 Suporte <span id="sup-unread-badge" style="display:none; background:#dc2626; color:#fff; padding:1px 6px; border-radius:99px; font-size:0.68rem;">1</span>
+        </button>
+        <button class="btn-pill" id="btn-toggle-open" onclick="toggleStoreOpenStatus()" style="background:#dcfce7; color:#15803d;">
+            🟢 Aberta
+        </button>
+        <button class="btn-pill" onclick="logoutStore()" style="background:#f4f4f5; color:#3f3f46;" title="Sair">🚪</button>
+    </div>
+</header>
+
+<!-- BARRA DE TEMPORIZADOR DA ASSINATURA / EXPIRAÇÃO DO PAINEL -->
+<div class="sub-timer-bar" id="sub-timer-bar">
+    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <span id="sub-reg-date-label">📅 Cadastro: --/--/----</span>
+        <span>•</span>
+        <span id="sub-exp-date-label">Vencimento: --/--/----</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+        <span class="timer-countdown-badge" id="sub-live-countdown">⏳ Calculando...</span>
+    </div>
+</div>
+
+<!-- AVISO FIXO NO CANTO DA TELA QUANDO A CONTA ESTÁ EXPIRADA -->
+<div class="expired-corner-badge" id="expired-corner-badge" onclick="openSupportModal()">
+    <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:1.4rem;">🚨</span>
+        <div style="line-height:1.25;">
+            <div style="font-weight:900; font-size:0.86rem;">Conta Expirada • Loja Fechada</div>
+            <div style="font-size:0.74rem; font-weight:700; opacity:0.95;">Sem receber pedidos. Entre em contato com o suporte!</div>
+        </div>
+    </div>
+    <span style="background:#fff; color:#dc2626; padding:6px 10px; border-radius:10px; font-weight:900; font-size:0.74rem; white-space:nowrap;">Falar c/ Suporte</span>
+</div>
+
+<!-- ABA 1: PEDIDOS (KANBAN COMPACTO) -->
+<section id="sec-pedidos" class="view-section active">
+    <div class="kanban-mobile-tabs">
+        <button class="km-tab active" onclick="setMobileKanbanFilter('ALL', this)">📋 Todos</button>
+        <button class="km-tab" id="mtab-novo" onclick="setMobileKanbanFilter('Novo', this)">🔔 Novos (0)</button>
+        <button class="km-tab" id="mtab-prep" onclick="setMobileKanbanFilter('Preparando', this)">🍳 Cozinha (0)</button>
+        <button class="km-tab" id="mtab-ent" onclick="setMobileKanbanFilter('Entrega', this)">🛵 Entrega (0)</button>
+        <button class="km-tab" id="mtab-conc" onclick="setMobileKanbanFilter('Concluido', this)">✅ Concluídos (0)</button>
+    </div>
+
+    <div class="kanban-board">
+        <div class="kanban-col" id="kcol-Novo">
+            <div class="col-header" style="background:#eab308;"><span>🔔 NOVOS</span><span id="count-Novo">0</span></div>
+            <div id="list-Novo"></div>
+        </div>
+        <div class="kanban-col" id="kcol-Preparando">
+            <div class="col-header" style="background:#ea580c;"><span>🍳 NA COZINHA</span><span id="count-Preparando">0</span></div>
+            <div id="list-Preparando"></div>
+        </div>
+        <div class="kanban-col" id="kcol-Entrega">
+            <div class="col-header" style="background:#2563eb;"><span>🛵 EM ENTREGA</span><span id="count-Entrega">0</span></div>
+            <div id="list-Entrega"></div>
+        </div>
+        <div class="kanban-col" id="kcol-Concluido">
+            <div class="col-header" style="background:#16a34a;"><span>✅ CONCLUÍDOS</span><span id="count-Concluido">0</span></div>
+            <div id="list-Concluido"></div>
+        </div>
+    </div>
+</section>
+
+<!-- ABA 2: PRODUTOS -->
+<section id="sec-produtos" class="view-section">
+    <div class="card-panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <h3 style="font-weight:900; font-size:1.1rem;">🍔 Meu Cardápio</h3>
+            <button onclick="openProductModal()" style="background:var(--primary); color:#fff; border:none; padding:10px 14px; border-radius:12px; font-weight:900; font-size:0.82rem; cursor:pointer;">+ Novo Produto</button>
+        </div>
+        <div id="store-products-list"></div>
+    </div>
+</section>
+
+<!-- ABA 3: VENDAS E CUPONS -->
+<section id="sec-vendas" class="view-section">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:14px;">
+        <div class="card-panel" style="margin-bottom:0;">
+            <div style="font-size:0.75rem; font-weight:800; color:#71717a;">FATURAMENTO CONCLUÍDO</div>
+            <div id="sales-total-val" style="font-size:1.5rem; font-weight:900; color:var(--success); margin-top:4px;">R$ 0,00</div>
+        </div>
+        <div class="card-panel" style="margin-bottom:0;">
+            <div style="font-size:0.75rem; font-weight:800; color:#71717a;">PEDIDOS ENTREGUES</div>
+            <div id="sales-done-count" style="font-size:1.5rem; font-weight:900; color:#111; margin-top:4px;">0</div>
+        </div>
+    </div>
+
+    <div class="card-panel">
+        <h3 style="font-weight:900; font-size:1.05rem; margin-bottom:12px;">🎟️ Cupons de Desconto</h3>
+        <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
+            <input type="text" id="cupom-code" placeholder="CÓDIGO (EX: JUA10)" style="flex:1; min-width:130px; padding:10px 12px; border:1px solid #d4d4d8; border-radius:10px; font-weight:800; text-transform:uppercase;">
+            <input type="number" id="cupom-pct" placeholder="% Desconto" style="width:120px; padding:10px 12px; border:1px solid #d4d4d8; border-radius:10px; font-weight:800;">
+            <button onclick="createCoupon()" style="background:#18181b; color:#fff; border:none; padding:10px 16px; border-radius:10px; font-weight:900; cursor:pointer;">Criar</button>
+        </div>
+        <div id="store-coupons-list"></div>
+    </div>
+</section>
+
+<!-- ABA 4: AJUSTES DA LOJA E DETALHES DA ASSINATURA -->
+<section id="sec-ajustes" class="view-section">
+    <!-- Card de Status da Assinatura do Painel -->
+    <div class="card-panel" id="settings-subscription-card" style="background:#f8fafc; border:1px solid #cbd5e1;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div>
+                <h3 style="font-weight:900; font-size:1.02rem; color:#0f172a;">💳 Assinatura do Seu Painel</h3>
+                <p id="settings-sub-details" style="font-size:0.8rem; color:#475569; font-weight:700; margin-top:4px;">Carregando dados da assinatura...</p>
+            </div>
+            <button type="button" onclick="openSupportModal()" style="background:#0f172a; color:#fff; border:none; padding:9px 14px; border-radius:10px; font-weight:800; font-size:0.78rem; cursor:pointer;">
+                👑 Falar com o Suporte
+            </button>
+        </div>
+    </div>
+
+    <div class="card-panel">
+        <h3 style="font-weight:900; font-size:1.1rem; margin-bottom:14px;">⚙️ Configurações da Loja</h3>
+        <div class="input-group"><label>Nome da Loja</label><input type="text" id="cfg-nome"></div>
+        <div class="input-group">
+            <label>Logo da Loja (Escolher da Galeria ou Link)</label>
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="cfg-logo" placeholder="https://... ou escolha ao lado" style="flex:1;">
+                <input type="file" id="cfg-logo-file" accept="image/*" style="display:none;" onchange="handleStoreLogoUpload(this)">
+                <button type="button" onclick="document.getElementById('cfg-logo-file').click()" style="background:#18181b; color:#fff; border:none; padding:0 14px; border-radius:10px; font-weight:800; font-size:0.8rem; cursor:pointer; white-space:nowrap;">📁 Galeria</button>
+            </div>
+        </div>
+        <div class="input-group"><label>WhatsApp da Loja (com DDD)</label><input type="text" id="cfg-wpp" placeholder="Ex: 91999999999"></div>
+        <div class="input-group"><label>Chave PIX (CPF, CNPJ, Celular, E-mail ou Aleatória)</label><input type="text" id="cfg-pix" placeholder="Sua chave PIX para receber na hora"></div>
+
+        <div style="border-top:1px dashed var(--border); margin:16px 0; padding-top:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <div>
+                    <div style="font-weight:900; font-size:0.95rem;">⏰ Horário de Funcionamento Automático</div>
+                    <div style="font-size:0.75rem; color:#71717a; font-weight:600;">Abre e fecha sua loja sozinho nos horários programados</div>
+                </div>
+                <label style="display:flex; align-items:center; gap:6px; font-weight:900; font-size:0.82rem; cursor:pointer;">
+                    <input type="checkbox" id="cfg-auto-sched" style="width:18px; height:18px; accent-color:var(--primary);"> Ativar Auto
+                </label>
+            </div>
+
+            <label style="font-size:0.74rem; font-weight:800; color:#52525b;">DIAS DE FUNCIONAMENTO</label>
+            <div class="days-row" id="cfg-days-row">
+                <div class="day-Check active" data-day="0" onclick="this.classList.toggle('active')">Dom</div>
+                <div class="day-Check active" data-day="1" onclick="this.classList.toggle('active')">Seg</div>
+                <div class="day-Check active" data-day="2" onclick="this.classList.toggle('active')">Ter</div>
+                <div class="day-Check active" data-day="3" onclick="this.classList.toggle('active')">Qua</div>
+                <div class="day-Check active" data-day="4" onclick="this.classList.toggle('active')">Qui</div>
+                <div class="day-Check active" data-day="5" onclick="this.classList.toggle('active')">Sex</div>
+                <div class="day-Check active" data-day="6" onclick="this.classList.toggle('active')">Sáb</div>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <div class="input-group" style="flex:1;"><label>Abre às</label><input type="time" id="cfg-abre" value="18:00"></div>
+                <div class="input-group" style="flex:1;"><label>Fecha às</label><input type="time" id="cfg-fecha" value="23:30"></div>
+            </div>
+        </div>
+
+        <button class="btn-main" onclick="saveStoreSettings()" style="background:var(--success);">💾 Salvar Configurações</button>
+    </div>
+</section>
+
+<!-- MENU INFERIOR -->
+<nav class="bottom-nav">
+    <button class="b-tab active" id="btab-pedidos" onclick="switchPanelTab('pedidos')"><span>📋</span><span>Pedidos</span></button>
+    <button class="b-tab" id="btab-produtos" onclick="switchPanelTab('produtos')"><span>🍔</span><span>Produtos</span></button>
+    <button class="b-tab" id="btab-vendas" onclick="switchPanelTab('vendas')"><span>📈</span><span>Vendas</span></button>
+    <button class="b-tab" id="btab-ajustes" onclick="switchPanelTab('ajustes')"><span>⚙️</span><span>Ajustes</span></button>
+</nav>
+
+<!-- MODAL DE AVISO QUANDO A CONTA / ASSINATURA EXPIRA (O LOJISTA PODE FECHAR NORMALMENTE) -->
+<div class="modal-overlay" id="modal-expired-account" onclick="if(event.target===this) closeExpiredModal()">
+    <div class="modal-box" style="text-align:center; max-width:420px; border:2px solid #dc2626;">
+        <button onclick="closeExpiredModal()" style="position:absolute; top:14px; right:16px; background:#f4f4f5; border:none; width:32px; height:32px; border-radius:50%; font-size:1.1rem; font-weight:900; cursor:pointer;">✕</button>
+        <div style="width:64px; height:64px; border-radius:20px; background:#fee2e2; color:#dc2626; display:inline-flex; align-items:center; justify-content:center; font-size:2.2rem; margin-bottom:12px;">🚨</div>
+        <h3 style="font-weight:900; font-size:1.25rem; color:#991b1b; margin-bottom:8px;">Assinatura do Painel Expirada</h3>
+        <p style="color:#3f3f46; font-size:0.88rem; line-height:1.45; font-weight:600; margin-bottom:14px;">
+            O prazo da assinatura da sua loja expirou. Sua loja foi <b>fechada automaticamente</b> e está temporariamente <b>sem receber novos pedidos</b>.
+        </p>
+        <div style="background:#fef2f2; border:1px dashed #f87171; padding:12px; border-radius:12px; font-size:0.8rem; font-weight:800; color:#991b1b; margin-bottom:16px;">
+            💬 Entre em contato com o suporte para renovar seu acesso e voltar a vender imediatamente!
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+            <button type="button" class="btn-main" onclick="closeExpiredModal(); openSupportModal();" style="background:#dc2626;">
+                👑 Falar com o Suporte Agora
+            </button>
+            <button type="button" onclick="closeExpiredModal()" style="background:#f4f4f5; color:#3f3f46; border:none; padding:11px; border-radius:12px; font-weight:800; font-size:0.84rem; cursor:pointer;">
+                Fechar aviso e ver meu painel
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DA LUPA (🔍): INFORMAÇÕES COMPLETAS DO PEDIDO + BOTÃO IMPRIMIR COMANDA -->
+<div class="modal-overlay" id="modal-order-details" onclick="if(event.target===this) this.style.display='none'">
+    <div class="modal-box" style="max-width:440px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 id="det-order-title" style="font-weight:900; font-size:1.1rem;">🔍 Detalhes do Pedido</h3>
+            <button onclick="document.getElementById('modal-order-details').style.display='none'" style="background:none; border:none; font-size:1.35rem; cursor:pointer;">✕</button>
+        </div>
+        <div id="det-order-body" style="font-size:0.88rem; line-height:1.45; color:#27272a;"></div>
+        <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border);">
+            <button type="button" class="btn-main" id="btn-print-order" style="background:#18181b; display:flex; align-items:center; justify-content:center; gap:8px;">
+                🖨️ Imprimir Comanda
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: CHAT DO PEDIDO COM CLIENTE -->
+<div class="modal-overlay" id="modal-order-chat" onclick="if(event.target===this) closeOrderChat()">
+    <div class="modal-box">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 id="order-chat-title" style="font-weight:900; font-size:1.02rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">💬 Chat com Cliente</h3>
+            <button onclick="closeOrderChat()" style="background:none; border:none; font-size:1.35rem; cursor:pointer; flex-shrink:0;">✕</button>
+        </div>
+        <div class="chat-box" id="order-chat-msgs"></div>
+        <div style="display:flex; gap:8px; width:100%;">
+            <input type="text" id="order-chat-input" placeholder="Digite uma mensagem..." style="flex:1; min-width:0; width:100%; padding:11px 12px; border:1px solid #d4d4d8; border-radius:11px; font-weight:600;" onkeypress="if(event.key==='Enter') sendOrderChatMsg()">
+            <button onclick="sendOrderChatMsg()" style="background:var(--primary); color:#fff; border:none; padding:0 16px; border-radius:11px; font-weight:900; cursor:pointer; flex-shrink:0;">Enviar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: CANCELAR / EXCLUIR PEDIDO PELO LOJISTA COM MOTIVO -->
+<div class="modal-overlay" id="modal-store-cancel-order" onclick="if(event.target===this) closeStoreCancelOrderModal()">
+    <div class="modal-box" style="max-width:420px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 style="font-weight:900; font-size:1.12rem; color:#dc2626;">❌ Cancelar Pedido</h3>
+            <button type="button" onclick="closeStoreCancelOrderModal()" style="background:none; border:none; font-size:1.35rem; cursor:pointer;">✕</button>
+        </div>
+        <p style="color:#52525b; font-size:0.82rem; font-weight:600; margin-bottom:12px; line-height:1.4;">
+            Informe o motivo do cancelamento. O pedido sairá da sua fila e aparecerá como <b>Cancelado</b> para o cliente junto com o motivo:
+        </p>
+        <div class="input-group">
+            <label>Selecione o Motivo *</label>
+            <select id="store-cancel-reason-select" onchange="document.getElementById('store-cancel-custom-group').style.display = this.value === 'OUTRO' ? 'block' : 'none'">
+                <option value="Produto em falta no momento">Produto em falta no momento</option>
+                <option value="Endereço fora da área de entrega">Endereço fora da área de entrega</option>
+                <option value="Pagamento/Comprovante não confirmado">Pagamento/Comprovante não confirmado</option>
+                <option value="Loja encerrando expediente / imprevisto">Loja encerrando expediente / imprevisto</option>
+                <option value="Cancelamento solicitado pelo cliente">Cancelamento solicitado pelo cliente</option>
+                <option value="OUTRO">Outro motivo...</option>
+            </select>
+        </div>
+        <div class="input-group" id="store-cancel-custom-group" style="display:none;">
+            <label>Especifique o motivo</label>
+            <input type="text" id="store-cancel-custom-input" placeholder="Digite o motivo para o cliente...">
+        </div>
+        <div style="display:flex; gap:8px; margin-top:14px;">
+            <button type="button" onclick="closeStoreCancelOrderModal()" style="flex:1; background:#f4f4f5; color:#18181b; border:none; padding:12px; border-radius:11px; font-weight:800; cursor:pointer;">Voltar</button>
+            <button type="button" onclick="confirmStoreCancelOrder()" style="flex:1; background:#dc2626; color:#fff; border:none; padding:12px; border-radius:11px; font-weight:900; cursor:pointer;">Confirmar Cancelamento</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: CHAT DE SUPORTE DIRETO COM O DONO DO APP (SUPER ADMIN) -->
+<div class="modal-overlay" id="modal-support" onclick="if(event.target===this) closeSupportModal()">
+    <div class="modal-box">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <h3 style="font-weight:900; font-size:1.08rem;">👑 Suporte JuabaDelivery</h3>
+                <p style="font-size:0.74rem; color:#71717a; font-weight:700;">Canal direto com a administração do aplicativo</p>
+            </div>
+            <button onclick="closeSupportModal()" style="background:none; border:none; font-size:1.35rem; cursor:pointer;">✕</button>
+        </div>
+        <div class="chat-box" id="support-chat-msgs"></div>
+        <div style="display:flex; gap:8px;">
+            <input type="text" id="support-chat-input" placeholder="Falar com o suporte / renovar assinatura..." style="flex:1; padding:11px 12px; border:1px solid #d4d4d8; border-radius:11px; font-weight:600;" onkeypress="if(event.key==='Enter') sendStoreSupportMsg()">
+            <button onclick="sendStoreSupportMsg()" style="background:#18181b; color:#fff; border:none; padding:0 16px; border-radius:11px; font-weight:900; cursor:pointer;">Enviar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: CADASTRAR / EDITAR PRODUTO -->
+<div class="modal-overlay" id="modal-product" onclick="if(event.target===this) this.style.display='none'">
+    <div class="modal-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <h3 id="modal-prod-title" style="font-weight:900;">Produto</h3>
+            <button onclick="document.getElementById('modal-product').style.display='none'" style="background:none; border:none; font-size:1.3rem; cursor:pointer;">✕</button>
+        </div>
+        <input type="hidden" id="prod-id">
+        <div class="input-group"><label>Nome do Produto *</label><input type="text" id="prod-nome"></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <div class="input-group" style="flex:1; min-width:130px;"><label>Preço Atual (R$) *</label><input type="number" step="0.01" id="prod-preco"></div>
+            <div class="input-group" style="flex:1; min-width:130px;"><label>Preço Original (De / Opcional)</label><input type="number" step="0.01" id="prod-preco-antigo" placeholder="Ex: 25.00"></div>
+        </div>
+        <div class="input-group">
+            <label>Categoria *</label>
+            <div style="display:flex; gap:6px; align-items:center;">
+                <select id="prod-cat" style="flex:1;"></select>
+                <button type="button" onclick="toggleNewCategoryBox()" title="Adicionar nova categoria" style="width:42px; height:42px; border-radius:10px; border:1px solid #d4d4d8; background:#18181b; color:#fff; font-weight:900; font-size:1.25rem; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">+</button>
+            </div>
+            <div id="new-cat-inline-box" style="display:none; margin-top:8px; gap:6px; align-items:center;">
+                <input type="text" id="new-cat-input" placeholder="Nome da nova categoria..." style="flex:1; padding:9px 10px; font-size:0.85rem;" onkeypress="if(event.key==='Enter'){event.preventDefault(); confirmAddCategory();}">
+                <button type="button" onclick="confirmAddCategory()" style="background:var(--success); color:#fff; border:none; padding:9px 12px; border-radius:8px; font-weight:800; font-size:0.8rem; cursor:pointer; white-space:nowrap;">Salvar</button>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Foto do Produto (Escolher da Galeria ou Link)</label>
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="prod-img" placeholder="https://... ou escolha ao lado" style="flex:1;">
+                <input type="file" id="prod-file-input" accept="image/*" style="display:none;" onchange="handleProductImageUpload(this)">
+                <button type="button" onclick="document.getElementById('prod-file-input').click()" style="background:#18181b; color:#fff; border:none; padding:0 14px; border-radius:10px; font-weight:800; font-size:0.8rem; cursor:pointer; white-space:nowrap;">📁 Galeria</button>
+            </div>
+        </div>
+
+        <div class="input-group"><label>Descrição</label><textarea id="prod-desc" rows="2"></textarea></div>
+
+        <div style="border-top: 1px dashed #e4e4e7; margin: 16px 0 12px; padding-top: 14px;">
+            <h4 style="color: var(--primary); font-weight: 900; font-size: 0.95rem; margin-bottom: 12px;">Configurar Opções (Sabores, Adicionais)</h4>
+            <div id="addon-groups-container"></div>
+            <button type="button" class="btn-add-group" onclick="addAddonGroup()">+ Criar Novo Grupo de Opções</button>
+        </div>
+
+        <button class="btn-main" onclick="saveProduct()">Salvar Produto</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://script.google.com/macros/s/AKfycbzQE1PZ3ssBG8JJM-5xoXn37_w_uYoWIg6w3iyMEyg6ARPSwSEHwHz86_RZEiUOI6qayQ/exec";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, doc, getDoc, setDoc, addDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = { 
+        apiKey: "AIzaSyBYRRtW1_lmoEMd89f7kQ-L6IzkhTkofR4", 
+        authDomain: "juaba-delivery.firebaseapp.com", 
+        projectId: "juaba-delivery", 
+        storageBucket: "juaba-delivery.firebasestorage.app", 
+        messagingSenderId: "1048831257004", 
+        appId: "1:1048831257004:web:8db55b5383206296ad3209" 
+    };
+
+    // Instância isolada ("JuabaLojistaApp") para nunca deslogar o App do Cliente nem o Super Admin no mesmo navegador
+    const app = initializeApp(firebaseConfig, "JuabaLojistaApp");
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // 🔗 URL DO GOOGLE SHEETS (APPS SCRIPT) PARA ENVIO DO PIN DE 4 DÍGITOS
+    window.GOOGLE_SCRIPT_URL = localStorage.getItem('https://script.google.com/macros/s/AKfycbzQE1PZ3ssBG8JJM-5xoXn37_w_uYoWIg6w3iyMEyg6ARPSwSEHwHz86_RZEiUOI6qayQ/exec') || "";
+    window.pendingStoreReg = null;
+    window.generatedStorePin = null;
+
+    window.currentStore = null;
+    window.storeOrders = [];
+    window.storeProducts = [];
+    window.storeCoupons = [];
+    window.customCategories = [];
+    window.currentAddonGroups = [];
+    window.adminSupportMsgsForMe = [];
+    window.sysStoreOverride = {};
+    window.globalBillingEnabled = true;
+
+    window.isStoreRegMode = false;
+    window.mobileKanbanFilter = 'ALL';
+    window.activeOrderChatId = null;
+    window.hasShownExpiredModalThisSession = false;
+    window.isAccountExpired = false;
+
+    window.showToast = function(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg; t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3200);
+    };
+
+    // Autenticação do Lojista
+    window.toggleStoreAuthMode = function() {
+        window.isStoreRegMode = !window.isStoreRegMode;
+        document.getElementById('reg-store-name-box').style.display = window.isStoreRegMode ? 'block' : 'none';
+        document.getElementById('reg-store-wpp-box').style.display = window.isStoreRegMode ? 'block' : 'none';
+        const forgotBox = document.getElementById('store-forgot-pass-box');
+        if (forgotBox) forgotBox.style.display = window.isStoreRegMode ? 'none' : 'block';
+        document.getElementById('auth-submit-btn').innerText = window.isStoreRegMode ? 'Cadastrar Minha Loja' : 'Entrar no Painel';
+        document.getElementById('auth-toggle-btn').innerText = window.isStoreRegMode ? 'Já tenho conta! Fazer Login' : 'Quero cadastrar minha loja no aplicativo';
+    };
+
+    window.sendStorePinViaGoogleSheets = async function(email, nomeLoja, pin) {
+        const scriptUrl = (window.GOOGLE_SCRIPT_URL || localStorage.getItem('juaba_google_script_url') || '').trim();
+        if (!scriptUrl) {
+            document.getElementById('store-pin-script-box').style.display = 'block';
+            window.showToast(`⚠️ Configure a URL da Planilha ou use o PIN de teste: ${pin}`);
+            return;
+        }
+        const payload = {
+            acao: 'enviar_pin',
+            tipo: 'verificacao_loja',
+            email: email,
+            destinatario: email,
+            nome: nomeLoja,
+            pin: String(pin),
+            codigo: String(pin),
+            assunto: `Código de Verificação da Loja: ${pin} - JuabaDelivery`,
+            mensagem: `Olá ${nomeLoja}, seu código PIN de verificação para cadastrar sua loja no JuabaDelivery é: ${pin}`
+        };
+        try {
+            const query = new URLSearchParams(payload).toString();
+            const sep = scriptUrl.includes('?') ? '&' : '?';
+            fetch(scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            }).catch(() => {});
+            fetch(scriptUrl + sep + query, { method: 'GET', mode: 'no-cors' }).catch(() => {});
+            window.showToast(`📩 PIN de 4 dígitos enviado para ${email}!`);
+        } catch (e) {}
+    };
+
+    window.saveStoreGoogleScriptUrl = function() {
+        const val = document.getElementById('store-gsheet-url-input').value.trim();
+        if (!val) { window.showToast("Cole a URL do Google Apps Script!"); return; }
+        window.GOOGLE_SCRIPT_URL = val;
+        localStorage.setItem('juaba_google_script_url', val);
+        document.getElementById('store-pin-script-box').style.display = 'none';
+        window.showToast("✅ URL salva! Reenviando PIN...");
+        window.resendStorePin();
+    };
+
+    window.resendStorePin = function() {
+        if (!window.pendingStoreReg) return;
+        window.generatedStorePin = String(Math.floor(1000 + Math.random() * 9000));
+        window.sendStorePinViaGoogleSheets(window.pendingStoreReg.email, window.pendingStoreReg.nomeLoja, window.generatedStorePin);
+    };
+
+    window.confirmStoreEmailPin = async function() {
+        const typed = document.getElementById('store-pin-code-input').value.trim();
+        if (!typed || typed.length < 4) {
+            window.showToast("⚠️ Digite os 4 dígitos do PIN!");
+            return;
+        }
+        if (typed !== String(window.generatedStorePin)) {
+            window.showToast("❌ PIN incorreto! Verifique seu e-mail.");
+            return;
+        }
+        if (!window.pendingStoreReg) return;
+
+        const { email, pass, nomeLoja, wpp } = window.pendingStoreReg;
+        const btn = document.getElementById('btn-store-confirm-pin');
+        btn.disabled = true;
+        btn.innerText = "Cadastrando Loja...";
+
+        try {
+            const cred = await createUserWithEmailAndPassword(auth, email, pass);
+            const nowMs = Date.now();
+            const expMs = nowMs + (30 * 24 * 60 * 60 * 1000);
+            const dataHoje = new Date(nowMs).toLocaleDateString('pt-BR');
+            await setDoc(doc(db, "lojas", cred.user.uid), {
+                nome_loja: nomeLoja,
+                email_loja: email,
+                whatsapp: wpp,
+                logo_loja: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150",
+                nota: "5.0",
+                aberto: true,
+                bloqueada: false,
+                cobrancaAtiva: true,
+                dataCadastro: dataHoje,
+                criadoEmMs: nowMs,
+                expiraEmMs: expMs,
+                contaExpirada: false,
+                diaVencimento: new Date(expMs).getDate(),
+                valorMensalidade: 50.00
+            }, { merge: true });
+            window.pendingStoreReg = null;
+            window.generatedStorePin = null;
+            document.getElementById('modal-store-verify-pin').style.display = 'none';
+            window.showToast("🎉 E-mail verificado e Loja cadastrada com sucesso!");
+        } catch (err) {
+            window.showToast("⚠️ Erro ao cadastrar loja. Verifique se o e-mail já está em uso.");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "✅ Confirmar PIN e Cadastrar Loja";
+        }
+    };
+
+    window.openStoreForgotModal = function() {
+        document.getElementById('store-forgot-email').value = document.getElementById('auth-email').value.trim();
+        document.getElementById('modal-store-forgot-pass').style.display = 'flex';
+    };
+
+    window.sendStorePasswordReset = async function() {
+        const email = document.getElementById('store-forgot-email').value.trim();
+        if (!email) { window.showToast("⚠️ Digite o e-mail da loja!"); return; }
+        try {
+            await sendPasswordResetEmail(auth, email);
+            document.getElementById('modal-store-forgot-pass').style.display = 'none';
+            window.showToast("✅ Link de redefinição enviado para o e-mail da loja!");
+        } catch (e) {
+            window.showToast("⚠️ Verifique se o e-mail foi digitado corretamente.");
+        }
+    };
+
+    window.submitStoreAuth = async function() {
+        const email = document.getElementById('auth-email').value.trim();
+        const pass = document.getElementById('auth-pass').value.trim();
+        if (!email || !pass) { window.showToast("Preencha e-mail e senha!"); return; }
+
+        try {
+            window.hasShownExpiredModalThisSession = false;
+            if (window.isStoreRegMode) {
+                const nomeLoja = document.getElementById('auth-store-name').value.trim();
+                const wpp = document.getElementById('auth-store-wpp').value.trim();
+                if (!nomeLoja) { window.showToast("Informe o nome da loja!"); return; }
+                if (pass.length < 6) { window.showToast("A senha deve ter pelo menos 6 caracteres!"); return; }
+
+                window.pendingStoreReg = { email, pass, nomeLoja, wpp };
+                window.generatedStorePin = String(Math.floor(1000 + Math.random() * 9000));
+                document.getElementById('store-pin-target-email').innerText = email;
+                document.getElementById('store-pin-code-input').value = '';
+                document.getElementById('store-gsheet-url-input').value = window.GOOGLE_SCRIPT_URL || '';
+                document.getElementById('modal-store-verify-pin').style.display = 'flex';
+
+                await window.sendStorePinViaGoogleSheets(email, nomeLoja, window.generatedStorePin);
+            } else {
+                await signInWithEmailAndPassword(auth, email, pass);
+                window.showToast("👋 Bem-vindo ao seu Painel!");
+            }
+        } catch (err) {
+            window.showToast("⚠️ Verifique seu e-mail e senha.");
+        }
+    };
+
+    window.logoutStore = async function() {
+        window.hasShownExpiredModalThisSession = false;
+        await signOut(auth);
+        document.getElementById('auth-screen').style.display = 'flex';
+    };
+
+    window.switchPanelTab = function(tab) {
+        document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(`sec-${tab}`).classList.add('active');
+        document.querySelectorAll('.b-tab').forEach(b => b.classList.remove('active'));
+        document.getElementById(`btab-${tab}`).classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.closeExpiredModal = function() {
+        document.getElementById('modal-expired-account').style.display = 'none';
+    };
+
+    // =========================================================================
+    // TEMPORIZADOR DE ASSINATURA + EXPIRAÇÃO E AVISO AUTOMÁTICO AO SUPER ADMIN
+    // =========================================================================
+    window.checkAndRenderSubscriptionTimer = async function() {
+        if (!window.currentStore) return;
+        const loja = { ...window.currentStore, ...(window.sysStoreOverride || {}) };
+
+        // Garante que lojas antigas tenham dataCadastro e expiraEmMs inicializados
+        let criadoMs = Number(loja.criadoEmMs) || 0;
+        let expiraMs = Number(loja.expiraEmMs) || 0;
+        let dataCadStr = loja.dataCadastro || '';
+
+        if (!criadoMs) {
+            criadoMs = Date.now();
+            dataCadStr = new Date(criadoMs).toLocaleDateString('pt-BR');
+        }
+        if (!expiraMs) {
+            expiraMs = criadoMs + (30 * 24 * 60 * 60 * 1000);
+            await setDoc(doc(db, "lojas", loja.id), {
+                criadoEmMs: criadoMs,
+                dataCadastro: dataCadStr,
+                expiraEmMs: expiraMs
+            }, { merge: true });
+            return;
+        }
+
+        const barEl = document.getElementById('sub-timer-bar');
+        const regLbl = document.getElementById('sub-reg-date-label');
+        const expLbl = document.getElementById('sub-exp-date-label');
+        const countEl = document.getElementById('sub-live-countdown');
+        const hdrSubMini = document.getElementById('hdr-sub-mini');
+        const cornerBadge = document.getElementById('expired-corner-badge');
+        const setCard = document.getElementById('settings-sub-details');
+
+        const cobrancaLojaAtiva = (window.globalBillingEnabled !== false) && !(loja.cobrancaAtiva === false || String(loja.cobrancaAtiva).toLowerCase() === 'false');
+
+        // Se o Dono do App desativou o sistema de pagamento (geral ou para esta loja), libera totalmente a conta!
+        if (!cobrancaLojaAtiva) {
+            window.isAccountExpired = false;
+            cornerBadge.style.display = 'none';
+            document.getElementById('modal-expired-account').style.display = 'none';
+            barEl.className = 'sub-timer-bar';
+            regLbl.innerText = `📅 Cadastro: ${dataCadStr || new Date(criadoMs).toLocaleDateString('pt-BR')}`;
+            expLbl.innerText = `Status: Conta Liberada`;
+            countEl.innerText = `🟢 Acesso Livre`;
+            hdrSubMini.innerHTML = `<span style="color:#16a34a;">🟢 Conta Liberada</span>`;
+            if (setCard) {
+                setCard.innerHTML = `📅 Cadastrado em: <b>${dataCadStr || new Date(criadoMs).toLocaleDateString('pt-BR')}</b> • <b style="color:#16a34a;">🟢 Acesso Liberado pelo Administrador (Sem Expiração Ativa)</b>`;
+            }
+            if (window.currentStore.contaExpirada === true) {
+                await setDoc(doc(db, "lojas", loja.id), { contaExpirada: false }, { merge: true });
+            }
+            return;
+        }
+
+        const expDateStr = new Date(expiraMs).toLocaleDateString('pt-BR');
+        const diffMs = expiraMs - Date.now();
+
+        regLbl.innerText = `📅 Cadastro: ${dataCadStr || new Date(criadoMs).toLocaleDateString('pt-BR')}`;
+        expLbl.innerText = `Vencimento: ${expDateStr}`;
+
+        if (diffMs <= 0) {
+            // CONTA EXPIRADA!
+            window.isAccountExpired = true;
+            barEl.className = 'sub-timer-bar expired';
+            countEl.innerText = `🚨 CONTA EXPIRADA`;
+            hdrSubMini.innerHTML = `<span style="color:#dc2626; font-weight:900;">🚨 Conta Expirada • Loja Fechada</span>`;
+            cornerBadge.style.display = 'flex';
+            if (setCard) {
+                setCard.innerHTML = `<span style="color:#dc2626; font-weight:900;">🚨 Assinatura Expirada em ${expDateStr}</span> (Cadastrado em ${dataCadStr}). Sua loja está fechada e sem receber pedidos. Entre em contato com o suporte para renovar.`;
+            }
+
+            // Mostra o modal de aviso ao fazer login / abrir o painel (permitindo fechar normalmente)
+            if (!window.hasShownExpiredModalThisSession) {
+                window.hasShownExpiredModalThisSession = true;
+                document.getElementById('modal-expired-account').style.display = 'flex';
+            }
+
+            // Fecha a loja automaticamente e avisa o Super Admin no banco de dados se ainda não tiver avisado
+            if (window.currentStore.aberto !== false || window.currentStore.contaExpirada !== true || window.currentStore.alertaExpiracaoMs !== expiraMs) {
+                const chatArr = Array.isArray(window.currentStore.suporteChatLoja) ? [...window.currentStore.suporteChatLoja] : [];
+                if (window.currentStore.alertaExpiracaoMs !== expiraMs) {
+                    const now = new Date();
+                    const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+                    chatArr.push({
+                        id: 'exp_alert_' + Date.now(),
+                        sender: 'loja',
+                        text: `🚨 ALERTA AUTOMÁTICO DO SISTEMA: A assinatura da loja "${loja.nome_loja || 'Loja'}" expirou em ${expDateStr}. A loja foi fechada automaticamente e aguarda renovação.`,
+                        time: timeStr,
+                        ts: Date.now()
+                    });
+                }
+                await setDoc(doc(db, "lojas", loja.id), {
+                    aberto: false,
+                    contaExpirada: true,
+                    alertaExpiracaoMs: expiraMs,
+                    suporteChatLoja: chatArr,
+                    lastLojaMsgMs: Date.now()
+                }, { merge: true });
+            }
+        } else {
+            // CONTA ATIVA: Calcula dias, horas, minutos e segundos restantes
+            window.isAccountExpired = false;
+            cornerBadge.style.display = 'none';
+
+            const totalSeconds = Math.floor(diffMs / 1000);
+            const days = Math.floor(totalSeconds / 86400);
+            const hours = Math.floor((totalSeconds % 86400) / 3600);
+            const mins = Math.floor((totalSeconds % 3600) / 60);
+            const secs = totalSeconds % 60;
+
+            const timeFormatted = `${days}d ${String(hours).padStart(2, '0')}h ${String(mins).padStart(2, '0')}m ${String(secs).padStart(2, '0')}s`;
+            countEl.innerText = `⏳ Expira em: ${timeFormatted}`;
+
+            if (days <= 5) {
+                barEl.className = 'sub-timer-bar expiring-soon';
+                hdrSubMini.innerHTML = `<span style="color:#d97706;">⚠️ Expira em ${days} dia(s)</span>`;
+            } else {
+                barEl.className = 'sub-timer-bar';
+                hdrSubMini.innerHTML = `<span style="color:#16a34a;">✅ Assinatura ativa (${days} dias restantes)</span>`;
+            }
+
+            if (setCard) {
+                setCard.innerHTML = `📅 Cadastrado em: <b>${dataCadStr}</b> • ⏳ Expira em: <b>${expDateStr}</b> (<b style="color:#16a34a;">${timeFormatted}</b> restantes)`;
+            }
+
+            // Se o Super Admin renovou a assinatura, limpa a flag contaExpirada automaticamente
+            if (window.currentStore.contaExpirada === true) {
+                await setDoc(doc(db, "lojas", loja.id), { contaExpirada: false }, { merge: true });
+            }
+        }
+    };
+
+    // Atualiza o relógio regressivo a cada 1 segundo
+    setInterval(() => {
+        if (window.currentStore) window.checkAndRenderSubscriptionTimer();
+    }, 1000);
+
+    // Verifica e aplica o horário automático de funcionamento (se a conta NÃO estiver expirada)
+    window.checkAutoScheduleOnPanel = async function() {
+        if (!window.currentStore || window.isAccountExpired) return;
+        const loja = window.currentStore;
+        if (!loja.horarioAutoAtivo) return;
+
+        const abreStr = String(loja.horarioAbre || '').trim();
+        const fechaStr = String(loja.horarioFecha || '').trim();
+        if (!abreStr || !fechaStr) return;
+
+        const now = new Date();
+        const currentDay = now.getDay();
+        const prevDay = (currentDay + 6) % 7;
+        const dias = Array.isArray(loja.diasFuncionamento) ? loja.diasFuncionamento.map(Number) : [0, 1, 2, 3, 4, 5, 6];
+
+        const [abreH, abreM] = abreStr.split(':').map(Number);
+        const [fechaH, fechaM] = fechaStr.split(':').map(Number);
+        if (isNaN(abreH) || isNaN(fechaH)) return;
+
+        const nowMins = now.getHours() * 60 + now.getMinutes();
+        const abreMins = abreH * 60 + (abreM || 0);
+        const fechaMins = fechaH * 60 + (fechaM || 0);
+
+        let shouldBeOpen = false;
+        if (abreMins === fechaMins) {
+            shouldBeOpen = dias.includes(currentDay);
+        } else if (abreMins < fechaMins) {
+            shouldBeOpen = dias.includes(currentDay) && nowMins >= abreMins && nowMins < fechaMins;
+        } else {
+            if (nowMins >= abreMins) shouldBeOpen = dias.includes(currentDay);
+            else if (nowMins < fechaMins) shouldBeOpen = dias.includes(prevDay);
+        }
+
+        const currentOpen = !(loja.aberto === false || String(loja.aberto).toLowerCase() === 'false');
+        if (shouldBeOpen !== currentOpen) {
+            await setDoc(doc(db, "lojas", loja.id), { aberto: shouldBeOpen }, { merge: true });
+        }
+    };
+
+    window.toggleStoreOpenStatus = async function() {
+        if (!window.currentStore) return;
+        if (window.isAccountExpired) {
+            document.getElementById('modal-expired-account').style.display = 'flex';
+            window.showToast("🚨 Conta expirada! Fale com o suporte para reabrir sua loja.");
+            return;
+        }
+        const cur = !(window.currentStore.aberto === false || String(window.currentStore.aberto).toLowerCase() === 'false');
+        await setDoc(doc(db, "lojas", window.currentStore.id), { aberto: !cur }, { merge: true });
+        window.showToast(!cur ? "🟢 Sua loja está ABERTA!" : "🔴 Sua loja foi FECHADA.");
+    };
+
+    // =========================================================================
+    // KANBAN DE PEDIDOS COMPACTO + MODAL DA LUPA + IMPRESSÃO DE COMANDA
+    // =========================================================================
+    window.isOrderDone = function(st) {
+        const s = String(st || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return s === 'concluido' || s === 'entregue';
+    };
+
+    window.setMobileKanbanFilter = function(st, btn) {
+        window.mobileKanbanFilter = st;
+        document.querySelectorAll('.kanban-mobile-tabs .km-tab').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        window.applyMobileKanbanVisibility();
+    };
+
+    window.applyMobileKanbanVisibility = function() {
+        const cols = ['Novo', 'Preparando', 'Entrega', 'Concluido'];
+        cols.forEach(c => {
+            const el = document.getElementById(`kcol-${c}`);
+            if (!el) return;
+            if (window.mobileKanbanFilter === 'ALL') {
+                el.classList.remove('hidden-mobile');
+            } else {
+                el.classList.toggle('hidden-mobile', c !== window.mobileKanbanFilter);
+            }
+        });
+    };
+
+    window.renderKanban = function() {
+        const groups = { Novo: [], Preparando: [], Entrega: [], Concluido: [] };
+        window.storeOrders.forEach(o => {
+            if (o.status === 'Cancelado' || o.ocultoNoPainel === true) return;
+            if (window.isOrderDone(o.status)) groups.Concluido.push(o);
+            else if (groups[o.status]) groups[o.status].push(o);
+            else groups.Novo.push(o);
+        });
+
+        document.getElementById('count-Novo').innerText = groups.Novo.length;
+        document.getElementById('count-Preparando').innerText = groups.Preparando.length;
+        document.getElementById('count-Entrega').innerText = groups.Entrega.length;
+        document.getElementById('count-Concluido').innerText = groups.Concluido.length;
+
+        document.getElementById('mtab-novo').innerText = `🔔 Novos (${groups.Novo.length})`;
+        document.getElementById('mtab-prep').innerText = `🍳 Cozinha (${groups.Preparando.length})`;
+        document.getElementById('mtab-ent').innerText = `🛵 Entrega (${groups.Entrega.length})`;
+        document.getElementById('mtab-conc').innerText = `✅ Concluídos (${groups.Concluido.length})`;
+
+        const renderCol = (stKey, list) => {
+            const box = document.getElementById(`list-${stKey}`);
+            if (!box) return;
+            if (list.length === 0) {
+                box.innerHTML = `<div style="text-align:center; padding:12px; color:#71717a; font-size:0.76rem; font-weight:700;">Sem pedidos</div>`;
+                return;
+            }
+            box.innerHTML = list.slice().reverse().map(o => {
+                let nextLabel = '';
+                let nextStatus = '';
+                let btnColor = '#16a34a';
+                if (stKey === 'Novo') { nextLabel = 'Aceitar ➡️'; nextStatus = 'Preparando'; btnColor = '#16a34a'; }
+                else if (stKey === 'Preparando') { nextLabel = 'Despachar 🛵'; nextStatus = 'Entrega'; btnColor = '#ea580c'; }
+                else if (stKey === 'Entrega') { nextLabel = 'Concluir ✅'; nextStatus = 'Concluido'; btnColor = '#2563eb'; }
+
+                const msgCount = Array.isArray(o.chat) ? o.chat.length : 0;
+                const receiptBadge = o.temComprovante ? `<span title="Comprovante PIX anexado">🧾</span>` : '';
+
+                return `
+                <div class="order-compact-card">
+                    <div class="order-compact-top">
+                        <div class="order-client-name" onclick="openOrderDetailsModal('${o.id}')" style="cursor:pointer;">
+                            👤 ${o.cliente || 'Cliente'} ${receiptBadge}
+                        </div>
+                        <span style="font-weight:900; color:var(--success); font-size:0.86rem; white-space:nowrap;">${o.total || 'R$ 0,00'}</span>
+                        <button type="button" class="btn-icon-sq" onclick="openOrderDetailsModal('${o.id}')" title="Ver detalhes e imprimir">🔍</button>
+                    </div>
+                    <div class="order-compact-actions">
+                        ${nextStatus ? `<button type="button" class="btn-advance" style="background:${btnColor};" onclick="advanceOrderStatus('${o.id}', '${nextStatus}')">${nextLabel}</button>` : `<span style="flex:1; font-size:0.74rem; font-weight:800; color:var(--success);">✔️ Entregue</span>`}
+                        <button type="button" class="btn-icon-sq" onclick="openOrderChat('${o.id}')" title="Chat do Pedido">💬 ${msgCount}</button>
+                        <button type="button" class="btn-icon-sq" style="background:#fee2e2; color:#dc2626; border-color:#fecaca;" onclick="deleteOrderCard('${o.id}')" title="Excluir pedido">🗑️</button>
+                    </div>
+                </div>`;
+            }).join('');
+        };
+
+        renderCol('Novo', groups.Novo);
+        renderCol('Preparando', groups.Preparando);
+        renderCol('Entrega', groups.Entrega);
+        renderCol('Concluido', groups.Concluido);
+        window.applyMobileKanbanVisibility();
+    };
+
+    window.advanceOrderStatus = async function(orderId, nextStatus) {
+        if (window.isAccountExpired) {
+            document.getElementById('modal-expired-account').style.display = 'flex';
+            window.showToast("🚨 Assinatura expirada! Renove com o suporte.");
+            return;
+        }
+        await setDoc(doc(db, "pedidos", orderId), { status: nextStatus }, { merge: true });
+        window.showToast(`Pedido movido para ${nextStatus}!`);
+    };
+
+    window.storeCancelTargetOrderId = null;
+    window.deleteOrderCard = async function(orderId) {
+        const o = window.storeOrders.find(x => x.id === orderId);
+        if (!o) return;
+
+        // Se o pedido já foi concluído, apenas oculta do Kanban da loja sem apagar do histórico do cliente
+        if (window.isOrderDone(o.status)) {
+            await setDoc(doc(db, "pedidos", orderId), { ocultoNoPainel: true }, { merge: true });
+            window.showToast("🗑️ Pedido arquivado do painel (mantido no histórico do cliente).");
+            return;
+        }
+
+        // Se o pedido está ativo, abre o modal para o lojista escolher o motivo do cancelamento
+        window.storeCancelTargetOrderId = orderId;
+        document.getElementById('store-cancel-reason-select').value = 'Produto em falta no momento';
+        document.getElementById('store-cancel-custom-group').style.display = 'none';
+        document.getElementById('store-cancel-custom-input').value = '';
+        document.getElementById('modal-store-cancel-order').style.display = 'flex';
+    };
+
+    window.closeStoreCancelOrderModal = function() {
+        window.storeCancelTargetOrderId = null;
+        document.getElementById('modal-store-cancel-order').style.display = 'none';
+    };
+
+    window.confirmStoreCancelOrder = async function() {
+        const orderId = window.storeCancelTargetOrderId;
+        if (!orderId) return;
+        const o = window.storeOrders.find(x => x.id === orderId);
+        if (!o) return;
+
+        const selVal = document.getElementById('store-cancel-reason-select').value;
+        const customVal = document.getElementById('store-cancel-custom-input').value.trim();
+        const motivo = (selVal === 'OUTRO') ? (customVal || 'Cancelado pelo estabelecimento') : selVal;
+
+        const nomeLoja = (window.currentStore && window.currentStore.nome_loja) || o.nomeLoja || 'Loja';
+        const now = new Date();
+        const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        const arr = Array.isArray(o.chat) ? [...o.chat] : [];
+        arr.push({
+            sender: 'loja',
+            senderName: nomeLoja,
+            text: `❌ Pedido cancelado pela loja. Motivo: ${motivo}`,
+            time: timeStr
+        });
+
+        try {
+            await setDoc(doc(db, "pedidos", orderId), {
+                status: 'Cancelado',
+                motivoCancelamento: motivo,
+                canceladoPor: 'Loja',
+                ocultoNoPainel: true,
+                chat: arr
+            }, { merge: true });
+            window.closeStoreCancelOrderModal();
+            window.showToast("❌ Pedido cancelado e motivo enviado ao cliente!");
+        } catch (e) {
+            window.showToast("⚠️ Erro ao cancelar o pedido.");
+        }
+    };
+
+    // Modal da Lupa (🔍): Exibe todas as informações sem botões de avançar/chat/lixeira, apenas com o botão de Imprimir Comanda
+    window.openOrderDetailsModal = function(orderId) {
+        const o = window.storeOrders.find(x => x.id === orderId);
+        if (!o) return;
+        document.getElementById('det-order-title').innerText = `🔍 Pedido #${o.id.substring(0, 6).toUpperCase()}`;
+        document.getElementById('det-order-body').innerHTML = `
+            <div style="background:#f8fafc; border:1px solid var(--border); border-radius:14px; padding:14px; margin-bottom:10px;">
+                <div style="margin-bottom:6px;"><b>👤 Cliente:</b> ${o.cliente || 'Cliente'}</div>
+                <div style="margin-bottom:6px;"><b>📱 WhatsApp:</b> ${o.telefone || 'Não informado'}</div>
+                <div style="margin-bottom:6px;"><b>📍 Entrega:</b> ${o.endereco || 'Retirar na Loja'}</div>
+                <div style="margin-bottom:6px;"><b>💳 Pagamento:</b> ${o.pagamento || 'PIX'}</div>
+                <div><b>🕒 Data/Hora:</b> ${o.data || ''}</div>
+            </div>
+            <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:14px; padding:14px; margin-bottom:10px;">
+                <div style="font-weight:900; color:#92400e; margin-bottom:4px;">🍔 Itens do Pedido:</div>
+                <div style="font-weight:700; color:#18181b;">${o.itens || ''}</div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#f0fdf4; border:1px solid #bbf7d0; padding:12px 14px; border-radius:12px;">
+                <span style="font-weight:800; color:#166534;">Valor Total</span>
+                <span style="font-weight:900; font-size:1.15rem; color:#15803d;">${o.total || 'R$ 0,00'}</span>
+            </div>
+        `;
+        document.getElementById('btn-print-order').onclick = () => window.printThermalReceipt(o);
+        document.getElementById('modal-order-details').style.display = 'flex';
+    };
+
+    // Impressão de Comanda Térmica (80mm / 58mm)
+    window.printThermalReceipt = function(o) {
+        const lojaNome = (window.currentStore && window.currentStore.nome_loja) ? window.currentStore.nome_loja : 'RESTAURANTE';
+        const win = window.open('', '_blank', 'width=360,height=600');
+        if (!win) { window.showToast("Permita pop-ups para imprimir a comanda."); return; }
+        win.document.write(`
+            <html>
+            <head>
+                <title>Comanda #${o.id.substring(0,6).toUpperCase()}</title>
+                <style>
+                    body { font-family: 'Courier New', monospace; width: 280px; margin: 0 auto; padding: 10px; font-size: 13px; color: #000; }
+                    .center { text-align: center; }
+                    .line { border-top: 1px dashed #000; margin: 8px 0; }
+                    .bold { font-weight: bold; }
+                </style>
+            </head>
+            <body onload="window.print(); setTimeout(()=>window.close(), 500);">
+                <div class="center bold" style="font-size:16px;">${lojaNome}</div>
+                <div class="center">COMANDA DE PEDIDO #${o.id.substring(0,6).toUpperCase()}</div>
+                <div class="center" style="font-size:11px;">${o.data || ''}</div>
+                <div class="line"></div>
+                <div><span class="bold">CLIENTE:</span> ${o.cliente || ''}</div>
+                <div><span class="bold">FONE:</span> ${o.telefone || ''}</div>
+                <div><span class="bold">ENDERECO:</span> ${o.endereco || ''}</div>
+                <div class="line"></div>
+                <div class="bold">ITENS DO PEDIDO:</div>
+                <div style="margin:6px 0;">${o.itens || ''}</div>
+                <div class="line"></div>
+                <div><span class="bold">PAGAMENTO:</span> ${o.pagamento || ''}</div>
+                <div class="bold" style="font-size:16px; margin-top:4px;">TOTAL: ${o.total || ''}</div>
+                <div class="line"></div>
+                <div class="center" style="font-size:11px;">JuabaDelivery</div>
+            </body>
+            </html>
+        `);
+        win.document.close();
+    };
+
+    // Chat do Pedido (Lojista <-> Cliente) com suporte a Foto e PDF
+    window.openAttachmentViewer = function(dataUrl) {
+        const w = window.open();
+        if (w) w.document.write(`<iframe src="${dataUrl}" style="width:100%; height:100vh; border:none;"></iframe>`);
+    };
+
+    window.openOrderChat = function(orderId) {
+        window.activeOrderChatId = orderId;
+        const o = window.storeOrders.find(x => x.id === orderId);
+        const nomeCli = (o && o.cliente) ? o.cliente : 'Cliente';
+        document.getElementById('order-chat-title').innerText = `💬 Chat — ${nomeCli} (#${orderId.substring(0,6).toUpperCase()})`;
+        document.getElementById('modal-order-chat').style.display = 'flex';
+        window.renderOrderChatMsgs();
+    };
+
+    window.closeOrderChat = function() {
+        window.activeOrderChatId = null;
+        document.getElementById('modal-order-chat').style.display = 'none';
+    };
+
+    window.renderOrderChatMsgs = function() {
+        const box = document.getElementById('order-chat-msgs');
+        const o = window.storeOrders.find(x => x.id === window.activeOrderChatId);
+        if (!box || !o) return;
+        const nomeLoja = (window.currentStore && window.currentStore.nome_loja) || o.nomeLoja || 'Minha Loja';
+        const nomeCliente = o.cliente || 'Cliente';
+
+        const msgs = Array.isArray(o.chat) ? o.chat : [];
+        if (msgs.length === 0) {
+            box.innerHTML = `<p style="text-align:center; color:#71717a; margin:auto; font-weight:700;">Nenhuma mensagem neste pedido ainda.</p>`;
+            return;
+        }
+        box.innerHTML = msgs.map(m => {
+            const isMe = m.sender === 'loja';
+            const senderLabel = isMe
+                ? `🏪 ${m.senderName || nomeLoja} (Você)`
+                : `👤 ${m.senderName || nomeCliente}`;
+            let mediaHtml = '';
+            if (m.fileType === 'pdf' && m.fileData) {
+                mediaHtml = `
+                <div onclick="openAttachmentViewer('${m.fileData}')" style="background:rgba(0,0,0,0.08); padding:9px; border-radius:9px; margin-top:6px; cursor:pointer;">
+                    <div style="font-weight:900;">📄 ${m.fileName || 'Comprovante.pdf'}</div>
+                    <div style="font-size:0.72rem; text-decoration:underline;">Abrir PDF 🔍</div>
+                </div>`;
+            } else if (m.img || m.fileData) {
+                const src = m.img || m.fileData;
+                mediaHtml = `<img src="${src}" onclick="openAttachmentViewer('${src}')" style="max-width:100%; max-height:180px; border-radius:9px; margin-top:6px; cursor:pointer; display:block;">`;
+            }
+            return `
+            <div class="c-bubble ${isMe ? 'me' : 'them'}">
+                <div style="font-size:0.68rem; font-weight:900; opacity:0.85; margin-bottom:3px; border-bottom:1px solid ${isMe ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.06)'}; padding-bottom:2px;">
+                    ${senderLabel}
+                </div>
+                <div>${m.text || ''}</div>
+                ${mediaHtml}
+                <div style="font-size:0.65rem; opacity:0.7; text-align:right; margin-top:3px;">${m.time || ''}</div>
+            </div>`;
+        }).join('');
+        box.scrollTop = box.scrollHeight;
+    };
+
+    window.sendOrderChatMsg = async function() {
+        if (!window.activeOrderChatId) return;
+        const inp = document.getElementById('order-chat-input');
+        const txt = inp.value.trim();
+        if (!txt) return;
+        inp.value = '';
+        const o = window.storeOrders.find(x => x.id === window.activeOrderChatId);
+        const arr = (o && Array.isArray(o.chat)) ? [...o.chat] : [];
+        const nomeLoja = (window.currentStore && window.currentStore.nome_loja) || (o && o.nomeLoja) || 'Loja';
+        const now = new Date();
+        arr.push({
+            sender: 'loja',
+            senderName: nomeLoja,
+            text: txt,
+            time: now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0')
+        });
+        await setDoc(doc(db, "pedidos", window.activeOrderChatId), { chat: arr }, { merge: true });
+    };
+
+    // =========================================================================
+    // CHAT DE SUPORTE COM O SUPER ADMIN (DONO DO APP)
+    // =========================================================================
+    window.openSupportModal = function() {
+        document.getElementById('modal-support').style.display = 'flex';
+        document.getElementById('sup-unread-badge').style.display = 'none';
+        window.renderSupportChat();
+    };
+
+    window.closeSupportModal = function() {
+        document.getElementById('modal-support').style.display = 'none';
+    };
+
+    window.renderSupportChat = function() {
+        const box = document.getElementById('support-chat-msgs');
+        if (!box || !window.currentStore) return;
+        const myMsgs = Array.isArray(window.currentStore.suporteChatLoja) ? window.currentStore.suporteChatLoja : [];
+        const admMsgs = Array.isArray(window.adminSupportMsgsForMe) ? window.adminSupportMsgsForMe : [];
+        const all = [...myMsgs, ...admMsgs].sort((a, b) => (a.ts || 0) - (b.ts || 0));
+
+        if (all.length === 0) {
+            box.innerHTML = `<p style="text-align:center; color:#71717a; margin:auto; font-weight:700;">Envie uma mensagem para falar diretamente com o dono do aplicativo.</p>`;
+            return;
+        }
+        box.innerHTML = all.map(m => `
+            <div class="c-bubble ${m.sender === 'loja' ? 'me' : 'them'}">
+                <div style="font-size:0.68rem; font-weight:800; opacity:0.75; margin-bottom:2px;">${m.sender === 'loja' ? '🏪 Minha Loja' : '👑 Suporte JuabaDelivery'}</div>
+                <div>${m.text}</div>
+                <div style="font-size:0.64rem; opacity:0.7; text-align:right; margin-top:3px;">${m.time || ''}</div>
+            </div>
+        `).join('');
+        box.scrollTop = box.scrollHeight;
+    };
+
+    window.sendStoreSupportMsg = async function() {
+        if (!window.currentStore) return;
+        const inp = document.getElementById('support-chat-input');
+        const txt = inp.value.trim();
+        if (!txt) return;
+        inp.value = '';
+        const arr = Array.isArray(window.currentStore.suporteChatLoja) ? [...window.currentStore.suporteChatLoja] : [];
+        const now = new Date();
+        arr.push({
+            id: 'loja_' + Date.now(),
+            sender: 'loja',
+            text: txt,
+            time: now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0'),
+            ts: Date.now()
+        });
+        await setDoc(doc(db, "lojas", window.currentStore.id), {
+            suporteChatLoja: arr,
+            lastLojaMsgMs: Date.now()
+        }, { merge: true });
+    };
+
+    // =========================================================================
+    // PRODUTOS, CATEGORIAS COM BOTÃO '+' E UPLOAD DE FOTOS DA GALERIA
+    // =========================================================================
+    window.populateCategorySelect = function(selectedVal = 'Lanches') {
+        const defaults = ['Lanches', 'Pizzas', 'Bebidas', 'Petiscos', 'Açaí', 'Refeições', 'Doces', 'Combos'];
+        const fromProds = window.storeProducts.map(p => (p.categoria || '').trim()).filter(Boolean);
+        const allCats = [...new Set([...defaults, ...fromProds, ...window.customCategories])];
+        const sel = document.getElementById('prod-cat');
+        sel.innerHTML = allCats.map(c => `<option value="${c}" ${c.toLowerCase() === String(selectedVal).toLowerCase() ? 'selected' : ''}>${c}</option>`).join('');
+    };
+
+    window.toggleNewCategoryBox = function() {
+        const box = document.getElementById('new-cat-inline-box');
+        box.style.display = (box.style.display === 'none' || !box.style.display) ? 'flex' : 'none';
+        if (box.style.display === 'flex') document.getElementById('new-cat-input').focus();
+    };
+
+    window.confirmAddCategory = function() {
+        const inp = document.getElementById('new-cat-input');
+        const val = inp.value.trim();
+        if (!val) return;
+        window.customCategories.push(val);
+        window.populateCategorySelect(val);
+        inp.value = '';
+        document.getElementById('new-cat-inline-box').style.display = 'none';
+        window.showToast(`✅ Categoria "${val}" selecionada!`);
+    };
+
+    window.handleProductImageUpload = function(fileInput) {
+        if (!fileInput.files || !fileInput.files[0]) return;
+        const file = fileInput.files[0];
+        window.showToast("📷 Comprimindo imagem do produto...");
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const maxDim = 800;
+                let w = img.width, h = img.height;
+                if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
+                else if (h >= w && h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                document.getElementById('prod-img').value = canvas.toDataURL('image/jpeg', 0.78);
+                window.showToast("✅ Foto carregada com sucesso!");
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    };
+
+    window.handleStoreLogoUpload = function(fileInput) {
+        if (!fileInput.files || !fileInput.files[0]) return;
+        const file = fileInput.files[0];
+        window.showToast("📷 Comprimindo logo...");
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const maxDim = 500;
+                let w = img.width, h = img.height;
+                if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
+                else if (h >= w && h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                document.getElementById('cfg-logo').value = canvas.toDataURL('image/jpeg', 0.8);
+                window.showToast("✅ Logo carregada com sucesso!");
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    };
+
+    window.addAddonGroup = function() {
+        window.currentAddonGroups.push({
+            id: 'grp_' + Date.now(),
+            name: '',
+            min: 0,
+            max: 1,
+            chargeType: 'sum',
+            items: [{ id: 'itm_' + Date.now(), name: '', price: 0 }]
+        });
+        window.renderAddonGroups();
+    };
+
+    window.renderAddonGroups = function() {
+        const box = document.getElementById('addon-groups-container');
+        if (!box) return;
+        box.innerHTML = (window.currentAddonGroups || []).map((g, gIdx) => `
+            <div class="addon-group-card">
+                <div style="display:flex; gap:6px; margin-bottom:8px;">
+                    <input type="text" placeholder="Nome do Grupo (Ex: Escolha o Sabor)" value="${(g.name || '').replace(/"/g, '&quot;')}" oninput="window.currentAddonGroups[${gIdx}].name=this.value" style="flex:1; padding:8px; border:1px solid #d4d4d8; border-radius:8px; font-weight:800;">
+                    <button type="button" onclick="window.currentAddonGroups.splice(${gIdx},1); renderAddonGroups();" style="background:#fee2e2; color:#dc2626; border:none; padding:0 10px; border-radius:8px; font-weight:900; cursor:pointer;">✕</button>
+                </div>
+                <div style="display:flex; gap:8px; margin-bottom:8px;">
+                    <div style="flex:1;"><small style="font-weight:800; font-size:0.7rem;">Mínimo</small><input type="number" value="${g.min || 0}" oninput="window.currentAddonGroups[${gIdx}].min=parseInt(this.value)||0" style="width:100%; padding:6px; border:1px solid #d4d4d8; border-radius:6px;"></div>
+                    <div style="flex:1;"><small style="font-weight:800; font-size:0.7rem;">Máximo</small><input type="number" value="${g.max || 1}" oninput="window.currentAddonGroups[${gIdx}].max=parseInt(this.value)||1" style="width:100%; padding:6px; border:1px solid #d4d4d8; border-radius:6px;"></div>
+                </div>
+                ${(g.items || []).map((it, iIdx) => `
+                    <div style="display:flex; gap:6px; margin-bottom:6px;">
+                        <input type="text" placeholder="Opção" value="${(it.name || '').replace(/"/g, '&quot;')}" oninput="window.currentAddonGroups[${gIdx}].items[${iIdx}].name=this.value" style="flex:2; padding:7px; border:1px solid #d4d4d8; border-radius:7px;">
+                        <input type="number" step="0.01" placeholder="R$" value="${it.price || 0}" oninput="window.currentAddonGroups[${gIdx}].items[${iIdx}].price=parseFloat(this.value)||0" style="flex:1; padding:7px; border:1px solid #d4d4d8; border-radius:7px;">
+                        <button type="button" onclick="window.currentAddonGroups[${gIdx}].items.splice(${iIdx},1); renderAddonGroups();" style="background:#f4f4f5; border:none; padding:0 8px; border-radius:7px; cursor:pointer;">🗑️</button>
+                    </div>
+                `).join('')}
+                <button type="button" onclick="window.currentAddonGroups[${gIdx}].items.push({id:'itm_'+Date.now(),name:'',price:0}); renderAddonGroups();" style="background:#e4e4e7; border:none; padding:6px 10px; border-radius:7px; font-weight:800; font-size:0.75rem; cursor:pointer; width:100%;">+ Adicionar Opção</button>
+            </div>
+        `).join('');
+    };
+
+    window.openProductModal = function() {
+        document.getElementById('prod-id').value = '';
+        document.getElementById('prod-nome').value = '';
+        document.getElementById('prod-preco').value = '';
+        document.getElementById('prod-preco-antigo').value = '';
+        document.getElementById('new-cat-inline-box').style.display = 'none';
+        window.populateCategorySelect('Lanches');
+        document.getElementById('prod-img').value = '';
+        document.getElementById('prod-desc').value = '';
+        window.currentAddonGroups = [];
+        window.renderAddonGroups();
+        document.getElementById('modal-product').style.display = 'flex';
+    };
+
+    window.editProduct = function(id) {
+        const p = window.storeProducts.find(x => x.id === id);
+        if (!p) return;
+        document.getElementById('prod-id').value = p.id;
+        document.getElementById('prod-nome').value = p.nome || '';
+        document.getElementById('prod-preco').value = p.preco || '';
+        document.getElementById('prod-preco-antigo').value = p.precoAntigo || '';
+        document.getElementById('new-cat-inline-box').style.display = 'none';
+        window.populateCategorySelect(p.categoria || 'Lanches');
+        document.getElementById('prod-img').value = p.imagem || '';
+        document.getElementById('prod-desc').value = p.descricao || '';
+        try {
+            window.currentAddonGroups = JSON.parse(p.adicionais || "[]");
+            if (!Array.isArray(window.currentAddonGroups)) window.currentAddonGroups = [];
+        } catch(e) { window.currentAddonGroups = []; }
+        window.renderAddonGroups();
+        document.getElementById('modal-product').style.display = 'flex';
+    };
+
+    window.saveProduct = async function() {
+        if (!window.currentStore) return;
+        const id = document.getElementById('prod-id').value;
+        const cleanGroups = (window.currentAddonGroups || []).map(g => ({
+            id: g.id || ('grp_' + Date.now()),
+            name: (g.name || 'Opções').trim(),
+            min: parseInt(g.min) || 0,
+            max: Math.max(1, parseInt(g.max) || 1),
+            chargeType: g.chargeType === 'max' ? 'max' : 'sum',
+            items: (g.items || []).filter(i => i.name && i.name.trim() !== '').map(i => ({
+                id: i.id || ('itm_' + Date.now() + Math.floor(Math.random() * 1000)),
+                name: i.name.trim(),
+                price: parseFloat(i.price) || 0
+            }))
+        }));
+
+        const payload = {
+            lojaId: window.currentStore.id,
+            nome: document.getElementById('prod-nome').value.trim(),
+            preco: parseFloat(document.getElementById('prod-preco').value) || 0,
+            precoAntigo: parseFloat(document.getElementById('prod-preco-antigo').value) || 0,
+            categoria: document.getElementById('prod-cat').value.trim() || 'Geral',
+            imagem: document.getElementById('prod-img').value.trim(),
+            descricao: document.getElementById('prod-desc').value.trim(),
+            adicionais: JSON.stringify(cleanGroups),
+            ativo: true
+        };
+        if (!payload.nome) { window.showToast("Informe o nome do produto!"); return; }
+        if (id) await setDoc(doc(db, "produtos", id), payload, { merge: true });
+        else await addDoc(collection(db, "produtos"), payload);
+        document.getElementById('modal-product').style.display = 'none';
+        window.showToast("✅ Produto salvo!");
+    };
+
+    window.deleteProduct = async function(id) {
+        await deleteDoc(doc(db, "produtos", id));
+        window.showToast("🗑️ Produto excluído.");
+    };
+
+    window.renderStoreProducts = function() {
+        const box = document.getElementById('store-products-list');
+        if (!box) return;
+        if (window.storeProducts.length === 0) {
+            box.innerHTML = `<p style="text-align:center; padding:20px; color:#71717a; font-weight:700;">Nenhum produto cadastrado ainda.</p>`;
+            return;
+        }
+        box.innerHTML = window.storeProducts.map(p => `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #f1f5f9; gap:10px;">
+                <div style="display:flex; align-items:center; gap:10px; min-width:0; flex:1;">
+                    <img src="${p.imagem || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150'}" style="width:48px; height:48px; border-radius:10px; object-fit:contain; background:#f8fafc; border:1px solid #e4e4e7;">
+                    <div style="min-width:0;">
+                        <div style="font-weight:900; font-size:0.94rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.nome}</div>
+                        <div style="font-size:0.76rem; color:#71717a; font-weight:700;">${p.categoria || 'Geral'} • <b style="color:var(--success);">R$ ${parseFloat(p.preco || 0).toFixed(2).replace('.', ',')}</b></div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:6px;">
+                    <button onclick="editProduct('${p.id}')" class="btn-icon-sq">✏️</button>
+                    <button onclick="deleteProduct('${p.id}')" class="btn-icon-sq" style="background:#fee2e2; color:#dc2626;">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+    };
+
+    // =========================================================================
+    // VENDAS, CUPONS E CONFIGURAÇÕES DA LOJA
+    // =========================================================================
+    window.renderSalesAndCoupons = function() {
+        const done = window.storeOrders.filter(o => window.isOrderDone(o.status));
+        const total = done.reduce((acc, o) => {
+            const v = parseFloat(String(o.total || '0').replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0;
+            return acc + v;
+        }, 0);
+        document.getElementById('sales-total-val').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+        document.getElementById('sales-done-count').innerText = done.length;
+
+        const cBox = document.getElementById('store-coupons-list');
+        if (window.storeCoupons.length === 0) {
+            cBox.innerHTML = `<p style="color:#71717a; font-size:0.8rem; font-weight:700;">Nenhum cupom ativo.</p>`;
+        } else {
+            cBox.innerHTML = window.storeCoupons.map(c => `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:9px 12px; background:#f8fafc; border-radius:10px; margin-bottom:6px; border:1px solid var(--border);">
+                    <span style="font-weight:900;">🎟️ ${c.codigo} (${c.porcentagem}% OFF)</span>
+                    <button onclick="deleteCoupon('${c.id}')" style="background:#fee2e2; color:#dc2626; border:none; padding:5px 10px; border-radius:8px; font-weight:800; cursor:pointer;">Excluir</button>
+                </div>
+            `).join('');
+        }
+    };
+
+    window.createCoupon = async function() {
+        if (!window.currentStore) return;
+        const codigo = document.getElementById('cupom-code').value.trim().toUpperCase();
+        const porcentagem = parseFloat(document.getElementById('cupom-pct').value) || 0;
+        if (!codigo || porcentagem <= 0) { window.showToast("Preencha o código e a % do cupom!"); return; }
+        await addDoc(collection(db, "cupons"), { lojaId: window.currentStore.id, codigo, porcentagem });
+        document.getElementById('cupom-code').value = '';
+        document.getElementById('cupom-pct').value = '';
+        window.showToast("🎟️ Cupom criado!");
+    };
+
+    window.deleteCoupon = async function(id) {
+        await deleteDoc(doc(db, "cupons", id));
+        window.showToast("🗑️ Cupom removido.");
+    };
+
+    window.saveStoreSettings = async function() {
+        if (!window.currentStore) return;
+        const selectedDays = [];
+        document.querySelectorAll('#cfg-days-row .day-Check.active').forEach(el => {
+            selectedDays.push(Number(el.getAttribute('data-day')));
+        });
+
+        const payload = {
+            nome_loja: document.getElementById('cfg-nome').value.trim(),
+            logo_loja: document.getElementById('cfg-logo').value.trim(),
+            whatsapp: document.getElementById('cfg-wpp').value.trim(),
+            chave_pix: document.getElementById('cfg-pix').value.trim(),
+            horarioAutoAtivo: document.getElementById('cfg-auto-sched').checked,
+            diasFuncionamento: selectedDays,
+            horarioAbre: document.getElementById('cfg-abre').value,
+            horarioFecha: document.getElementById('cfg-fecha').value
+        };
+        await setDoc(doc(db, "lojas", window.currentStore.id), payload, { merge: true });
+        window.showToast("✅ Configurações salvas!");
+    };
+
+    // =========================================================================
+    // LISTENERS EM TEMPO REAL DO LOJISTA
+    // =========================================================================
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            document.getElementById('auth-screen').style.display = 'flex';
+            return;
+        }
+        document.getElementById('auth-screen').style.display = 'none';
+
+        onSnapshot(collection(db, "lojas"), (snap) => {
+            let latestConfigMs = -1;
+            let myAdminSupport = [];
+            let myOverride = {};
+            let sysBillingEnabled = true;
+
+            snap.forEach(d => {
+                const data = d.data();
+                if (d.id === '_marketplace_config_' || data.isSystemConfig === true) {
+                    const ms = data.updatedAtMs || 0;
+                    if (ms >= latestConfigMs) {
+                        latestConfigMs = ms;
+                        if (data.billingSystemEnabled !== undefined) {
+                            sysBillingEnabled = Boolean(data.billingSystemEnabled);
+                        }
+                        if (data.supportChats && data.supportChats[user.uid]) {
+                            myAdminSupport = data.supportChats[user.uid].messages || [];
+                        }
+                        if (data.storeOverrides && data.storeOverrides[user.uid]) {
+                            myOverride = data.storeOverrides[user.uid] || {};
+                        }
+                    }
+                }
+            });
+
+            window.globalBillingEnabled = sysBillingEnabled;
+            window.adminSupportMsgsForMe = myAdminSupport;
+            window.sysStoreOverride = myOverride;
+
+            snap.forEach(d => {
+                if (d.id === user.uid) {
+                    window.currentStore = { id: d.id, ...d.data(), ...myOverride };
+                }
+            });
+
+            if (window.currentStore) {
+                document.getElementById('hdr-name').innerText = window.currentStore.nome_loja || 'Minha Loja';
+                document.getElementById('hdr-logo').src = window.currentStore.logo_loja || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150';
+
+                // Preenche campos da aba Ajustes se não estiverem em foco
+                if (document.activeElement.id !== 'cfg-nome') document.getElementById('cfg-nome').value = window.currentStore.nome_loja || '';
+                if (document.activeElement.id !== 'cfg-logo') document.getElementById('cfg-logo').value = window.currentStore.logo_loja || '';
+                if (document.activeElement.id !== 'cfg-wpp') document.getElementById('cfg-wpp').value = window.currentStore.whatsapp || '';
+                if (document.activeElement.id !== 'cfg-pix') document.getElementById('cfg-pix').value = window.currentStore.chave_pix || '';
+                document.getElementById('cfg-auto-sched').checked = Boolean(window.currentStore.horarioAutoAtivo);
+                if (window.currentStore.horarioAbre) document.getElementById('cfg-abre').value = window.currentStore.horarioAbre;
+                if (window.currentStore.horarioFecha) document.getElementById('cfg-fecha').value = window.currentStore.horarioFecha;
+
+                if (Array.isArray(window.currentStore.diasFuncionamento)) {
+                    document.querySelectorAll('#cfg-days-row .day-Check').forEach(el => {
+                        const dNum = Number(el.getAttribute('data-day'));
+                        el.classList.toggle('active', window.currentStore.diasFuncionamento.includes(dNum));
+                    });
+                }
+
+                window.checkAndRenderSubscriptionTimer();
+
+                const isOpen = !window.isAccountExpired && !(window.currentStore.aberto === false || String(window.currentStore.aberto).toLowerCase() === 'false');
+                const btnOpen = document.getElementById('btn-toggle-open');
+                btnOpen.style.background = isOpen ? '#dcfce7' : '#fee2e2';
+                btnOpen.style.color = isOpen ? '#15803d' : '#dc2626';
+                btnOpen.innerText = isOpen ? '🟢 Aberta' : '🔴 Fechada';
+
+                window.renderSupportChat();
+            }
+        });
+
+        onSnapshot(collection(db, "pedidos"), (snap) => {
+            window.storeOrders = [];
+            snap.forEach(d => {
+                const data = d.data();
+                if (data.lojaId === user.uid) window.storeOrders.push({ id: d.id, ...data });
+            });
+            window.renderKanban();
+            window.renderSalesAndCoupons();
+            if (window.activeOrderChatId) window.renderOrderChatMsgs();
+        });
+
+        onSnapshot(collection(db, "produtos"), (snap) => {
+            window.storeProducts = [];
+            snap.forEach(d => {
+                const data = d.data();
+                if (data.lojaId === user.uid) window.storeProducts.push({ id: d.id, ...data });
+            });
+            window.renderStoreProducts();
+        });
+
+        onSnapshot(collection(db, "cupons"), (snap) => {
+            window.storeCoupons = [];
+            snap.forEach(d => {
+                const data = d.data();
+                if (data.lojaId === user.uid) window.storeCoupons.push({ id: d.id, ...data });
+            });
+            window.renderSalesAndCoupons();
+        });
+    });
+
+    setInterval(() => {
+        window.checkAutoScheduleOnPanel();
+    }, 30000);
+</script>
+</body>
+</html>
