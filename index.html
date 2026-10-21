@@ -2,9 +2,15 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Painel Gestor | SeuDelivery</title>
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/16206/16206813.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Gestor | JuabaDelivery</title>
+    <meta name="theme-color" content="#18181b">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Painel Gestor">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1046/1046784.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1046/1046784.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -22,180 +28,77 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--dark); font-size: 14px; padding-bottom: calc(90px + var(--safe-bottom)); overflow-x: hidden; }
 
-        /* Tela de Login / Cadastro do Lojista */
-        #auth-screen {
-            position: fixed; inset: 0; background: linear-gradient(135deg, #18181b 0%, #27272a 100%);
-            z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 18px;
-        }
-        .auth-box {
-            background: var(--white); width: 100%; max-width: 400px; border-radius: 24px;
-            padding: 28px 22px; box-shadow: 0 25px 50px rgba(0,0,0,0.45); text-align: center;
-        }
+        #auth-screen { position: fixed; inset: 0; background: linear-gradient(135deg, #18181b 0%, #27272a 100%); z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 18px; }
+        .auth-box { background: var(--white); width: 100%; max-width: 400px; border-radius: 24px; padding: 28px 22px; box-shadow: 0 25px 50px rgba(0,0,0,0.45); text-align: center; }
 
-        /* Cabeçalho Principal do Lojista */
-        header {
-            background: var(--white); padding: 12px 14px; position: sticky; top: 0; z-index: 200;
-            display: flex; justify-content: space-between; align-items: center; gap: 8px;
-            border-bottom: 1px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-        }
+        header { background: var(--white); padding: 12px 14px; position: sticky; top: 0; z-index: 200; display: flex; justify-content: space-between; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
         .store-header-left { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
         .store-header-left img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); flex-shrink: 0; }
         .store-header-title { font-weight: 900; font-size: 0.98rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
         .header-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-        .btn-pill {
-            border: none; padding: 8px 12px; border-radius: 999px; font-weight: 900;
-            font-size: 0.76rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
-        }
+        .btn-pill { border: none; padding: 8px 12px; border-radius: 999px; font-weight: 900; font-size: 0.76rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
 
-        /* Barra do Temporizador de Assinatura no Topo */
-        .sub-timer-bar {
-            background: #18181b; color: #fff; padding: 8px 14px; font-size: 0.76rem; font-weight: 800;
-            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
-            border-bottom: 1px solid #27272a;
-        }
+        .sub-timer-bar { background: #18181b; color: #fff; padding: 8px 14px; font-size: 0.76rem; font-weight: 800; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #27272a; }
         .sub-timer-bar.expiring-soon { background: #92400e; color: #fef3c7; }
         .sub-timer-bar.expired { background: #991b1b; color: #fee2e2; }
-        .timer-countdown-badge {
-            background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 8px;
-            font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: 0.3px;
-        }
+        .timer-countdown-badge { background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 8px; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: 0.3px; }
 
-        /* Aviso Fixo no Canto da Tela quando a Conta está Expirada */
-        .expired-corner-badge {
-            position: fixed; bottom: calc(70px + var(--safe-bottom)); right: 14px; left: 14px;
-            max-width: 440px; margin-left: auto; background: #dc2626; color: #fff;
-            padding: 12px 16px; border-radius: 16px; z-index: 1200;
-            display: none; align-items: center; justify-content: space-between; gap: 10px;
-            box-shadow: 0 12px 28px rgba(220, 38, 38, 0.45); border: 2px solid #fecaca;
-            animation: pulseExpired 2s infinite; cursor: pointer;
-        }
-        @keyframes pulseExpired {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-        }
+        .expired-corner-badge { position: fixed; bottom: calc(70px + var(--safe-bottom)); right: 14px; left: 14px; max-width: 440px; margin-left: auto; background: #dc2626; color: #fff; padding: 12px 16px; border-radius: 16px; z-index: 1200; display: none; align-items: center; justify-content: space-between; gap: 10px; box-shadow: 0 12px 28px rgba(220,38,38,0.45); border: 2px solid #fecaca; animation: pulseExpired 2s infinite; cursor: pointer; }
+        @keyframes pulseExpired { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
 
-        /* Abas de Navegação */
         .view-section { display: none; max-width: 1100px; margin: 14px auto; padding: 0 12px; }
         .view-section.active { display: block; }
 
-        /* Abas Rápidas do Kanban no Mobile */
-        .kanban-mobile-tabs {
-            display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px;
-            scrollbar-width: none;
-        }
+        .kanban-mobile-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; scrollbar-width: none; }
         .kanban-mobile-tabs::-webkit-scrollbar { display: none; }
-        .km-tab {
-            padding: 8px 13px; border-radius: 999px; border: 1px solid var(--border);
-            background: var(--white); color: #3f3f46; font-weight: 900; font-size: 0.76rem;
-            white-space: nowrap; cursor: pointer;
-        }
+        .km-tab { padding: 8px 13px; border-radius: 999px; border: 1px solid var(--border); background: var(--white); color: #3f3f46; font-weight: 900; font-size: 0.76rem; white-space: nowrap; cursor: pointer; }
         .km-tab.active { background: var(--dark); color: #fff; border-color: var(--dark); }
 
-        /* Colunas e Cards Compactos de Pedidos */
         .kanban-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-items: start; }
-        .kanban-col {
-            background: #e4e4e7; border-radius: 16px; padding: 10px; min-height: 120px;
-        }
-        .col-header {
-            padding: 9px 12px; border-radius: 10px; font-weight: 900; font-size: 0.8rem;
-            color: #fff; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
-        }
-        .order-compact-card {
-            background: var(--white); border-radius: 13px; padding: 10px 12px; margin-bottom: 8px;
-            border: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-            display: flex; flex-direction: column; gap: 8px;
-        }
-        .order-compact-top {
-            display: flex; justify-content: space-between; align-items: center; gap: 8px;
-        }
-        .order-client-name {
-            font-weight: 900; font-size: 0.92rem; color: #111; white-space: nowrap;
-            overflow: hidden; text-overflow: ellipsis; flex: 1;
-        }
-        .order-compact-actions {
-            display: flex; align-items: center; gap: 6px;
-        }
-        .btn-advance {
-            flex: 1; border: none; padding: 8px 10px; border-radius: 9px; font-weight: 900;
-            font-size: 0.78rem; color: #fff; cursor: pointer; text-align: center;
-        }
-        .btn-icon-sq {
-            border: 1px solid var(--border); background: #f4f4f5; height: 33px; padding: 0 10px;
-            border-radius: 9px; font-weight: 900; font-size: 0.8rem; cursor: pointer;
-            display: inline-flex; align-items: center; justify-content: center; gap: 4px;
-        }
+        .kanban-col { background: #e4e4e7; border-radius: 16px; padding: 10px; min-height: 120px; }
+        .col-header { padding: 9px 12px; border-radius: 10px; font-weight: 900; font-size: 0.8rem; color: #fff; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .order-compact-card { background: var(--white); border-radius: 13px; padding: 10px 12px; margin-bottom: 8px; border: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 8px; }
+        .order-compact-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .order-client-name { font-weight: 900; font-size: 0.92rem; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+        .order-compact-actions { display: flex; align-items: center; gap: 6px; }
+        .btn-advance { flex: 1; border: none; padding: 8px 10px; border-radius: 9px; font-weight: 900; font-size: 0.78rem; color: #fff; cursor: pointer; text-align: center; }
+        .btn-icon-sq { border: 1px solid var(--border); background: #f4f4f5; height: 33px; padding: 0 10px; border-radius: 9px; font-weight: 900; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s; }
+        .btn-chat-unread-store { background: #fff1f2 !important; color: #ea1d2c !important; border: 2px solid #ea1d2c !important; animation: pulseStoreChatBtn 1.5s infinite; }
+        @keyframes pulseStoreChatBtn { 0%, 100% { box-shadow: 0 0 0 0 rgba(234,29,44,0.38); } 50% { box-shadow: 0 0 0 6px rgba(234,29,44,0); } }
 
-        /* Painéis Gerais (Produtos, Vendas, Ajustes) */
-        .card-panel {
-            background: var(--white); border-radius: 18px; padding: 18px; border: 1px solid var(--border);
-            margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-        }
+        .pass-input-wrapper { position: relative; display: flex; align-items: center; }
+        .pass-input-wrapper input { padding-right: 44px !important; }
+        .pass-eye-btn { position: absolute; right: 10px; background: none; border: none; color: #71717a; cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center; }
+        .strong-pass-rules { background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; margin-top: 8px; font-size: 0.74rem; font-weight: 700; color: #71717a; display: none; flex-direction: column; gap: 4px; text-align: left; }
+        .pass-rule-item { display: flex; align-items: center; gap: 6px; transition: color 0.2s; }
+        .pass-rule-item.valid { color: var(--success); font-weight: 800; }
+
+        .card-panel { background: var(--white); border-radius: 18px; padding: 18px; border: 1px solid var(--border); margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
         .input-group { margin-bottom: 12px; text-align: left; }
         .input-group label { display: block; font-size: 0.75rem; font-weight: 800; color: #52525b; margin-bottom: 5px; text-transform: uppercase; }
-        .input-group input, .input-group select, .input-group textarea {
-            width: 100%; padding: 11px 13px; border: 1px solid #d4d4d8; border-radius: 11px;
-            font-size: 0.9rem; font-weight: 600; outline: none; background: #fff;
-        }
-        .btn-main {
-            width: 100%; background: var(--primary); color: #fff; border: none; padding: 13px;
-            border-radius: 12px; font-weight: 900; font-size: 0.95rem; cursor: pointer;
-        }
+        .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 11px 13px; border: 1px solid #d4d4d8; border-radius: 11px; font-size: 0.9rem; font-weight: 600; outline: none; background: #fff; }
+        .btn-main { width: 100%; background: var(--primary); color: #fff; border: none; padding: 13px; border-radius: 12px; font-weight: 900; font-size: 0.95rem; cursor: pointer; }
 
-        /* Opções de Dias de Funcionamento */
         .days-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0 12px; }
-        .day-Check {
-            flex: 1; min-width: 44px; text-align: center; padding: 8px 4px; border-radius: 10px;
-            border: 1px solid var(--border); background: #f8fafc; font-weight: 800; font-size: 0.75rem; cursor: pointer;
-        }
+        .day-Check { flex: 1; min-width: 44px; text-align: center; padding: 8px 4px; border-radius: 10px; border: 1px solid var(--border); background: #f8fafc; font-weight: 800; font-size: 0.75rem; cursor: pointer; }
         .day-Check.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
-        /* Grupos de Adicionais no Modal de Produto */
-        .addon-group-card {
-            background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px;
-        }
-        .btn-add-group {
-            width: 100%; background: #ecfdf5; color: #059669; border: 1px dashed #34d399;
-            padding: 11px; border-radius: 11px; font-weight: 900; cursor: pointer; margin-bottom: 14px;
-        }
+        .addon-group-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+        .btn-add-group { width: 100%; background: #ecfdf5; color: #059669; border: 1px dashed #34d399; padding: 11px; border-radius: 11px; font-weight: 900; cursor: pointer; margin-bottom: 14px; }
 
-        /* Menu Inferior Fixo */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: calc(60px + var(--safe-bottom));
-            background: var(--white); border-top: 1px solid var(--border);
-            display: flex; justify-content: space-around; align-items: center;
-            padding-bottom: var(--safe-bottom); z-index: 900;
-        }
-        .b-tab {
-            background: none; border: none; color: #71717a; font-weight: 800; font-size: 0.72rem;
-            display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; flex: 1;
-        }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: calc(60px + var(--safe-bottom)); background: var(--white); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; padding-bottom: var(--safe-bottom); z-index: 900; }
+        .b-tab { background: none; border: none; color: #71717a; font-weight: 800; font-size: 0.72rem; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; flex: 1; }
         .b-tab.active { color: var(--primary); }
 
-        /* Modais */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 3000;
-            display: none; align-items: center; justify-content: center; padding: 14px;
-        }
-        .modal-box {
-            background: var(--white); width: 100%; max-width: 500px; border-radius: 22px;
-            padding: 20px; max-height: 90vh; overflow-y: auto; position: relative;
-        }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 3000; display: none; align-items: center; justify-content: center; padding: 14px; }
+        .modal-box { background: var(--white); width: 100%; max-width: 500px; border-radius: 22px; padding: 20px; max-height: 90vh; overflow-y: auto; position: relative; }
 
-        .chat-box {
-            height: 300px; overflow-y: auto; background: #f1f5f9; border-radius: 14px;
-            padding: 12px; display: flex; flex-direction: column; gap: 8px; margin: 12px 0;
-            border: 1px solid var(--border);
-        }
+        .chat-box { height: 300px; overflow-y: auto; background: #f1f5f9; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px; margin: 12px 0; border: 1px solid var(--border); }
         .c-bubble { max-width: 82%; padding: 9px 12px; border-radius: 13px; font-size: 0.85rem; line-height: 1.35; word-wrap: break-word; }
         .c-bubble.me { align-self: flex-end; background: var(--dark); color: #fff; border-bottom-right-radius: 3px; }
         .c-bubble.them { align-self: flex-start; background: #fff; color: #111; border: 1px solid var(--border); border-bottom-left-radius: 3px; }
 
-        .toast {
-            position: fixed; top: 18px; left: 50%; transform: translateX(-50%) translateY(-150%);
-            background: #18181b; color: #fff; padding: 12px 22px; border-radius: 999px;
-            font-weight: 800; font-size: 0.84rem; z-index: 9999; transition: 0.3s;
-        }
+        .toast { position: fixed; top: 18px; left: 50%; transform: translateX(-50%) translateY(-150%); background: #18181b; color: #fff; padding: 12px 22px; border-radius: 999px; font-weight: 800; font-size: 0.84rem; z-index: 9999; transition: 0.3s; }
         .toast.show { transform: translateX(-50%) translateY(0); }
 
         @media (max-width: 768px) {
@@ -206,7 +109,6 @@
     </style>
 </head>
 <body>
-
 <div class="toast" id="toast">Aviso</div>
 
 <!-- TELA DE LOGIN / CADASTRO DO LOJISTA -->
@@ -217,14 +119,8 @@
         <p style="color:#71717a; font-size:0.84rem; margin-bottom:18px; font-weight:600;">Gerencie seus pedidos, cardápio e entregas em tempo real</p>
 
         <div id="reg-owner-name-box" style="display:none; gap:8px; flex-wrap:wrap;">
-            <div class="input-group" style="flex:1; min-width:130px;">
-                <label>Seu Nome *</label>
-                <input type="text" id="auth-owner-first-name" placeholder="Ex: João">
-            </div>
-            <div class="input-group" style="flex:1; min-width:130px;">
-                <label>Sobrenome *</label>
-                <input type="text" id="auth-owner-last-name" placeholder="Ex: Silva">
-            </div>
+            <div class="input-group" style="flex:1; min-width:130px;"><label>Seu Nome *</label><input type="text" id="auth-owner-first-name" placeholder="Ex: João"></div>
+            <div class="input-group" style="flex:1; min-width:130px;"><label>Sobrenome *</label><input type="text" id="auth-owner-last-name" placeholder="Ex: Silva"></div>
         </div>
         <div class="input-group" id="reg-store-name-box" style="display:none;">
             <label>Nome do seu Restaurante / Loja *</label>
@@ -234,70 +130,32 @@
             <label>WhatsApp da Loja (com DDD) *</label>
             <input type="text" id="auth-store-wpp" placeholder="Ex: 91988887777">
         </div>
-        <div class="input-group">
-            <label>E-mail do Lojista</label>
-            <input type="email" id="auth-email" placeholder="loja@email.com">
-        </div>
+        <div class="input-group"><label>E-mail do Lojista</label><input type="email" id="auth-email" placeholder="loja@email.com"></div>
         <div class="input-group">
             <label>Senha</label>
-            <input type="password" id="auth-pass" placeholder="Sua senha...">
+            <div class="pass-input-wrapper">
+                <input type="password" id="auth-pass" placeholder="Sua senha..." oninput="validateStoreStrongPassLive(this.value)">
+                <button type="button" class="pass-eye-btn" onclick="toggleStorePasswordVisibility('auth-pass', this)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </button>
+            </div>
+            <div class="strong-pass-rules" id="store-strong-pass-rules">
+                <div style="font-weight:900; color:#18181b; margin-bottom:2px;">🔒 Sua senha precisa ter:</div>
+                <div class="pass-rule-item" id="sprule-len"><span>○</span> Mínimo de 6 caracteres</div>
+                <div class="pass-rule-item" id="sprule-upper"><span>○</span> Pelo menos 1 letra maiúscula (A-Z)</div>
+                <div class="pass-rule-item" id="sprule-num"><span>○</span> Pelo menos 1 número (0-9)</div>
+                <div class="pass-rule-item" id="sprule-spec"><span>○</span> Pelo menos 1 caractere especial (@, #, $, !, %...)</div>
+            </div>
         </div>
         <div id="store-forgot-pass-box" style="text-align:right; margin-top:-6px; margin-bottom:12px;">
-            <button type="button" onclick="openStoreForgotModal()" style="background:none; border:none; color:#71717a; font-weight:800; font-size:0.78rem; cursor:pointer; text-decoration:underline;">
-                Esqueci minha senha
-            </button>
+            <button type="button" onclick="openStoreForgotModal()" style="background:none; border:none; color:#71717a; font-weight:800; font-size:0.78rem; cursor:pointer; text-decoration:underline;">Esqueci minha senha</button>
         </div>
         <button class="btn-main" id="auth-submit-btn" onclick="submitStoreAuth()">Entrar no Painel</button>
-
-        <div style="display:flex; align-items:center; gap:10px; margin:14px 0;">
-            <div style="flex:1; height:1px; background:var(--border);"></div>
-            <span style="font-size:0.72rem; font-weight:800; color:#a1a1aa; text-transform:uppercase;">ou</span>
-            <div style="flex:1; height:1px; background:var(--border);"></div>
-        </div>
-
-        <button type="button" onclick="loginStoreWithGoogle()" style="width:100%; background:#fff; color:#18181b; border:1px solid #d4d4d8; padding:12px; border-radius:12px; font-weight:800; font-size:0.88rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 2px 6px rgba(0,0,0,0.04);">
-            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-            <span>Entrar com Conta Google</span>
-        </button>
-
-        <button type="button" onclick="toggleStoreAuthMode()" id="auth-toggle-btn" style="background:none; border:none; color:var(--primary); font-weight:800; margin-top:14px; cursor:pointer; font-size:0.84rem;">
-            Quero cadastrar minha loja no aplicativo
-        </button>
+        <button type="button" onclick="toggleStoreAuthMode()" id="auth-toggle-btn" style="background:none; border:none; color:var(--primary); font-weight:800; margin-top:14px; cursor:pointer; font-size:0.84rem;">Quero cadastrar minha loja no aplicativo</button>
     </div>
 </div>
 
-<!-- MODAL PARA COMPLETAR CADASTRO DO LOJISTA APÓS ENTRAR COM GOOGLE -->
-<div class="modal-overlay" id="modal-store-complete-google" style="z-index:6500;">
-    <div class="modal-box" style="text-align:center; max-width:420px;">
-        <div style="font-size:2.3rem; margin-bottom:6px;">🏪</div>
-        <h3 style="font-weight:900; font-size:1.2rem; margin-bottom:4px;">Complete os Dados da Loja</h3>
-        <p style="color:#71717a; font-size:0.82rem; font-weight:600; margin-bottom:14px;">Informe seu nome, o nome do seu estabelecimento e o WhatsApp para atendimento:</p>
-
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <div class="input-group" style="flex:1; min-width:130px;">
-                <label>Seu Nome *</label>
-                <input type="text" id="google-store-first-name" placeholder="Ex: João">
-            </div>
-            <div class="input-group" style="flex:1; min-width:130px;">
-                <label>Sobrenome *</label>
-                <input type="text" id="google-store-last-name" placeholder="Ex: Silva">
-            </div>
-        </div>
-        <div class="input-group">
-            <label>Nome do Restaurante / Loja *</label>
-            <input type="text" id="google-store-name" placeholder="Ex: Burger House">
-        </div>
-        <div class="input-group">
-            <label>WhatsApp da Loja (com DDD) *</label>
-            <input type="tel" id="google-store-wpp" placeholder="Ex: 91988887777" onkeypress="if(event.key==='Enter') saveGoogleStoreCompleteProfile()">
-        </div>
-        <button type="button" class="btn-main" onclick="saveGoogleStoreCompleteProfile()" style="background:var(--success); margin-top:6px;">
-            ✅ Salvar e Abrir Meu Painel
-        </button>
-    </div>
-</div>
-
-<!-- MODAL DE VERIFICAÇÃO DE PIN DE 4 DÍGITOS NO CADASTRO DO LOJISTA -->
+<!-- MODAL VERIFICAÇÃO PIN 4 DÍGITOS DO LOJISTA -->
 <div class="modal-overlay" id="modal-store-verify-pin" style="z-index:6000;">
     <div class="modal-box" style="text-align:center; max-width:400px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
@@ -306,34 +164,17 @@
         </div>
         <div style="font-size:2.3rem; margin-bottom:6px;">📩</div>
         <h3 style="font-weight:900; font-size:1.2rem; margin-bottom:6px;">Verifique o E-mail da Loja</h3>
-        <p style="color:#52525b; font-size:0.84rem; font-weight:600; margin-bottom:14px; line-height:1.4;">
-            Enviamos um PIN de <b>4 dígitos</b> para:<br>
-            <b id="store-pin-target-email" style="color:var(--primary);">loja@email.com</b>
-        </p>
+        <p style="color:#52525b; font-size:0.84rem; font-weight:600; margin-bottom:14px;">Enviamos um PIN de <b>4 dígitos</b> para:<br><b id="store-pin-target-email" style="color:var(--primary);"></b></p>
         <div class="input-group" style="text-align:center;">
             <label style="text-align:center;">Digite o PIN de 4 dígitos</label>
             <input type="text" id="store-pin-code-input" maxlength="4" inputmode="numeric" placeholder="0000" style="text-align:center; font-size:1.6rem; font-weight:900; letter-spacing:10px; padding:12px;" onkeypress="if(event.key==='Enter') confirmStoreEmailPin()">
         </div>
-
-        <div id="store-pin-script-box" style="display:none; background:#fffbeb; border:1px dashed #f59e0b; padding:10px; border-radius:12px; margin-bottom:12px; text-align:left; font-size:0.75rem; color:#92400e;">
-            <div style="font-weight:900; margin-bottom:4px;">⚙️ URL do Google Sheets (Apps Script):</div>
-            <div style="display:flex; gap:6px;">
-                <input type="text" id="store-gsheet-url-input" placeholder="https://script.google.com/macros/s/.../exec" style="flex:1; padding:7px 9px; border:1px solid #fcd34d; border-radius:8px; font-size:0.75rem;">
-                <button type="button" onclick="saveStoreGoogleScriptUrl()" style="background:#d97706; color:#fff; border:none; padding:0 10px; border-radius:8px; font-weight:800; cursor:pointer;">Salvar</button>
-            </div>
-        </div>
-
-        <button type="button" class="btn-main" id="btn-store-confirm-pin" onclick="confirmStoreEmailPin()" style="background:var(--success); margin-bottom:10px;">
-            ✅ Confirmar PIN e Cadastrar Loja
-        </button>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <button type="button" onclick="resendStorePin()" style="background:none; border:none; color:var(--primary); font-weight:800; font-size:0.8rem; cursor:pointer;">🔄 Reenviar PIN</button>
-            <button type="button" onclick="document.getElementById('store-pin-script-box').style.display = document.getElementById('store-pin-script-box').style.display === 'none' ? 'block' : 'none'" style="background:none; border:none; color:#71717a; font-weight:700; font-size:0.75rem; cursor:pointer;">⚙️ Configurar Planilha</button>
-        </div>
+        <button type="button" class="btn-main" id="btn-store-confirm-pin" onclick="confirmStoreEmailPin()" style="background:var(--success); margin-bottom:10px;">✅ Confirmar PIN e Cadastrar Loja</button>
+        <button type="button" onclick="resendStorePin()" style="background:none; border:none; color:var(--primary); font-weight:800; font-size:0.82rem; cursor:pointer;">🔄 Reenviar PIN para meu e-mail</button>
     </div>
 </div>
 
-<!-- MODAL DE RECUPERAÇÃO DE SENHA DO LOJISTA -->
+<!-- MODAL RECUPERAÇÃO DE SENHA DO LOJISTA -->
 <div class="modal-overlay" id="modal-store-forgot-pass" style="z-index:6000;" onclick="if(event.target===this) this.style.display='none'">
     <div class="modal-box" style="text-align:center; max-width:400px;">
         <div style="display:flex; justify-content:flex-end;">
@@ -341,18 +182,12 @@
         </div>
         <div style="font-size:2.3rem; margin-bottom:6px;">🔑</div>
         <h3 style="font-weight:900; font-size:1.2rem; margin-bottom:6px;">Recuperar Senha da Loja</h3>
-        <p style="color:#52525b; font-size:0.84rem; font-weight:600; margin-bottom:14px;">
-            Digite o e-mail da sua loja para receber o link de redefinição de senha:
-        </p>
-        <div class="input-group">
-            <label>E-mail da Loja</label>
-            <input type="email" id="store-forgot-email" placeholder="loja@email.com">
-        </div>
+        <p style="color:#52525b; font-size:0.84rem; font-weight:600; margin-bottom:14px;">Digite o e-mail da sua loja para receber o link de redefinição:</p>
+        <div class="input-group"><label>E-mail da Loja</label><input type="email" id="store-forgot-email" placeholder="loja@email.com"></div>
         <button type="button" class="btn-main" onclick="sendStorePasswordReset()">📩 Enviar Link de Recuperação</button>
     </div>
 </div>
 
-<!-- CABEÇALHO DO PAINEL -->
 <header>
     <div class="store-header-left">
         <img id="hdr-logo" src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150'">
@@ -365,26 +200,18 @@
         <button class="btn-pill" id="btn-support-header" onclick="openSupportModal()" style="background:#fef3c7; color:#b45309;">
             👑 Suporte <span id="sup-unread-badge" style="display:none; background:#dc2626; color:#fff; padding:1px 6px; border-radius:99px; font-size:0.68rem;">1</span>
         </button>
-        <button class="btn-pill" id="btn-toggle-open" onclick="toggleStoreOpenStatus()" style="background:#dcfce7; color:#15803d;">
-            🟢 Aberta
-        </button>
+        <button class="btn-pill" id="btn-toggle-open" onclick="toggleStoreOpenStatus()" style="background:#dcfce7; color:#15803d;">🟢 Aberta</button>
         <button class="btn-pill" onclick="logoutStore()" style="background:#f4f4f5; color:#3f3f46;" title="Sair">🚪</button>
     </div>
 </header>
 
-<!-- BARRA DE TEMPORIZADOR DA ASSINATURA / EXPIRAÇÃO DO PAINEL -->
 <div class="sub-timer-bar" id="sub-timer-bar">
     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-        <span id="sub-reg-date-label">📅 Cadastro: --/--/----</span>
-        <span>•</span>
-        <span id="sub-exp-date-label">Vencimento: --/--/----</span>
+        <span id="sub-reg-date-label">📅 Cadastro: --/--/----</span><span>•</span><span id="sub-exp-date-label">Vencimento: --/--/----</span>
     </div>
-    <div style="display:flex; align-items:center; gap:8px;">
-        <span class="timer-countdown-badge" id="sub-live-countdown">⏳ Calculando...</span>
-    </div>
+    <div><span class="timer-countdown-badge" id="sub-live-countdown">⏳ Calculando...</span></div>
 </div>
 
-<!-- AVISO FIXO NO CANTO DA TELA QUANDO A CONTA ESTÁ EXPIRADA -->
 <div class="expired-corner-badge" id="expired-corner-badge" onclick="openSupportModal()">
     <div style="display:flex; align-items:center; gap:10px;">
         <span style="font-size:1.4rem;">🚨</span>
@@ -461,18 +288,15 @@
     </div>
 </section>
 
-<!-- ABA 4: AJUSTES DA LOJA E DETALHES DA ASSINATURA -->
+<!-- ABA 4: AJUSTES DA LOJA -->
 <section id="sec-ajustes" class="view-section">
-    <!-- Card de Status da Assinatura do Painel -->
     <div class="card-panel" id="settings-subscription-card" style="background:#f8fafc; border:1px solid #cbd5e1;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
             <div>
                 <h3 style="font-weight:900; font-size:1.02rem; color:#0f172a;">💳 Assinatura do Seu Painel</h3>
                 <p id="settings-sub-details" style="font-size:0.8rem; color:#475569; font-weight:700; margin-top:4px;">Carregando dados da assinatura...</p>
             </div>
-            <button type="button" onclick="openSupportModal()" style="background:#0f172a; color:#fff; border:none; padding:9px 14px; border-radius:10px; font-weight:800; font-size:0.78rem; cursor:pointer;">
-                👑 Falar com o Suporte
-            </button>
+            <button type="button" onclick="openSupportModal()" style="background:#0f172a; color:#fff; border:none; padding:9px 14px; border-radius:10px; font-weight:800; font-size:0.78rem; cursor:pointer;">👑 Falar com o Suporte</button>
         </div>
     </div>
 
@@ -487,8 +311,25 @@
                 <button type="button" onclick="document.getElementById('cfg-logo-file').click()" style="background:#18181b; color:#fff; border:none; padding:0 14px; border-radius:10px; font-weight:800; font-size:0.8rem; cursor:pointer; white-space:nowrap;">📁 Galeria</button>
             </div>
         </div>
-        <div class="input-group"><label>WhatsApp da Loja (com DDD)</label><input type="text" id="cfg-wpp" placeholder="Ex: 91999999999"></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <div class="input-group" style="flex:1; min-width:140px;"><label>WhatsApp da Loja (com DDD)</label><input type="text" id="cfg-wpp" placeholder="Ex: 91999999999"></div>
+            <div class="input-group" style="flex:1; min-width:140px;"><label>Taxa de Entrega (R$)</label><input type="number" step="0.01" id="cfg-taxa-entrega" placeholder="0.00 para Grátis"></div>
+        </div>
         <div class="input-group"><label>Chave PIX (CPF, CNPJ, Celular, E-mail ou Aleatória)</label><input type="text" id="cfg-pix" placeholder="Sua chave PIX para receber na hora"></div>
+
+        <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:14px; padding:14px; margin:14px 0;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:6px;">
+                <div style="font-weight:900; font-size:0.92rem; color:#166534;">📲 Alerta Automático de Novo Pedido no seu WhatsApp (Grátis)</div>
+                <a href="https://wa.me/34644519523?text=I%20allow%20callmebot%20to%20send%20me%20messages" target="_blank" rel="noopener" style="background:#16a34a; color:#fff; text-decoration:none; padding:6px 10px; border-radius:8px; font-weight:800; font-size:0.74rem;">🔑 Gerar Chave Grátis no WhatsApp</a>
+            </div>
+            <p style="font-size:0.76rem; color:#15803d; font-weight:600; line-height:1.4; margin-bottom:10px;">
+                Receba a mensagem automática <b>"🔔 Novo pedido no JuabaDelivery! Abra seu painel para aceitar."</b> no seu WhatsApp toda vez que um cliente pedir! Toque em <b>"Gerar Chave Grátis"</b> acima, envie a mensagem para o CallMeBot e cole abaixo a <b>API Key</b>:
+            </p>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <input type="text" id="cfg-wpp-apikey" placeholder="Cole sua API Key (Ex: 1234567)" style="flex:1; min-width:160px; padding:10px 12px; border:1px solid #86efac; border-radius:10px; font-weight:800; background:#fff;">
+                <button type="button" onclick="testStoreWhatsappAutoAlert()" style="background:#15803d; color:#fff; border:none; padding:10px 14px; border-radius:10px; font-weight:900; font-size:0.78rem; cursor:pointer; white-space:nowrap;">🧪 Testar Alerta</button>
+            </div>
+        </div>
 
         <div style="border-top:1px dashed var(--border); margin:16px 0; padding-top:14px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -522,7 +363,6 @@
     </div>
 </section>
 
-<!-- MENU INFERIOR -->
 <nav class="bottom-nav">
     <button class="b-tab active" id="btab-pedidos" onclick="switchPanelTab('pedidos')"><span>📋</span><span>Pedidos</span></button>
     <button class="b-tab" id="btab-produtos" onclick="switchPanelTab('produtos')"><span>🍔</span><span>Produtos</span></button>
@@ -530,30 +370,22 @@
     <button class="b-tab" id="btab-ajustes" onclick="switchPanelTab('ajustes')"><span>⚙️</span><span>Ajustes</span></button>
 </nav>
 
-<!-- MODAL DE AVISO QUANDO A CONTA / ASSINATURA EXPIRA (O LOJISTA PODE FECHAR NORMALMENTE) -->
+<!-- MODAL CONTA EXPIRADA -->
 <div class="modal-overlay" id="modal-expired-account" onclick="if(event.target===this) closeExpiredModal()">
     <div class="modal-box" style="text-align:center; max-width:420px; border:2px solid #dc2626;">
         <button onclick="closeExpiredModal()" style="position:absolute; top:14px; right:16px; background:#f4f4f5; border:none; width:32px; height:32px; border-radius:50%; font-size:1.1rem; font-weight:900; cursor:pointer;">✕</button>
         <div style="width:64px; height:64px; border-radius:20px; background:#fee2e2; color:#dc2626; display:inline-flex; align-items:center; justify-content:center; font-size:2.2rem; margin-bottom:12px;">🚨</div>
         <h3 style="font-weight:900; font-size:1.25rem; color:#991b1b; margin-bottom:8px;">Assinatura do Painel Expirada</h3>
-        <p style="color:#3f3f46; font-size:0.88rem; line-height:1.45; font-weight:600; margin-bottom:14px;">
-            O prazo da assinatura da sua loja expirou. Sua loja foi <b>fechada automaticamente</b> e está temporariamente <b>sem receber novos pedidos</b>.
-        </p>
-        <div style="background:#fef2f2; border:1px dashed #f87171; padding:12px; border-radius:12px; font-size:0.8rem; font-weight:800; color:#991b1b; margin-bottom:16px;">
-            💬 Entre em contato com o suporte para renovar seu acesso e voltar a vender imediatamente!
-        </div>
+        <p style="color:#3f3f46; font-size:0.88rem; line-height:1.45; font-weight:600; margin-bottom:14px;">O prazo da assinatura da sua loja expirou. Sua loja foi <b>fechada automaticamente</b> e está temporariamente <b>sem receber novos pedidos</b>.</p>
+        <div style="background:#fef2f2; border:1px dashed #f87171; padding:12px; border-radius:12px; font-size:0.8rem; font-weight:800; color:#991b1b; margin-bottom:16px;">💬 Entre em contato com o suporte para renovar seu acesso!</div>
         <div style="display:flex; flex-direction:column; gap:8px;">
-            <button type="button" class="btn-main" onclick="closeExpiredModal(); openSupportModal();" style="background:#dc2626;">
-                👑 Falar com o Suporte Agora
-            </button>
-            <button type="button" onclick="closeExpiredModal()" style="background:#f4f4f5; color:#3f3f46; border:none; padding:11px; border-radius:12px; font-weight:800; font-size:0.84rem; cursor:pointer;">
-                Fechar aviso e ver meu painel
-            </button>
+            <button type="button" class="btn-main" onclick="closeExpiredModal(); openSupportModal();" style="background:#dc2626;">👑 Falar com o Suporte Agora</button>
+            <button type="button" onclick="closeExpiredModal()" style="background:#f4f4f5; color:#3f3f46; border:none; padding:11px; border-radius:12px; font-weight:800; font-size:0.84rem; cursor:pointer;">Fechar aviso e ver meu painel</button>
         </div>
     </div>
 </div>
 
-<!-- MODAL DA LUPA (🔍): INFORMAÇÕES COMPLETAS DO PEDIDO + BOTÃO IMPRIMIR COMANDA -->
+<!-- MODAL DETALHES DO PEDIDO + IMPRIMIR COMANDA -->
 <div class="modal-overlay" id="modal-order-details" onclick="if(event.target===this) this.style.display='none'">
     <div class="modal-box" style="max-width:440px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -562,14 +394,12 @@
         </div>
         <div id="det-order-body" style="font-size:0.88rem; line-height:1.45; color:#27272a;"></div>
         <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border);">
-            <button type="button" class="btn-main" id="btn-print-order" style="background:#18181b; display:flex; align-items:center; justify-content:center; gap:8px;">
-                🖨️ Imprimir Comanda
-            </button>
+            <button type="button" class="btn-main" id="btn-print-order" style="background:#18181b; display:flex; align-items:center; justify-content:center; gap:8px;">🖨️ Imprimir Comanda</button>
         </div>
     </div>
 </div>
 
-<!-- MODAL: CHAT DO PEDIDO COM CLIENTE -->
+<!-- MODAL CHAT DO PEDIDO COM CLIENTE -->
 <div class="modal-overlay" id="modal-order-chat" onclick="if(event.target===this) closeOrderChat()">
     <div class="modal-box">
         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -578,22 +408,30 @@
         </div>
         <div class="chat-box" id="order-chat-msgs"></div>
         <div style="display:flex; gap:8px; width:100%;">
-            <input type="text" id="order-chat-input" placeholder="Digite uma mensagem..." style="flex:1; min-width:0; width:100%; padding:11px 12px; border:1px solid #d4d4d8; border-radius:11px; font-weight:600;" onkeypress="if(event.key==='Enter') sendOrderChatMsg()">
+            <input type="text" id="order-chat-input" placeholder="Digite uma mensagem..." maxlength="300" style="flex:1; min-width:0; width:100%; padding:11px 12px; border:1px solid #d4d4d8; border-radius:11px; font-weight:600;" onkeypress="if(event.key==='Enter') sendOrderChatMsg()">
             <button onclick="sendOrderChatMsg()" style="background:var(--primary); color:#fff; border:none; padding:0 16px; border-radius:11px; font-weight:900; cursor:pointer; flex-shrink:0;">Enviar</button>
         </div>
     </div>
 </div>
 
-<!-- MODAL: CANCELAR / EXCLUIR PEDIDO PELO LOJISTA COM MOTIVO -->
+<!-- MODAL VISUALIZADOR DE COMPROVANTE INTERNO (SEGURO PARA PWA) -->
+<div class="modal-overlay" id="modal-attachment-viewer" style="z-index:8000;" onclick="if(event.target===this) closeAttachmentViewer()">
+    <div class="modal-box" style="max-width:600px; max-height:92vh; display:flex; flex-direction:column;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 style="font-weight:900; font-size:1.05rem;">📎 Visualizar Comprovante</h3>
+            <button type="button" onclick="closeAttachmentViewer()" style="background:#f4f4f5; border:none; width:34px; height:34px; border-radius:50%; font-size:1.1rem; font-weight:900; cursor:pointer;">✕</button>
+        </div>
+        <div id="attachment-viewer-body" style="flex:1; overflow:auto; display:flex; align-items:center; justify-content:center; background:#f8fafc; border-radius:14px; padding:10px; min-height:280px;"></div>
+    </div>
+</div>
+
+<!-- MODAL CANCELAR PEDIDO PELO LOJISTA -->
 <div class="modal-overlay" id="modal-store-cancel-order" onclick="if(event.target===this) closeStoreCancelOrderModal()">
     <div class="modal-box" style="max-width:420px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <h3 style="font-weight:900; font-size:1.12rem; color:#dc2626;">❌ Cancelar Pedido</h3>
             <button type="button" onclick="closeStoreCancelOrderModal()" style="background:none; border:none; font-size:1.35rem; cursor:pointer;">✕</button>
         </div>
-        <p style="color:#52525b; font-size:0.82rem; font-weight:600; margin-bottom:12px; line-height:1.4;">
-            Informe o motivo do cancelamento. O pedido sairá da sua fila e aparecerá como <b>Cancelado</b> para o cliente junto com o motivo:
-        </p>
         <div class="input-group">
             <label>Selecione o Motivo *</label>
             <select id="store-cancel-reason-select" onchange="document.getElementById('store-cancel-custom-group').style.display = this.value === 'OUTRO' ? 'block' : 'none'">
@@ -607,7 +445,7 @@
         </div>
         <div class="input-group" id="store-cancel-custom-group" style="display:none;">
             <label>Especifique o motivo</label>
-            <input type="text" id="store-cancel-custom-input" placeholder="Digite o motivo para o cliente...">
+            <input type="text" id="store-cancel-custom-input" placeholder="Digite o motivo para o cliente..." maxlength="150">
         </div>
         <div style="display:flex; gap:8px; margin-top:14px;">
             <button type="button" onclick="closeStoreCancelOrderModal()" style="flex:1; background:#f4f4f5; color:#18181b; border:none; padding:12px; border-radius:11px; font-weight:800; cursor:pointer;">Voltar</button>
@@ -616,7 +454,7 @@
     </div>
 </div>
 
-<!-- MODAL: CHAT DE SUPORTE DIRETO COM O DONO DO APP (SUPER ADMIN) -->
+<!-- MODAL SUPORTE COM DONO DO APP -->
 <div class="modal-overlay" id="modal-support" onclick="if(event.target===this) closeSupportModal()">
     <div class="modal-box">
         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -628,13 +466,13 @@
         </div>
         <div class="chat-box" id="support-chat-msgs"></div>
         <div style="display:flex; gap:8px;">
-            <input type="text" id="support-chat-input" placeholder="Falar com o suporte / renovar assinatura..." style="flex:1; padding:11px 12px; border:1px solid #d4d4d8; border-radius:11px; font-weight:600;" onkeypress="if(event.key==='Enter') sendStoreSupportMsg()">
+            <input type="text" id="support-chat-input" placeholder="Falar com o suporte / renovar assinatura..." maxlength="300" style="flex:1; padding:11px 12px; border:1px solid #d4d4d8; border-radius:11px; font-weight:600;" onkeypress="if(event.key==='Enter') sendStoreSupportMsg()">
             <button onclick="sendStoreSupportMsg()" style="background:#18181b; color:#fff; border:none; padding:0 16px; border-radius:11px; font-weight:900; cursor:pointer;">Enviar</button>
         </div>
     </div>
 </div>
 
-<!-- MODAL: CADASTRAR / EDITAR PRODUTO -->
+<!-- MODAL CADASTRAR / EDITAR PRODUTO -->
 <div class="modal-overlay" id="modal-product" onclick="if(event.target===this) this.style.display='none'">
     <div class="modal-box">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
@@ -651,58 +489,70 @@
             <label>Categoria *</label>
             <div style="display:flex; gap:6px; align-items:center;">
                 <select id="prod-cat" style="flex:1;"></select>
-                <button type="button" onclick="toggleNewCategoryBox()" title="Adicionar nova categoria" style="width:42px; height:42px; border-radius:10px; border:1px solid #d4d4d8; background:#18181b; color:#fff; font-weight:900; font-size:1.25rem; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">+</button>
+                <button type="button" onclick="toggleNewCategoryBox()" title="Adicionar nova categoria" style="width:42px; height:42px; border-radius:10px; border:1px solid #d4d4d8; background:#18181b; color:#fff; font-weight:900; font-size:1.25rem; cursor:pointer;">+</button>
             </div>
             <div id="new-cat-inline-box" style="display:none; margin-top:8px; gap:6px; align-items:center;">
                 <input type="text" id="new-cat-input" placeholder="Nome da nova categoria..." style="flex:1; padding:9px 10px; font-size:0.85rem;" onkeypress="if(event.key==='Enter'){event.preventDefault(); confirmAddCategory();}">
-                <button type="button" onclick="confirmAddCategory()" style="background:var(--success); color:#fff; border:none; padding:9px 12px; border-radius:8px; font-weight:800; font-size:0.8rem; cursor:pointer; white-space:nowrap;">Salvar</button>
+                <button type="button" onclick="confirmAddCategory()" style="background:var(--success); color:#fff; border:none; padding:9px 12px; border-radius:8px; font-weight:800; font-size:0.8rem; cursor:pointer;">Salvar</button>
             </div>
         </div>
-
         <div class="input-group">
             <label>Foto do Produto (Escolher da Galeria ou Link)</label>
             <div style="display:flex; gap:8px;">
                 <input type="text" id="prod-img" placeholder="https://... ou escolha ao lado" style="flex:1;">
                 <input type="file" id="prod-file-input" accept="image/*" style="display:none;" onchange="handleProductImageUpload(this)">
-                <button type="button" onclick="document.getElementById('prod-file-input').click()" style="background:#18181b; color:#fff; border:none; padding:0 14px; border-radius:10px; font-weight:800; font-size:0.8rem; cursor:pointer; white-space:nowrap;">📁 Galeria</button>
+                <button type="button" onclick="document.getElementById('prod-file-input').click()" style="background:#18181b; color:#fff; border:none; padding:0 14px; border-radius:10px; font-weight:800; font-size:0.8rem; cursor:pointer;">📁 Galeria</button>
             </div>
         </div>
-
         <div class="input-group"><label>Descrição</label><textarea id="prod-desc" rows="2"></textarea></div>
-
-        <div style="border-top: 1px dashed #e4e4e7; margin: 16px 0 12px; padding-top: 14px;">
-            <h4 style="color: var(--primary); font-weight: 900; font-size: 0.95rem; margin-bottom: 12px;">Configurar Opções (Sabores, Adicionais)</h4>
+        <div style="border-top:1px dashed #e4e4e7; margin:16px 0 12px; padding-top:14px;">
+            <h4 style="color:var(--primary); font-weight:900; font-size:0.95rem; margin-bottom:12px;">Configurar Opções (Sabores, Adicionais)</h4>
             <div id="addon-groups-container"></div>
             <button type="button" class="btn-add-group" onclick="addAddonGroup()">+ Criar Novo Grupo de Opções</button>
         </div>
-
         <button class="btn-main" onclick="saveProduct()">Salvar Produto</button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, doc, getDoc, setDoc, addDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, doc, getDoc, setDoc, addDoc, deleteDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getMessaging, getToken, onMessage, isSupported } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
 
-    const firebaseConfig = { 
-        apiKey: "AIzaSyBYRRtW1_lmoEMd89f7kQ-L6IzkhTkofR4", 
-        authDomain: "juaba-delivery.firebaseapp.com", 
-        projectId: "juaba-delivery", 
-        storageBucket: "juaba-delivery.firebasestorage.app", 
-        messagingSenderId: "1048831257004", 
-        appId: "1:1048831257004:web:8db55b5383206296ad3209" 
+    const firebaseConfig = {
+        apiKey: "AIzaSyBYRRtW1_lmoEMd89f7kQ-L6IzkhTkofR4",
+        authDomain: "juaba-delivery.firebaseapp.com",
+        projectId: "juaba-delivery",
+        storageBucket: "juaba-delivery.firebasestorage.app",
+        messagingSenderId: "1048831257004",
+        appId: "1:1048831257004:web:8db55b5383206296ad3209"
     };
 
-    // Instância isolada ("JuabaLojistaApp") para nunca deslogar o App do Cliente nem o Super Admin no mesmo navegador
     const app = initializeApp(firebaseConfig, "JuabaLojistaApp");
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const el = (id) => document.getElementById(id);
 
-    // 🔗 URL DO GOOGLE SHEETS (APPS SCRIPT) PARA ENVIO DO PIN DE 4 DÍGITOS
-    window.GOOGLE_SCRIPT_URL = localStorage.getItem('https://script.google.com/macros/s/AKfycbzQE1PZ3ssBG8JJM-5xoXn37_w_uYoWIg6w3iyMEyg6ARPSwSEHwHz86_RZEiUOI6qayQ/exec') || "";
-    window.pendingStoreReg = null;
-    window.generatedStorePin = null;
+    // Escopo Privado Blindado (Inacessível via DevTools Console)
+    const GOOGLE_SCRIPT_URL = localStorage.getItem('juaba_gscript_url') || "https://script.google.com/macros/s/AKfycbzPwVthaJMg8GifsEy09DapU84EJzVrpuJeyD6EB4dGyIdv3VR6yCzW_1LR_Zdg1GYb/exec";
+    const FCM_VAPID_KEY = localStorage.getItem('juaba_vapid_key') || "";
+    let _pendingStoreReg = null;
+    let _storePinHash = null;
+    let _unsubscribes = [];
+
+    const hashPin = (pin) => btoa("JB_STORE_SALT_" + String(pin).trim());
+
+    window.escapeHtml = (str) => String(str ?? '')
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
 
     window.currentStore = null;
     window.storeOrders = [];
@@ -715,539 +565,411 @@
     window.globalBillingEnabled = true;
 
     window.isStoreRegMode = false;
+    window.isRegisteringStore = false;
     window.mobileKanbanFilter = 'ALL';
     window.activeOrderChatId = null;
     window.hasShownExpiredModalThisSession = false;
     window.isAccountExpired = false;
+    window.prevClientChatCounts = {};
+    window.knownOrderIds = new Set();
+    window.initialStoreOrdersLoaded = false;
+    window.storeFcmToken = localStorage.getItem('juaba_store_fcm_token') || '';
 
-    window.showToast = function(msg) {
-        const t = document.getElementById('toast');
+    window.storeKeepAliveAudioCtx = null;
+    window.enableStoreBackgroundKeepAlive = () => {
+        try {
+            if (navigator.locks && navigator.locks.request) {
+                navigator.locks.request('juaba_store_bg_lock', { mode: 'shared' }, () => new Promise(() => {}));
+            }
+            if (!window.storeKeepAliveAudioCtx) {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (AudioCtx) {
+                    const ctx = new AudioCtx();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    gain.gain.value = 0.00001;
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    window.storeKeepAliveAudioCtx = ctx;
+                }
+            } else if (window.storeKeepAliveAudioCtx.state === 'suspended') {
+                window.storeKeepAliveAudioCtx.resume().catch(() => {});
+            }
+        } catch (e) {}
+    };
+
+    window.syncStoreWithServiceWorker = (storeUid) => {
+        try {
+            const payload = {
+                type: 'JUABA_WATCH_STORE',
+                projectId: firebaseConfig.projectId,
+                lojaId: storeUid || window.currentStore?.id || ''
+            };
+            if (navigator.serviceWorker?.controller) {
+                navigator.serviceWorker.controller.postMessage(payload);
+            }
+            navigator.serviceWorker?.ready.then(reg => {
+                if (reg?.active) reg.active.postMessage(payload);
+                if (reg?.periodicSync) {
+                    reg.periodicSync.register('juaba-check-store-orders', { minInterval: 60000 }).catch(() => {});
+                }
+            }).catch(() => {});
+        } catch (e) {}
+    };
+
+    window.bindStoreFirstGestureNotification = () => {
+        const handler = async () => {
+            window.enableStoreBackgroundKeepAlive();
+            if ('Notification' in window && Notification.permission === 'default') {
+                try {
+                    const perm = await Notification.requestPermission();
+                    if (perm === 'granted' && auth.currentUser) {
+                        window.initStorePushNotificationsEngine(auth.currentUser.uid);
+                    }
+                } catch (e) {}
+            }
+        };
+        document.addEventListener('click', handler, { once: true });
+        document.addEventListener('touchend', handler, { once: true });
+    };
+    window.bindStoreFirstGestureNotification();
+
+    window.showToast = (msg) => {
+        const t = el('toast'); if (!t) return;
         t.innerText = msg; t.classList.add('show');
         setTimeout(() => t.classList.remove('show'), 3200);
     };
 
-    // Autenticação do Lojista
-    window.toggleStoreAuthMode = function() {
-        window.isStoreRegMode = !window.isStoreRegMode;
-        document.getElementById('reg-owner-name-box').style.display = window.isStoreRegMode ? 'flex' : 'none';
-        document.getElementById('reg-store-name-box').style.display = window.isStoreRegMode ? 'block' : 'none';
-        document.getElementById('reg-store-wpp-box').style.display = window.isStoreRegMode ? 'block' : 'none';
-        const forgotBox = document.getElementById('store-forgot-pass-box');
-        if (forgotBox) forgotBox.style.display = window.isStoreRegMode ? 'none' : 'block';
-        document.getElementById('auth-submit-btn').innerText = window.isStoreRegMode ? 'Cadastrar Minha Loja' : 'Entrar no Painel';
-        document.getElementById('auth-toggle-btn').innerText = window.isStoreRegMode ? 'Já tenho conta! Fazer Login' : 'Quero cadastrar minha loja no aplicativo';
-    };
-
-    window.sendStorePinViaGoogleSheets = async function(email, nomeLoja, pin) {
-        const scriptUrl = (window.GOOGLE_SCRIPT_URL || localStorage.getItem('juaba_google_script_url') || '').trim();
-        if (!scriptUrl) {
-            document.getElementById('store-pin-script-box').style.display = 'block';
-            window.showToast(`⚠️ Configure a URL da Planilha ou use o PIN de teste: ${pin}`);
-            return;
-        }
-        const payload = {
-            acao: 'enviar_pin',
-            tipo: 'verificacao_loja',
-            email: email,
-            destinatario: email,
-            nome: nomeLoja,
-            pin: String(pin),
-            codigo: String(pin),
-            assunto: `Código de Verificação da Loja: ${pin} - JuabaDelivery`,
-            mensagem: `Olá ${nomeLoja}, seu código PIN de verificação para cadastrar sua loja no JuabaDelivery é: ${pin}`
-        };
+    window.playStoreChatSound = () => {
         try {
-            const query = new URLSearchParams(payload).toString();
-            const sep = scriptUrl.includes('?') ? '&' : '?';
-            fetch(scriptUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(payload)
-            }).catch(() => {});
-            fetch(scriptUrl + sep + query, { method: 'GET', mode: 'no-cors' }).catch(() => {});
-            window.showToast(`📩 PIN de 4 dígitos enviado para ${email}!`);
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator(), gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(659.25, ctx.currentTime);
+            osc.frequency.setValueAtTime(987.77, ctx.currentTime + 0.12);
+            gain.gain.setValueAtTime(0.2, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(); osc.stop(ctx.currentTime + 0.4);
         } catch (e) {}
     };
 
-    window.saveStoreGoogleScriptUrl = function() {
-        const val = document.getElementById('store-gsheet-url-input').value.trim();
-        if (!val) { window.showToast("Cole a URL do Google Apps Script!"); return; }
-        window.GOOGLE_SCRIPT_URL = val;
-        localStorage.setItem('juaba_google_script_url', val);
-        document.getElementById('store-pin-script-box').style.display = 'none';
-        window.showToast("✅ URL salva! Reenviando PIN...");
-        window.resendStorePin();
-    };
-
-    window.resendStorePin = function() {
-        if (!window.pendingStoreReg) return;
-        window.generatedStorePin = String(Math.floor(1000 + Math.random() * 9000));
-        window.sendStorePinViaGoogleSheets(window.pendingStoreReg.email, window.pendingStoreReg.nomeLoja, window.generatedStorePin);
-    };
-
-    window.confirmStoreEmailPin = async function() {
-        const typed = document.getElementById('store-pin-code-input').value.trim();
-        if (!typed || typed.length < 4) {
-            window.showToast("⚠️ Digite os 4 dígitos do PIN!");
-            return;
-        }
-        if (typed !== String(window.generatedStorePin)) {
-            window.showToast("❌ PIN incorreto! Verifique seu e-mail.");
-            return;
-        }
-        if (!window.pendingStoreReg) return;
-
-        const { email, pass, nomeLoja, wpp, primeiroNome, sobrenome, nomeProprietario } = window.pendingStoreReg;
-        const btn = document.getElementById('btn-store-confirm-pin');
-        btn.disabled = true;
-        btn.innerText = "Cadastrando Loja...";
-
+    window.triggerStoreNativeNotification = async (title, body, orderId = null) => {
+        window.playStoreChatSound();
+        if (navigator.vibrate) { try { navigator.vibrate([300, 100, 300, 100, 400]); } catch (e) {} }
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+        const iconUrl = window.currentStore?.logo_loja || 'https://cdn-icons-png.flaticon.com/512/1046/1046784.png';
+        const options = {
+            body: String(body || ''),
+            icon: iconUrl,
+            badge: iconUrl,
+            tag: orderId ? `juaba_store_ord_${orderId}_${Date.now()}` : `juaba_store_notif_${Date.now()}`,
+            renotify: true,
+            requireInteraction: true,
+            vibrate: [300, 100, 300, 100, 400],
+            data: { orderId, url: window.location.href }
+        };
         try {
-            const cred = await createUserWithEmailAndPassword(auth, email, pass);
-            const cliCheck = await getDoc(doc(db, "clientes", cred.user.uid));
-            if (cliCheck.exists()) {
-                await signOut(auth);
-                window.showToast("⚠️ Este e-mail já pertence a um Cliente! Use outro e-mail para sua loja.");
+            const reg = await navigator.serviceWorker?.ready;
+            if (reg && reg.showNotification) {
+                await reg.showNotification(title, options);
                 return;
             }
-            const nowMs = Date.now();
-            const expMs = nowMs + (30 * 24 * 60 * 60 * 1000);
-            const dataHoje = new Date(nowMs).toLocaleDateString('pt-BR');
-            await setDoc(doc(db, "lojas", cred.user.uid), {
-                nome_loja: nomeLoja,
-                proprietario_nome: nomeProprietario || '',
-                primeiroNome: primeiroNome || '',
-                sobrenome: sobrenome || '',
-                email_loja: email,
-                whatsapp: wpp,
-                logo_loja: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150",
-                nota: "5.0",
-                aberto: true,
-                bloqueada: false,
-                cobrancaAtiva: true,
-                dataCadastro: dataHoje,
-                criadoEmMs: nowMs,
-                expiraEmMs: expMs,
-                contaExpirada: false,
-                diaVencimento: new Date(expMs).getDate(),
-                valorMensalidade: 50.00,
-                perfilConfirmado: true
-            }, { merge: true });
-            window.pendingStoreReg = null;
-            window.generatedStorePin = null;
-            document.getElementById('modal-store-verify-pin').style.display = 'none';
-            window.showToast("🎉 E-mail verificado e Loja cadastrada com sucesso!");
-        } catch (err) {
-            window.showToast("⚠️ Erro ao cadastrar loja. Verifique se o e-mail já está em uso.");
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "✅ Confirmar PIN e Cadastrar Loja";
-        }
-    };
-
-    window.openStoreForgotModal = function() {
-        document.getElementById('store-forgot-email').value = document.getElementById('auth-email').value.trim();
-        document.getElementById('modal-store-forgot-pass').style.display = 'flex';
-    };
-
-    window.sendStorePasswordReset = async function() {
-        const email = document.getElementById('store-forgot-email').value.trim();
-        if (!email) { window.showToast("⚠️ Digite o e-mail da loja!"); return; }
+        } catch (e) {}
         try {
-            await sendPasswordResetEmail(auth, email);
-            document.getElementById('modal-store-forgot-pass').style.display = 'none';
-            window.showToast("✅ Link de redefinição enviado para o e-mail da loja!");
-        } catch (e) {
-            window.showToast("⚠️ Verifique se o e-mail foi digitado corretamente.");
+            const n = new Notification(title, options);
+            n.onclick = () => {
+                window.focus();
+                if (orderId) window.openOrderDetailsModal(orderId);
+                n.close();
+            };
+        } catch (e) {}
+    };
+
+    window.initStorePushNotificationsEngine = async (storeUid) => {
+        try {
+            window.syncStoreWithServiceWorker(storeUid);
+            if (!('Notification' in window)) return;
+            if (Notification.permission === 'default') {
+                await Notification.requestPermission().catch(() => {});
+            }
+            if (Notification.permission !== 'granted') return;
+
+            const supported = await isSupported().catch(() => false);
+            if (!supported) return;
+
+            const messaging = getMessaging(app);
+            const swReg = await navigator.serviceWorker?.ready.catch(() => null);
+            const tokenOptions = swReg ? { serviceWorkerRegistration: swReg } : {};
+            if (FCM_VAPID_KEY) tokenOptions.vapidKey = FCM_VAPID_KEY;
+
+            const token = await getToken(messaging, tokenOptions).catch(() => '');
+            if (token) {
+                window.storeFcmToken = token;
+                localStorage.setItem('juaba_store_fcm_token', token);
+                if (storeUid) {
+                    setDoc(doc(db, "lojas", storeUid), { fcmTokenLoja: token }, { merge: true }).catch(() => {});
+                }
+            }
+
+            onMessage(messaging, (payload) => {
+                const title = payload?.notification?.title || payload?.data?.title || '🔔 Painel JuabaDelivery';
+                const body = payload?.notification?.body || payload?.data?.body || '🔔 Novo pedido no JuabaDelivery! Abra seu painel para aceitar.';
+                window.triggerStoreNativeNotification(title, body, payload?.data?.orderId);
+            });
+        } catch (e) {}
+    };
+
+    window.getClientMessagesCountForOrder = (o) => (o && Array.isArray(o.chat)) ? o.chat.filter(m => m.sender === 'cliente').length : 0;
+    window.getUnreadClientMessagesForOrder = (o) => {
+        if (!o) return 0;
+        const seen = parseInt(localStorage.getItem('juaba_store_seen_chat_' + o.id) || '0', 10);
+        return Math.max(0, window.getClientMessagesCountForOrder(o) - seen);
+    };
+    window.markStoreOrderChatAsRead = (orderId) => {
+        const o = window.storeOrders.find(x => x.id === orderId); if (!o) return;
+        try { localStorage.setItem('juaba_store_seen_chat_' + orderId, String(window.getClientMessagesCountForOrder(o))); } catch (e) {}
+        window.renderKanban();
+    };
+
+    window.toggleStorePasswordVisibility = (inputId, btnEl) => {
+        const inp = el(inputId); if (!inp) return;
+        const isPass = inp.type === 'password';
+        inp.type = isPass ? 'text' : 'password';
+        btnEl.innerHTML = isPass
+            ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ea1d2c" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`
+            : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+    };
+
+    window.toggleStoreAuthMode = () => {
+        window.isStoreRegMode = !window.isStoreRegMode;
+        el('reg-owner-name-box').style.display = window.isStoreRegMode ? 'flex' : 'none';
+        el('reg-store-name-box').style.display = window.isStoreRegMode ? 'block' : 'none';
+        el('reg-store-wpp-box').style.display = window.isStoreRegMode ? 'block' : 'none';
+        el('store-strong-pass-rules').style.display = window.isStoreRegMode ? 'flex' : 'none';
+        if (window.isStoreRegMode) window.validateStoreStrongPassLive(el('auth-pass').value);
+        el('store-forgot-pass-box').style.display = window.isStoreRegMode ? 'none' : 'block';
+        el('auth-submit-btn').innerText = window.isStoreRegMode ? 'Cadastrar Minha Loja' : 'Entrar no Painel';
+        el('auth-toggle-btn').innerText = window.isStoreRegMode ? 'Já tenho conta! Fazer Login' : 'Quero cadastrar minha loja no aplicativo';
+    };
+
+    window.checkStoreStrongPassword = (pass) => {
+        const p = String(pass || '');
+        return {
+            len: p.length >= 6, upper: /[A-Z]/.test(p), num: /[0-9]/.test(p), spec: /[^A-Za-z0-9]/.test(p),
+            get isValid() { return this.len && this.upper && this.num && this.spec; }
+        };
+    };
+
+    window.validateStoreStrongPassLive = (val) => {
+        if (!window.isStoreRegMode) return;
+        const res = window.checkStoreStrongPassword(val);
+        const setRule = (id, ok) => {
+            const node = el(id); if (!node) return;
+            node.classList.toggle('valid', ok);
+            const sp = node.querySelector('span'); if (sp) sp.innerText = ok ? '✔' : '○';
+        };
+        setRule('sprule-len', res.len); setRule('sprule-upper', res.upper);
+        setRule('sprule-num', res.num); setRule('sprule-spec', res.spec);
+    };
+
+    window.sendStorePinViaGoogleSheets = async (email, nomeLoja, pin) => {
+        const payload = { acao: 'enviar_pin', tipo: 'verificacao_loja', email, nome: nomeLoja, pin: String(pin), assunto: `Código PIN da Loja: ${pin} - JuabaDelivery` };
+        try {
+            const sep = GOOGLE_SCRIPT_URL.includes('?') ? '&' : '?';
+            await fetch(GOOGLE_SCRIPT_URL + sep + new URLSearchParams(payload).toString(), { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            window.showToast(`📩 PIN enviado para ${email}!`);
+        } catch (e) { window.showToast("⚠️ Falha ao enviar o PIN."); }
+    };
+
+    window.resendStorePin = () => {
+        if (!_pendingStoreReg) return;
+        const rawPin = String(Math.floor(1000 + Math.random() * 9000));
+        _storePinHash = hashPin(rawPin);
+        window.sendStorePinViaGoogleSheets(_pendingStoreReg.email, _pendingStoreReg.nomeLoja, rawPin);
+    };
+
+    window.confirmStoreEmailPin = async () => {
+        const typed = el('store-pin-code-input').value.trim();
+        if (!typed || hashPin(typed) !== _storePinHash) { window.showToast("❌ PIN incorreto!"); return; }
+        if (!_pendingStoreReg) return;
+
+        const { email, pass, nomeLoja, wpp, primeiroNome, sobrenome, nomeProprietario } = _pendingStoreReg;
+        const btn = el('btn-store-confirm-pin'); btn.disabled = true; btn.innerText = "Cadastrando Loja...";
+        window.isRegisteringStore = true;
+
+        try {
+            let userObj = null;
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                userObj = cred.user;
+            } catch (authErr) {
+                if (authErr.code === 'auth/email-already-in-use') {
+                    const signCred = await signInWithEmailAndPassword(auth, email, pass);
+                    userObj = signCred.user;
+                } else {
+                    throw authErr;
+                }
+            }
+
+            const nowMs = Date.now(), expMs = nowMs + (30 * 86400000);
+            const storePayload = {
+                nome_loja: nomeLoja, proprietario_nome: nomeProprietario || '', primeiroNome: primeiroNome || '', sobrenome: sobrenome || '',
+                email_loja: email.toLowerCase(), whatsapp: wpp, logo_loja: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150",
+                nota: "5.0", aberto: true, bloqueada: false, cobrancaAtiva: true, taxa_entrega: 0,
+                dataCadastro: new Date(nowMs).toLocaleDateString('pt-BR'), criadoEmMs: nowMs, expiraEmMs: expMs,
+                contaExpirada: false, diaVencimento: new Date(expMs).getDate(), valorMensalidade: 50.00, perfilConfirmado: true
+            };
+            await setDoc(doc(db, "lojas", userObj.uid), storePayload, { merge: true });
+            window.currentStore = { id: userObj.uid, ...storePayload };
+
+            _pendingStoreReg = null; _storePinHash = null;
+            window.isRegisteringStore = false;
+            el('modal-store-verify-pin').style.display = 'none';
+            el('auth-screen').style.display = 'none';
+            window.showToast("🎉 Loja cadastrada com sucesso!");
+            window.startStorePanelListeners(userObj);
+        } catch (err) {
+            window.isRegisteringStore = false;
+            const msg = err?.code === 'auth/wrong-password' || err?.code === 'auth/invalid-credential'
+                ? "⚠️ Este e-mail já possui cadastro com outra senha!"
+                : "⚠️ Erro ao salvar cadastro: " + (err?.message || "Tente novamente.");
+            window.showToast(msg);
+        } finally {
+            btn.disabled = false; btn.innerText = "✅ Confirmar PIN e Cadastrar Loja";
         }
     };
 
-    window.submitStoreAuth = async function() {
-        const email = document.getElementById('auth-email').value.trim();
-        const pass = document.getElementById('auth-pass').value.trim();
-        if (!email || !pass) { window.showToast("Preencha e-mail e senha!"); return; }
+    window.openStoreForgotModal = () => { el('store-forgot-email').value = el('auth-email').value.trim(); el('modal-store-forgot-pass').style.display = 'flex'; };
+    window.sendStorePasswordReset = async () => {
+        const email = el('store-forgot-email').value.trim();
+        if (!email) { window.showToast("⚠️ Digite o e-mail da loja!"); return; }
+        try { await sendPasswordResetEmail(auth, email); el('modal-store-forgot-pass').style.display = 'none'; window.showToast("✅ Link enviado para o e-mail!"); }
+        catch (e) { window.showToast("⚠️ E-mail não encontrado."); }
+    };
 
+    window.submitStoreAuth = async () => {
+        const email = el('auth-email').value.trim(), pass = el('auth-pass').value.trim();
+        if (!email || !pass) { window.showToast("Preencha e-mail e senha!"); return; }
         try {
             window.hasShownExpiredModalThisSession = false;
             if (window.isStoreRegMode) {
-                const primeiroNome = document.getElementById('auth-owner-first-name').value.trim();
-                const sobrenome = document.getElementById('auth-owner-last-name').value.trim();
-                const nomeLoja = document.getElementById('auth-store-name').value.trim();
-                const wpp = document.getElementById('auth-store-wpp').value.trim();
-                if (!primeiroNome || !sobrenome) { window.showToast("⚠️ Informe seu Nome e Sobrenome!"); return; }
-                if (!nomeLoja) { window.showToast("⚠️ Informe o nome da loja!"); return; }
-                if (!wpp || wpp.replace(/\D/g, '').length < 8) { window.showToast("⚠️ Informe o WhatsApp da loja com DDD!"); return; }
-                if (pass.length < 6) { window.showToast("A senha deve ter pelo menos 6 caracteres!"); return; }
-
-                const nomeProprietario = `${primeiroNome} ${sobrenome}`.trim();
-                window.pendingStoreReg = { email, pass, nomeLoja, wpp, primeiroNome, sobrenome, nomeProprietario };
-                window.generatedStorePin = String(Math.floor(1000 + Math.random() * 9000));
-                document.getElementById('store-pin-target-email').innerText = email;
-                document.getElementById('store-pin-code-input').value = '';
-                document.getElementById('store-gsheet-url-input').value = window.GOOGLE_SCRIPT_URL || '';
-                document.getElementById('modal-store-verify-pin').style.display = 'flex';
-
-                await window.sendStorePinViaGoogleSheets(email, nomeLoja, window.generatedStorePin);
+                const primeiroNome = el('auth-owner-first-name').value.trim(), sobrenome = el('auth-owner-last-name').value.trim();
+                const nomeLoja = el('auth-store-name').value.trim(), wpp = el('auth-store-wpp').value.trim();
+                if (!primeiroNome || !sobrenome || !nomeLoja || wpp.replace(/\D/g, '').length < 8) {
+                    window.showToast("⚠️ Preencha todos os dados da loja e WhatsApp!"); return;
+                }
+                if (!window.checkStoreStrongPassword(pass).isValid) {
+                    window.showToast("🔒 Cumpra todos os requisitos da senha forte!"); return;
+                }
+                const rawPin = String(Math.floor(1000 + Math.random() * 9000));
+                _pendingStoreReg = { email, pass, nomeLoja, wpp, primeiroNome, sobrenome, nomeProprietario: `${primeiroNome} ${sobrenome}`.trim() };
+                _storePinHash = hashPin(rawPin);
+                el('store-pin-target-email').innerText = email; el('store-pin-code-input').value = '';
+                el('modal-store-verify-pin').style.display = 'flex';
+                await window.sendStorePinViaGoogleSheets(email, nomeLoja, rawPin);
             } else {
-                window.isExplicitEmailLogin = true;
                 const cred = await signInWithEmailAndPassword(auth, email, pass);
-                const cliSnap = await getDoc(doc(db, "clientes", cred.user.uid));
-                if (cliSnap.exists()) {
-                    await signOut(auth);
-                    window.showToast("👤 Esta conta pertence a um Cliente! Use o App do Cliente.");
-                    return;
-                }
                 const lojaSnap = await getDoc(doc(db, "lojas", cred.user.uid));
-                if (!lojaSnap.exists()) {
-                    await signOut(auth);
-                    window.showToast("⚠️ Nenhuma loja encontrada para este login! Cadastre sua loja primeiro.");
-                    return;
+                if (lojaSnap.exists() && !lojaSnap.data().isSystemConfig) {
+                    window.showToast("👋 Bem-vindo ao seu Painel!"); return;
                 }
-                window.showToast("👋 Bem-vindo ao seu Painel!");
-            }
-        } catch (err) {
-            window.showToast("⚠️ Verifique seu e-mail e senha.");
-        }
-    };
-
-    window.loginStoreWithGoogle = async function() {
-        try {
-            window.hasShownExpiredModalThisSession = false;
-            window.isGoogleStoreLoginInProgress = true;
-            const provider = new GoogleAuthProvider();
-            provider.setCustomParameters({ prompt: 'select_account' });
-            const cred = await signInWithPopup(auth, provider);
-            const user = cred.user;
-            if (!user) return;
-
-            // Bloqueia se o e-mail já for de uma conta de Cliente
-            const cliSnap = await getDoc(doc(db, "clientes", user.uid));
-            if (cliSnap.exists()) {
-                window.isGoogleStoreLoginInProgress = false;
                 await signOut(auth);
-                window.showToast("👤 Esta conta Google já está cadastrada como Cliente! Use outra conta para sua loja.");
-                return;
+                window.showToast("⚠️ Conta não pertence a um Lojista cadastrado!");
             }
-
-            const lojaSnap = await getDoc(doc(db, "lojas", user.uid));
-            if (lojaSnap.exists()) {
-                const d = lojaSnap.data() || {};
-                if (d.nome_loja && d.whatsapp && d.primeiroNome && d.sobrenome) {
-                    window.isGoogleStoreLoginInProgress = false;
-                    document.getElementById('auth-screen').style.display = 'none';
-                    window.showToast(`👋 Bem-vindo(a), ${d.nome_loja}!`);
-                    return;
-                }
-            }
-
-            // Abre o modal para preencher Nome, Sobrenome, Nome da Loja e WhatsApp
-            const displayParts = String(user.displayName || '').trim().split(/\s+/);
-            const existingData = lojaSnap.exists() ? (lojaSnap.data() || {}) : {};
-            document.getElementById('google-store-first-name').value = existingData.primeiroNome || displayParts[0] || '';
-            document.getElementById('google-store-last-name').value = existingData.sobrenome || displayParts.slice(1).join(' ') || '';
-            document.getElementById('google-store-name').value = existingData.nome_loja || '';
-            document.getElementById('google-store-wpp').value = existingData.whatsapp || '';
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('modal-store-complete-google').style.display = 'flex';
-        } catch (err) {
-            window.isGoogleStoreLoginInProgress = false;
-            console.error("Erro Login Google Lojista:", err);
-            window.showToast("⚠️ Não foi possível entrar com o Google.");
-        }
+        } catch (err) { window.showToast("⚠️ E-mail ou senha incorretos."); }
     };
 
-    window.saveGoogleStoreCompleteProfile = async function() {
-        const user = auth.currentUser;
-        if (!user) return;
-        const primeiroNome = document.getElementById('google-store-first-name').value.trim();
-        const sobrenome = document.getElementById('google-store-last-name').value.trim();
-        const nomeLoja = document.getElementById('google-store-name').value.trim();
-        const wpp = document.getElementById('google-store-wpp').value.trim();
-
-        if (!primeiroNome) { window.showToast("⚠️ Digite seu Nome!"); document.getElementById('google-store-first-name').focus(); return; }
-        if (!sobrenome) { window.showToast("⚠️ Digite seu Sobrenome!"); document.getElementById('google-store-last-name').focus(); return; }
-        if (!nomeLoja) { window.showToast("⚠️ Informe o Nome do seu Restaurante / Loja!"); document.getElementById('google-store-name').focus(); return; }
-        if (!wpp || wpp.replace(/\D/g, '').length < 8) { window.showToast("⚠️ Informe o WhatsApp da Loja com DDD!"); document.getElementById('google-store-wpp').focus(); return; }
-
-        const nomeProprietario = `${primeiroNome} ${sobrenome}`.trim();
-        try {
-            await updateProfile(user, { displayName: nomeProprietario });
-        } catch (e) {}
-
-        const lojaRef = doc(db, "lojas", user.uid);
-        const snap = await getDoc(lojaRef);
-        const nowMs = Date.now();
-        const expMs = nowMs + (30 * 24 * 60 * 60 * 1000);
-        const dataHoje = new Date(nowMs).toLocaleDateString('pt-BR');
-
-        const basePayload = snap.exists() ? {} : {
-            logo_loja: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150",
-            nota: "5.0",
-            aberto: true,
-            bloqueada: false,
-            cobrancaAtiva: true,
-            dataCadastro: dataHoje,
-            criadoEmMs: nowMs,
-            expiraEmMs: expMs,
-            contaExpirada: false,
-            diaVencimento: new Date(expMs).getDate(),
-            valorMensalidade: 50.00
-        };
-
-        await setDoc(lojaRef, {
-            ...basePayload,
-            nome_loja: nomeLoja,
-            proprietario_nome: nomeProprietario,
-            primeiroNome,
-            sobrenome,
-            email_loja: user.email || '',
-            whatsapp: wpp,
-            perfilConfirmado: true
-        }, { merge: true });
-
-        window.isGoogleStoreLoginInProgress = false;
-        document.getElementById('modal-store-complete-google').style.display = 'none';
-        document.getElementById('auth-screen').style.display = 'none';
-        window.showToast(`🎉 Loja "${nomeLoja}" configurada com sucesso!`);
-    };
-
-    window.logoutStore = async function() {
-        window.hasShownExpiredModalThisSession = false;
-        await signOut(auth);
-        document.getElementById('auth-screen').style.display = 'flex';
-    };
-
-    window.switchPanelTab = function(tab) {
+    window.logoutStore = async () => { window.hasShownExpiredModalThisSession = false; await signOut(auth); el('auth-screen').style.display = 'flex'; };
+    window.switchPanelTab = (tab) => {
         document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-        document.getElementById(`sec-${tab}`).classList.add('active');
+        el(`sec-${tab}`).classList.add('active');
         document.querySelectorAll('.b-tab').forEach(b => b.classList.remove('active'));
-        document.getElementById(`btab-${tab}`).classList.add('active');
+        el(`btab-${tab}`).classList.add('active');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
+    window.closeExpiredModal = () => { el('modal-expired-account').style.display = 'none'; };
 
-    window.closeExpiredModal = function() {
-        document.getElementById('modal-expired-account').style.display = 'none';
-    };
-
-    // =========================================================================
-    // TEMPORIZADOR DE ASSINATURA + EXPIRAÇÃO E AVISO AUTOMÁTICO AO SUPER ADMIN
-    // =========================================================================
-    window.checkAndRenderSubscriptionTimer = async function() {
+    window.checkAndRenderSubscriptionTimer = async () => {
         if (!window.currentStore) return;
         const loja = { ...window.currentStore, ...(window.sysStoreOverride || {}) };
+        let criadoMs = Number(loja.criadoEmMs) || Date.now();
+        let expiraMs = Number(loja.expiraEmMs) || (criadoMs + 30 * 86400000);
+        let dataCadStr = loja.dataCadastro || new Date(criadoMs).toLocaleDateString('pt-BR');
 
-        // Garante que lojas antigas tenham dataCadastro e expiraEmMs inicializados
-        let criadoMs = Number(loja.criadoEmMs) || 0;
-        let expiraMs = Number(loja.expiraEmMs) || 0;
-        let dataCadStr = loja.dataCadastro || '';
+        const barEl = el('sub-timer-bar'), regLbl = el('sub-reg-date-label'), expLbl = el('sub-exp-date-label');
+        const countEl = el('sub-live-countdown'), hdrSubMini = el('hdr-sub-mini'), cornerBadge = el('expired-corner-badge'), setCard = el('settings-sub-details');
+        const cobrancaAtiva = (window.globalBillingEnabled !== false) && !(loja.cobrancaAtiva === false || String(loja.cobrancaAtiva).toLowerCase() === 'false');
 
-        if (!criadoMs) {
-            criadoMs = Date.now();
-            dataCadStr = new Date(criadoMs).toLocaleDateString('pt-BR');
-        }
-        if (!expiraMs) {
-            expiraMs = criadoMs + (30 * 24 * 60 * 60 * 1000);
-            await setDoc(doc(db, "lojas", loja.id), {
-                criadoEmMs: criadoMs,
-                dataCadastro: dataCadStr,
-                expiraEmMs: expiraMs
-            }, { merge: true });
+        if (!cobrancaAtiva) {
+            window.isAccountExpired = false; cornerBadge.style.display = 'none'; el('modal-expired-account').style.display = 'none';
+            barEl.className = 'sub-timer-bar'; regLbl.innerText = `📅 Cadastro: ${dataCadStr}`; expLbl.innerText = `Status: Conta Liberada`;
+            countEl.innerText = `🟢 Acesso Livre`; hdrSubMini.innerHTML = `<span style="color:#16a34a;">🟢 Conta Liberada</span>`;
+            if (setCard) setCard.innerHTML = `📅 Cadastrado em: <b>${window.escapeHtml(dataCadStr)}</b> • <b style="color:#16a34a;">🟢 Acesso Liberado pelo Administrador</b>`;
             return;
         }
 
-        const barEl = document.getElementById('sub-timer-bar');
-        const regLbl = document.getElementById('sub-reg-date-label');
-        const expLbl = document.getElementById('sub-exp-date-label');
-        const countEl = document.getElementById('sub-live-countdown');
-        const hdrSubMini = document.getElementById('hdr-sub-mini');
-        const cornerBadge = document.getElementById('expired-corner-badge');
-        const setCard = document.getElementById('settings-sub-details');
-
-        const cobrancaLojaAtiva = (window.globalBillingEnabled !== false) && !(loja.cobrancaAtiva === false || String(loja.cobrancaAtiva).toLowerCase() === 'false');
-
-        // Se o Dono do App desativou o sistema de pagamento (geral ou para esta loja), libera totalmente a conta!
-        if (!cobrancaLojaAtiva) {
-            window.isAccountExpired = false;
-            cornerBadge.style.display = 'none';
-            document.getElementById('modal-expired-account').style.display = 'none';
-            barEl.className = 'sub-timer-bar';
-            regLbl.innerText = `📅 Cadastro: ${dataCadStr || new Date(criadoMs).toLocaleDateString('pt-BR')}`;
-            expLbl.innerText = `Status: Conta Liberada`;
-            countEl.innerText = `🟢 Acesso Livre`;
-            hdrSubMini.innerHTML = `<span style="color:#16a34a;">🟢 Conta Liberada</span>`;
-            if (setCard) {
-                setCard.innerHTML = `📅 Cadastrado em: <b>${dataCadStr || new Date(criadoMs).toLocaleDateString('pt-BR')}</b> • <b style="color:#16a34a;">🟢 Acesso Liberado pelo Administrador (Sem Expiração Ativa)</b>`;
-            }
-            if (window.currentStore.contaExpirada === true) {
-                await setDoc(doc(db, "lojas", loja.id), { contaExpirada: false }, { merge: true });
-            }
-            return;
-        }
-
-        const expDateStr = new Date(expiraMs).toLocaleDateString('pt-BR');
-        const diffMs = expiraMs - Date.now();
-
-        regLbl.innerText = `📅 Cadastro: ${dataCadStr || new Date(criadoMs).toLocaleDateString('pt-BR')}`;
-        expLbl.innerText = `Vencimento: ${expDateStr}`;
+        const expDateStr = new Date(expiraMs).toLocaleDateString('pt-BR'), diffMs = expiraMs - Date.now();
+        regLbl.innerText = `📅 Cadastro: ${dataCadStr}`; expLbl.innerText = `Vencimento: ${expDateStr}`;
 
         if (diffMs <= 0) {
-            // CONTA EXPIRADA!
-            window.isAccountExpired = true;
-            barEl.className = 'sub-timer-bar expired';
-            countEl.innerText = `🚨 CONTA EXPIRADA`;
+            window.isAccountExpired = true; barEl.className = 'sub-timer-bar expired'; countEl.innerText = `🚨 CONTA EXPIRADA`;
             hdrSubMini.innerHTML = `<span style="color:#dc2626; font-weight:900;">🚨 Conta Expirada • Loja Fechada</span>`;
             cornerBadge.style.display = 'flex';
-            if (setCard) {
-                setCard.innerHTML = `<span style="color:#dc2626; font-weight:900;">🚨 Assinatura Expirada em ${expDateStr}</span> (Cadastrado em ${dataCadStr}). Sua loja está fechada e sem receber pedidos. Entre em contato com o suporte para renovar.`;
-            }
+            if (setCard) setCard.innerHTML = `<span style="color:#dc2626; font-weight:900;">🚨 Assinatura Expirada em ${window.escapeHtml(expDateStr)}</span>. Entre em contato com o suporte.`;
+            if (!window.hasShownExpiredModalThisSession) { window.hasShownExpiredModalThisSession = true; el('modal-expired-account').style.display = 'flex'; }
 
-            // Mostra o modal de aviso ao fazer login / abrir o painel (permitindo fechar normalmente)
-            if (!window.hasShownExpiredModalThisSession) {
-                window.hasShownExpiredModalThisSession = true;
-                document.getElementById('modal-expired-account').style.display = 'flex';
-            }
-
-            // Fecha a loja automaticamente e avisa o Super Admin no banco de dados se ainda não tiver avisado
-            if (window.currentStore.aberto !== false || window.currentStore.contaExpirada !== true || window.currentStore.alertaExpiracaoMs !== expiraMs) {
-                const chatArr = Array.isArray(window.currentStore.suporteChatLoja) ? [...window.currentStore.suporteChatLoja] : [];
-                if (window.currentStore.alertaExpiracaoMs !== expiraMs) {
-                    const now = new Date();
-                    const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-                    chatArr.push({
-                        id: 'exp_alert_' + Date.now(),
-                        sender: 'loja',
-                        text: `🚨 ALERTA AUTOMÁTICO DO SISTEMA: A assinatura da loja "${loja.nome_loja || 'Loja'}" expirou em ${expDateStr}. A loja foi fechada automaticamente e aguarda renovação.`,
-                        time: timeStr,
-                        ts: Date.now()
-                    });
-                }
-                await setDoc(doc(db, "lojas", loja.id), {
-                    aberto: false,
-                    contaExpirada: true,
-                    alertaExpiracaoMs: expiraMs,
-                    suporteChatLoja: chatArr,
-                    lastLojaMsgMs: Date.now()
-                }, { merge: true });
+            if (window.currentStore.aberto !== false || window.currentStore.contaExpirada !== true) {
+                await setDoc(doc(db, "lojas", loja.id), { aberto: false, contaExpirada: true }, { merge: true });
             }
         } else {
-            // CONTA ATIVA: Calcula dias, horas, minutos e segundos restantes
-            window.isAccountExpired = false;
-            cornerBadge.style.display = 'none';
-
-            const totalSeconds = Math.floor(diffMs / 1000);
-            const days = Math.floor(totalSeconds / 86400);
-            const hours = Math.floor((totalSeconds % 86400) / 3600);
-            const mins = Math.floor((totalSeconds % 3600) / 60);
-            const secs = totalSeconds % 60;
-
-            const timeFormatted = `${days}d ${String(hours).padStart(2, '0')}h ${String(mins).padStart(2, '0')}m ${String(secs).padStart(2, '0')}s`;
-            countEl.innerText = `⏳ Expira em: ${timeFormatted}`;
-
-            if (days <= 5) {
-                barEl.className = 'sub-timer-bar expiring-soon';
-                hdrSubMini.innerHTML = `<span style="color:#d97706;">⚠️ Expira em ${days} dia(s)</span>`;
-            } else {
-                barEl.className = 'sub-timer-bar';
-                hdrSubMini.innerHTML = `<span style="color:#16a34a;">✅ Assinatura ativa (${days} dias restantes)</span>`;
-            }
-
-            if (setCard) {
-                setCard.innerHTML = `📅 Cadastrado em: <b>${dataCadStr}</b> • ⏳ Expira em: <b>${expDateStr}</b> (<b style="color:#16a34a;">${timeFormatted}</b> restantes)`;
-            }
-
-            // Se o Super Admin renovou a assinatura, limpa a flag contaExpirada automaticamente
-            if (window.currentStore.contaExpirada === true) {
-                await setDoc(doc(db, "lojas", loja.id), { contaExpirada: false }, { merge: true });
-            }
+            window.isAccountExpired = false; cornerBadge.style.display = 'none';
+            const totSec = Math.floor(diffMs / 1000), d = Math.floor(totSec / 86400), h = Math.floor((totSec % 86400) / 3600), m = Math.floor((totSec % 3600) / 60), s = totSec % 60;
+            const fmt = `${d}d ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
+            countEl.innerText = `⏳ Expira em: ${fmt}`;
+            barEl.className = d <= 5 ? 'sub-timer-bar expiring-soon' : 'sub-timer-bar';
+            hdrSubMini.innerHTML = d <= 5 ? `<span style="color:#d97706;">⚠️ Expira em ${d} dia(s)</span>` : `<span style="color:#16a34a;">✅ Assinatura ativa (${d}d)</span>`;
+            if (setCard) setCard.innerHTML = `📅 Cadastrado em: <b>${window.escapeHtml(dataCadStr)}</b> • ⏳ Expira em: <b>${window.escapeHtml(expDateStr)}</b> (<b style="color:#16a34a;">${fmt}</b>)`;
         }
     };
 
-    // Atualiza o relógio regressivo a cada 1 segundo
-    setInterval(() => {
-        if (window.currentStore) window.checkAndRenderSubscriptionTimer();
-    }, 1000);
+    setInterval(() => { if (window.currentStore) window.checkAndRenderSubscriptionTimer(); }, 1000);
 
-    // Verifica e aplica o horário automático de funcionamento (se a conta NÃO estiver expirada)
-    window.checkAutoScheduleOnPanel = async function() {
-        if (!window.currentStore || window.isAccountExpired) return;
-        const loja = window.currentStore;
-        if (!loja.horarioAutoAtivo) return;
-
-        const abreStr = String(loja.horarioAbre || '').trim();
-        const fechaStr = String(loja.horarioFecha || '').trim();
+    window.checkAutoScheduleOnPanel = async () => {
+        if (!window.currentStore || window.isAccountExpired || !window.currentStore.horarioAutoAtivo) return;
+        const loja = window.currentStore, abreStr = String(loja.horarioAbre || '').trim(), fechaStr = String(loja.horarioFecha || '').trim();
         if (!abreStr || !fechaStr) return;
-
-        const now = new Date();
-        const currentDay = now.getDay();
-        const prevDay = (currentDay + 6) % 7;
-        const dias = Array.isArray(loja.diasFuncionamento) ? loja.diasFuncionamento.map(Number) : [0, 1, 2, 3, 4, 5, 6];
-
-        const [abreH, abreM] = abreStr.split(':').map(Number);
-        const [fechaH, fechaM] = fechaStr.split(':').map(Number);
-        if (isNaN(abreH) || isNaN(fechaH)) return;
-
-        const nowMins = now.getHours() * 60 + now.getMinutes();
-        const abreMins = abreH * 60 + (abreM || 0);
-        const fechaMins = fechaH * 60 + (fechaM || 0);
-
-        let shouldBeOpen = false;
-        if (abreMins === fechaMins) {
-            shouldBeOpen = dias.includes(currentDay);
-        } else if (abreMins < fechaMins) {
-            shouldBeOpen = dias.includes(currentDay) && nowMins >= abreMins && nowMins < fechaMins;
-        } else {
-            if (nowMins >= abreMins) shouldBeOpen = dias.includes(currentDay);
-            else if (nowMins < fechaMins) shouldBeOpen = dias.includes(prevDay);
-        }
-
-        const currentOpen = !(loja.aberto === false || String(loja.aberto).toLowerCase() === 'false');
-        if (shouldBeOpen !== currentOpen) {
-            await setDoc(doc(db, "lojas", loja.id), { aberto: shouldBeOpen }, { merge: true });
-        }
+        const now = new Date(), curDay = now.getDay(), prevDay = (curDay + 6) % 7;
+        const dias = Array.isArray(loja.diasFuncionamento) ? loja.diasFuncionamento.map(Number) : [0,1,2,3,4,5,6];
+        const [aH, aM] = abreStr.split(':').map(Number), [fH, fM] = fechaStr.split(':').map(Number);
+        if (isNaN(aH) || isNaN(fH)) return;
+        const nowMins = now.getHours() * 60 + now.getMinutes(), aMins = aH * 60 + (aM || 0), fMins = fH * 60 + (fM || 0);
+        let shouldOpen = (aMins === fMins) ? dias.includes(curDay) : (aMins < fMins ? (dias.includes(curDay) && nowMins >= aMins && nowMins < fMins) : (nowMins >= aMins ? dias.includes(curDay) : (nowMins < fMins ? dias.includes(prevDay) : false)));
+        const curOpen = !(loja.aberto === false || String(loja.aberto).toLowerCase() === 'false');
+        if (shouldOpen !== curOpen) await setDoc(doc(db, "lojas", loja.id), { aberto: shouldOpen }, { merge: true });
     };
 
-    window.toggleStoreOpenStatus = async function() {
+    window.toggleStoreOpenStatus = async () => {
         if (!window.currentStore) return;
-        if (window.isAccountExpired) {
-            document.getElementById('modal-expired-account').style.display = 'flex';
-            window.showToast("🚨 Conta expirada! Fale com o suporte para reabrir sua loja.");
-            return;
-        }
+        if (window.isAccountExpired) { el('modal-expired-account').style.display = 'flex'; return; }
         const cur = !(window.currentStore.aberto === false || String(window.currentStore.aberto).toLowerCase() === 'false');
         await setDoc(doc(db, "lojas", window.currentStore.id), { aberto: !cur }, { merge: true });
         window.showToast(!cur ? "🟢 Sua loja está ABERTA!" : "🔴 Sua loja foi FECHADA.");
     };
 
-    // =========================================================================
-    // KANBAN DE PEDIDOS COMPACTO + MODAL DA LUPA + IMPRESSÃO DE COMANDA
-    // =========================================================================
-    window.isOrderDone = function(st) {
-        const s = String(st || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        return s === 'concluido' || s === 'entregue';
-    };
-
-    window.setMobileKanbanFilter = function(st, btn) {
+    window.isOrderDone = (st) => ['concluido', 'entregue'].includes(String(st || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+    window.setMobileKanbanFilter = (st, btn) => {
         window.mobileKanbanFilter = st;
         document.querySelectorAll('.kanban-mobile-tabs .km-tab').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        window.applyMobileKanbanVisibility();
-    };
-
-    window.applyMobileKanbanVisibility = function() {
-        const cols = ['Novo', 'Preparando', 'Entrega', 'Concluido'];
-        cols.forEach(c => {
-            const el = document.getElementById(`kcol-${c}`);
-            if (!el) return;
-            if (window.mobileKanbanFilter === 'ALL') {
-                el.classList.remove('hidden-mobile');
-            } else {
-                el.classList.toggle('hidden-mobile', c !== window.mobileKanbanFilter);
-            }
+        ['Novo', 'Preparando', 'Entrega', 'Concluido'].forEach(c => {
+            const node = el(`kcol-${c}`);
+            if (node) node.classList.toggle('hidden-mobile', st !== 'ALL' && c !== st);
         });
     };
 
-    window.renderKanban = function() {
+    window.renderKanban = () => {
         const groups = { Novo: [], Preparando: [], Entrega: [], Concluido: [] };
         window.storeOrders.forEach(o => {
             if (o.status === 'Cancelado' || o.ocultoNoPainel === true) return;
@@ -1256,738 +978,619 @@
             else groups.Novo.push(o);
         });
 
-        document.getElementById('count-Novo').innerText = groups.Novo.length;
-        document.getElementById('count-Preparando').innerText = groups.Preparando.length;
-        document.getElementById('count-Entrega').innerText = groups.Entrega.length;
-        document.getElementById('count-Concluido').innerText = groups.Concluido.length;
-
-        document.getElementById('mtab-novo').innerText = `🔔 Novos (${groups.Novo.length})`;
-        document.getElementById('mtab-prep').innerText = `🍳 Cozinha (${groups.Preparando.length})`;
-        document.getElementById('mtab-ent').innerText = `🛵 Entrega (${groups.Entrega.length})`;
-        document.getElementById('mtab-conc').innerText = `✅ Concluídos (${groups.Concluido.length})`;
+        ['Novo', 'Preparando', 'Entrega', 'Concluido'].forEach(k => el(`count-${k}`).innerText = groups[k].length);
+        el('mtab-novo').innerText = `🔔 Novos (${groups.Novo.length})`;
+        el('mtab-prep').innerText = `🍳 Cozinha (${groups.Preparando.length})`;
+        el('mtab-ent').innerText = `🛵 Entrega (${groups.Entrega.length})`;
+        el('mtab-conc').innerText = `✅ Concluídos (${groups.Concluido.length})`;
 
         const renderCol = (stKey, list) => {
-            const box = document.getElementById(`list-${stKey}`);
-            if (!box) return;
-            if (list.length === 0) {
-                box.innerHTML = `<div style="text-align:center; padding:12px; color:#71717a; font-size:0.76rem; font-weight:700;">Sem pedidos</div>`;
-                return;
-            }
+            const box = el(`list-${stKey}`); if (!box) return;
+            if (!list.length) { box.innerHTML = `<div style="text-align:center; padding:12px; color:#71717a; font-size:0.76rem; font-weight:700;">Sem pedidos</div>`; return; }
             box.innerHTML = list.slice().reverse().map(o => {
-                let nextLabel = '';
-                let nextStatus = '';
-                let btnColor = '#16a34a';
-                if (stKey === 'Novo') { nextLabel = 'Aceitar ➡️'; nextStatus = 'Preparando'; btnColor = '#16a34a'; }
+                let nextLabel = '', nextStatus = '', btnColor = '#16a34a';
+                if (stKey === 'Novo') { nextLabel = 'Aceitar ➡️'; nextStatus = 'Preparando'; }
                 else if (stKey === 'Preparando') { nextLabel = 'Despachar 🛵'; nextStatus = 'Entrega'; btnColor = '#ea580c'; }
                 else if (stKey === 'Entrega') { nextLabel = 'Concluir ✅'; nextStatus = 'Concluido'; btnColor = '#2563eb'; }
 
                 const msgCount = Array.isArray(o.chat) ? o.chat.length : 0;
-                const receiptBadge = o.temComprovante ? `<span title="Comprovante PIX anexado">🧾</span>` : '';
-
+                const unreadCli = window.getUnreadClientMessagesForOrder(o);
                 return `
                 <div class="order-compact-card">
                     <div class="order-compact-top">
                         <div class="order-client-name" onclick="openOrderDetailsModal('${o.id}')" style="cursor:pointer;">
-                            👤 ${o.cliente || 'Cliente'} ${receiptBadge}
+                            👤 ${window.escapeHtml(o.cliente || 'Cliente')} ${o.temComprovante ? '<span title="Comprovante PIX">🧾</span>' : ''}
                         </div>
-                        <span style="font-weight:900; color:var(--success); font-size:0.86rem; white-space:nowrap;">${o.total || 'R$ 0,00'}</span>
-                        <button type="button" class="btn-icon-sq" onclick="openOrderDetailsModal('${o.id}')" title="Ver detalhes e imprimir">🔍</button>
+                        <span style="font-weight:900; color:var(--success); font-size:0.86rem; white-space:nowrap;">${window.escapeHtml(o.total || 'R$ 0,00')}</span>
+                        <button type="button" class="btn-icon-sq" onclick="openOrderDetailsModal('${o.id}')" title="Detalhes e Imprimir">🔍</button>
                     </div>
                     <div class="order-compact-actions">
                         ${nextStatus ? `<button type="button" class="btn-advance" style="background:${btnColor};" onclick="advanceOrderStatus('${o.id}', '${nextStatus}')">${nextLabel}</button>` : `<span style="flex:1; font-size:0.74rem; font-weight:800; color:var(--success);">✔️ Entregue</span>`}
-                        <button type="button" class="btn-icon-sq" onclick="openOrderChat('${o.id}')" title="Chat do Pedido">💬 ${msgCount}</button>
-                        <button type="button" class="btn-icon-sq" style="background:#fee2e2; color:#dc2626; border-color:#fecaca;" onclick="deleteOrderCard('${o.id}')" title="Excluir pedido">🗑️</button>
+                        <button type="button" class="btn-icon-sq ${unreadCli > 0 ? 'btn-chat-unread-store' : ''}" onclick="openOrderChat('${o.id}')">
+                            <span>💬</span>${unreadCli > 0 ? `<span style="background:#ea1d2c; color:#fff; padding:1px 6px; border-radius:999px; font-size:0.68rem;">${unreadCli}</span>` : `<span>${msgCount}</span>`}
+                        </button>
+                        <button type="button" class="btn-icon-sq" style="background:#fee2e2; color:#dc2626; border-color:#fecaca;" onclick="deleteOrderCard('${o.id}')">🗑️</button>
                     </div>
                 </div>`;
             }).join('');
         };
 
-        renderCol('Novo', groups.Novo);
-        renderCol('Preparando', groups.Preparando);
-        renderCol('Entrega', groups.Entrega);
-        renderCol('Concluido', groups.Concluido);
-        window.applyMobileKanbanVisibility();
+        ['Novo', 'Preparando', 'Entrega', 'Concluido'].forEach(k => renderCol(k, groups[k]));
     };
 
-    window.advanceOrderStatus = async function(orderId, nextStatus) {
-        if (window.isAccountExpired) {
-            document.getElementById('modal-expired-account').style.display = 'flex';
-            window.showToast("🚨 Assinatura expirada! Renove com o suporte.");
-            return;
+    window.advanceOrderStatus = async (orderId, nextStatus) => {
+        if (window.isAccountExpired) { el('modal-expired-account').style.display = 'flex'; return; }
+        await setDoc(doc(db, "pedidos", orderId), { status: nextStatus, updatedAtMs: Date.now() }, { merge: true });
+        const o = window.storeOrders.find(x => x.id === orderId);
+        if (o) {
+            const msgMap = {
+                'Preparando': '🍳 A loja aceitou seu pedido e já está preparando!',
+                'Entrega': '🛵 Seu pedido saiu para entrega! Prepare-se para receber.',
+                'Concluido': '✅ Pedido entregue e concluído! Bom apetite!'
+            };
+            window.dispatchPushToClient(o, `🛵 ${window.currentStore?.nome_loja || 'JuabaDelivery'}`, msgMap[nextStatus] || `Status atualizado: ${nextStatus}`, nextStatus);
         }
-        await setDoc(doc(db, "pedidos", orderId), { status: nextStatus }, { merge: true });
         window.showToast(`Pedido movido para ${nextStatus}!`);
     };
 
-    window.storeCancelTargetOrderId = null;
-    window.deleteOrderCard = async function(orderId) {
-        const o = window.storeOrders.find(x => x.id === orderId);
-        if (!o) return;
+    window.dispatchPushToClient = async (orderObj, title, body, status = '') => {
+        if (!orderObj) return;
+        try {
+            const payload = {
+                acao: 'enviar_push_fcm',
+                action: 'send_push',
+                fcmToken: orderObj.fcmTokenCliente || '',
+                email: orderObj.emailCliente || '',
+                cliente: orderObj.cliente || '',
+                telefone: orderObj.telefone || '',
+                loja: window.currentStore?.nome_loja || orderObj.nomeLoja || 'JuabaDelivery',
+                title: String(title || 'JuabaDelivery'),
+                body: String(body || 'Atualização no seu pedido!'),
+                status: String(status || orderObj.status || ''),
+                orderId: orderObj.id
+            };
+            const sep = GOOGLE_SCRIPT_URL.includes('?') ? '&' : '?';
+            await fetch(GOOGLE_SCRIPT_URL + sep + new URLSearchParams(payload).toString(), {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            });
+        } catch (e) {}
+    };
 
-        // Se o pedido já foi concluído, apenas oculta do Kanban da loja sem apagar do histórico do cliente
-        if (window.isOrderDone(o.status)) {
-            await setDoc(doc(db, "pedidos", orderId), { ocultoNoPainel: true }, { merge: true });
-            window.showToast("🗑️ Pedido arquivado do painel (mantido no histórico do cliente).");
-            return;
+    // Dispara mensagem automática no WhatsApp do Lojista quando chega novo pedido
+    window.triggerStoreOwnerWhatsappAlert = async (orderObj) => {
+        if (!window.currentStore || !orderObj?.id) return;
+        const sentKey = 'juaba_wpp_alert_sent_' + orderObj.id;
+        if (localStorage.getItem(sentKey)) return;
+        localStorage.setItem(sentKey, '1');
+
+        const rawWpp = String(window.currentStore.whatsapp || '').replace(/\D/g, '');
+        if (!rawWpp || rawWpp.length < 8) return;
+        const phone = rawWpp.startsWith('55') ? rawWpp : '55' + rawWpp;
+        const apiKey = String(window.currentStore.whatsappApiKey || window.currentStore.wpp_api_key || '').trim();
+        const msg = "🔔 Novo pedido no JuabaDelivery! Abra seu painel para aceitar.";
+
+        if (apiKey) {
+            try {
+                const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(msg)}&apikey=${encodeURIComponent(apiKey)}`;
+                fetch(url, { method: 'GET', mode: 'no-cors' }).catch(() => {});
+            } catch (e) {}
         }
-
-        // Se o pedido está ativo, abre o modal para o lojista escolher o motivo do cancelamento
-        window.storeCancelTargetOrderId = orderId;
-        document.getElementById('store-cancel-reason-select').value = 'Produto em falta no momento';
-        document.getElementById('store-cancel-custom-group').style.display = 'none';
-        document.getElementById('store-cancel-custom-input').value = '';
-        document.getElementById('modal-store-cancel-order').style.display = 'flex';
-    };
-
-    window.closeStoreCancelOrderModal = function() {
-        window.storeCancelTargetOrderId = null;
-        document.getElementById('modal-store-cancel-order').style.display = 'none';
-    };
-
-    window.confirmStoreCancelOrder = async function() {
-        const orderId = window.storeCancelTargetOrderId;
-        if (!orderId) return;
-        const o = window.storeOrders.find(x => x.id === orderId);
-        if (!o) return;
-
-        const selVal = document.getElementById('store-cancel-reason-select').value;
-        const customVal = document.getElementById('store-cancel-custom-input').value.trim();
-        const motivo = (selVal === 'OUTRO') ? (customVal || 'Cancelado pelo estabelecimento') : selVal;
-
-        const nomeLoja = (window.currentStore && window.currentStore.nome_loja) || o.nomeLoja || 'Loja';
-        const now = new Date();
-        const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-        const arr = Array.isArray(o.chat) ? [...o.chat] : [];
-        arr.push({
-            sender: 'loja',
-            senderName: nomeLoja,
-            text: `❌ Pedido cancelado pela loja. Motivo: ${motivo}`,
-            time: timeStr
-        });
 
         try {
-            await setDoc(doc(db, "pedidos", orderId), {
-                status: 'Cancelado',
-                motivoCancelamento: motivo,
-                canceladoPor: 'Loja',
-                ocultoNoPainel: true,
-                chat: arr
-            }, { merge: true });
-            window.closeStoreCancelOrderModal();
-            window.showToast("❌ Pedido cancelado e motivo enviado ao cliente!");
-        } catch (e) {
-            window.showToast("⚠️ Erro ao cancelar o pedido.");
-        }
+            const payload = {
+                acao: 'aviso_whatsapp_lojista',
+                telefoneLoja: phone,
+                nomeLoja: window.currentStore.nome_loja || 'Loja',
+                wppApiKey: apiKey,
+                fcmTokenLoja: window.storeFcmToken || window.currentStore.fcmTokenLoja || '',
+                orderId: orderObj.id,
+                mensagem: msg
+            };
+            const sep = GOOGLE_SCRIPT_URL.includes('?') ? '&' : '?';
+            await fetch(GOOGLE_SCRIPT_URL + sep + new URLSearchParams(payload).toString(), {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            });
+        } catch (e) {}
     };
 
-    // Modal da Lupa (🔍): Exibe todas as informações sem botões de avançar/chat/lixeira, apenas com o botão de Imprimir Comanda
-    window.openOrderDetailsModal = function(orderId) {
-        const o = window.storeOrders.find(x => x.id === orderId);
-        if (!o) return;
-        document.getElementById('det-order-title').innerText = `🔍 Pedido #${o.id.substring(0, 6).toUpperCase()}`;
-        document.getElementById('det-order-body').innerHTML = `
+    // Dispara mensagem automática no WhatsApp do Lojista quando chega novo pedido
+    window.triggerStoreOwnerWhatsappAlert = async (orderObj) => {
+        if (!window.currentStore || !orderObj?.id) return;
+        const sentKey = 'juaba_wpp_alert_sent_' + orderObj.id;
+        if (localStorage.getItem(sentKey)) return;
+        localStorage.setItem(sentKey, '1');
+
+        const rawWpp = String(window.currentStore.whatsapp || '').replace(/\D/g, '');
+        if (!rawWpp || rawWpp.length < 8) return;
+        const phone = rawWpp.startsWith('55') ? rawWpp : '55' + rawWpp;
+        const msg = "🔔 Novo pedido no JuabaDelivery! Abra seu painel para aceitar.";
+
+        try {
+            const payload = {
+                acao: 'aviso_whatsapp_lojista',
+                telefoneLoja: phone,
+                nomeLoja: window.currentStore.nome_loja || 'Loja',
+                wppApiKey: window.currentStore.wpp_api_key || '',
+                fcmTokenLoja: window.storeFcmToken || window.currentStore.fcmTokenLoja || '',
+                orderId: orderObj.id,
+                mensagem: msg
+            };
+            const sep = GOOGLE_SCRIPT_URL.includes('?') ? '&' : '?';
+            await fetch(GOOGLE_SCRIPT_URL + sep + new URLSearchParams(payload).toString(), {
+                method: 'POST', mode: 'no-cors', body: JSON.stringify(payload)
+            });
+        } catch (e) {}
+    };
+
+    window.storeCancelTargetOrderId = null;
+    window.deleteOrderCard = async (orderId) => {
+        const o = window.storeOrders.find(x => x.id === orderId); if (!o) return;
+        if (window.isOrderDone(o.status)) {
+            await setDoc(doc(db, "pedidos", orderId), { ocultoNoPainel: true }, { merge: true });
+            window.showToast("🗑️ Pedido arquivado do painel."); return;
+        }
+        window.storeCancelTargetOrderId = orderId;
+        el('store-cancel-reason-select').value = 'Produto em falta no momento';
+        el('store-cancel-custom-group').style.display = 'none';
+        el('store-cancel-custom-input').value = '';
+        el('modal-store-cancel-order').style.display = 'flex';
+    };
+    window.closeStoreCancelOrderModal = () => { window.storeCancelTargetOrderId = null; el('modal-store-cancel-order').style.display = 'none'; };
+
+    window.confirmStoreCancelOrder = async () => {
+        const id = window.storeCancelTargetOrderId, o = window.storeOrders.find(x => x.id === id); if (!o) return;
+        const sel = el('store-cancel-reason-select').value, cust = el('store-cancel-custom-input').value.trim();
+        const motivo = sel === 'OUTRO' ? (cust || 'Cancelado pelo estabelecimento') : sel;
+        const arr = Array.isArray(o.chat) ? [...o.chat] : [];
+        arr.push({ sender: 'loja', senderName: window.currentStore?.nome_loja || 'Loja', text: `❌ Pedido cancelado pela loja: ${motivo}`, time: new Date().toTimeString().slice(0,5) });
+        try {
+            await setDoc(doc(db, "pedidos", id), { status: 'Cancelado', motivoCancelamento: motivo, canceladoPor: 'Loja', ocultoNoPainel: true, chat: arr }, { merge: true });
+            if (o?.fcmTokenCliente) {
+                window.dispatchPushToClient(o, `❌ Pedido Cancelado — ${window.currentStore?.nome_loja || 'Loja'}`, `Motivo: ${motivo}`);
+            }
+            window.closeStoreCancelOrderModal(); window.showToast("❌ Pedido cancelado!");
+        } catch (e) { window.showToast("⚠️ Erro ao cancelar."); }
+    };
+
+    window.formatOrderItemsLinesHtml = (o) => {
+        if (!o) return '';
+        if (Array.isArray(o.itensCart) && o.itensCart.length) {
+            return o.itensCart.map(i => {
+                const addTxt = (Array.isArray(i.addonsNames) && i.addonsNames.length) ? ` [${window.escapeHtml(i.addonsNames.join(', '))}]` : '';
+                const obsTxt = i.obs ? ` (Obs: ${window.escapeHtml(i.obs)})` : '';
+                return `<div style="padding:3px 0; border-bottom:1px dotted rgba(0,0,0,0.12);">• ${parseInt(i.qty)||1}x ${window.escapeHtml(i.nome)}${addTxt}${obsTxt}</div>`;
+            }).join('');
+        }
+        return String(o.itens || '').split(/\s*,\s*(?=\d+x\s)/i).map(it => `<div style="padding:3px 0; border-bottom:1px dotted rgba(0,0,0,0.12);">• ${window.escapeHtml(it.trim())}</div>`).join('');
+    };
+
+    window.openOrderDetailsModal = (orderId) => {
+        const o = window.storeOrders.find(x => x.id === orderId); if (!o) return;
+        el('det-order-title').innerText = `🔍 Pedido #${o.id.substring(0, 6).toUpperCase()}`;
+        el('det-order-body').innerHTML = `
             <div style="background:#f8fafc; border:1px solid var(--border); border-radius:14px; padding:14px; margin-bottom:10px;">
-                <div style="margin-bottom:6px;"><b>👤 Cliente:</b> ${o.cliente || 'Cliente'}</div>
-                <div style="margin-bottom:6px;"><b>📱 WhatsApp:</b> ${o.telefone || 'Não informado'}</div>
-                <div style="margin-bottom:6px;"><b>📍 Entrega:</b> ${o.endereco || 'Retirar na Loja'}</div>
-                <div style="margin-bottom:6px;"><b>💳 Pagamento:</b> ${o.pagamento || 'PIX'}</div>
-                <div><b>🕒 Data/Hora:</b> ${o.data || ''}</div>
+                <div style="margin-bottom:6px;"><b>👤 Cliente:</b> ${window.escapeHtml(o.cliente || 'Cliente')}</div>
+                <div style="margin-bottom:6px;"><b>📱 WhatsApp:</b> ${window.escapeHtml(o.telefone || 'Não informado')}</div>
+                <div style="margin-bottom:6px;"><b>📍 Entrega:</b> ${window.escapeHtml(o.endereco || 'Retirar na Loja')}</div>
+                <div style="margin-bottom:6px;"><b>💳 Pagamento:</b> ${window.escapeHtml(o.pagamento || 'PIX')}</div>
+                <div><b>🕒 Data/Hora:</b> ${window.escapeHtml(o.data || '')}</div>
             </div>
             <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:14px; padding:14px; margin-bottom:10px;">
-                <div style="font-weight:900; color:#92400e; margin-bottom:4px;">🍔 Itens do Pedido:</div>
-                <div style="font-weight:700; color:#18181b;">${o.itens || ''}</div>
+                <div style="font-weight:900; color:#92400e; margin-bottom:6px;">🍔 Itens do Pedido:</div>
+                <div style="font-weight:700; color:#18181b;">${window.formatOrderItemsLinesHtml(o)}</div>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; background:#f0fdf4; border:1px solid #bbf7d0; padding:12px 14px; border-radius:12px;">
                 <span style="font-weight:800; color:#166534;">Valor Total</span>
-                <span style="font-weight:900; font-size:1.15rem; color:#15803d;">${o.total || 'R$ 0,00'}</span>
-            </div>
-        `;
-        document.getElementById('btn-print-order').onclick = () => window.printThermalReceipt(o);
-        document.getElementById('modal-order-details').style.display = 'flex';
+                <span style="font-weight:900; font-size:1.15rem; color:#15803d;">${window.escapeHtml(o.total || 'R$ 0,00')}</span>
+            </div>`;
+        el('btn-print-order').onclick = () => window.printThermalReceipt(o);
+        el('modal-order-details').style.display = 'flex';
     };
 
-    // Impressão de Comanda Térmica (80mm / 58mm)
-    window.printThermalReceipt = function(o) {
-        const lojaNome = (window.currentStore && window.currentStore.nome_loja) ? window.currentStore.nome_loja : 'RESTAURANTE';
+    window.printThermalReceipt = (o) => {
+        const lojaNome = window.escapeHtml(window.currentStore?.nome_loja || 'RESTAURANTE');
+        const itemsHtml = window.formatOrderItemsLinesHtml(o);
         const win = window.open('', '_blank', 'width=360,height=600');
-        if (!win) { window.showToast("Permita pop-ups para imprimir a comanda."); return; }
-        win.document.write(`
-            <html>
-            <head>
-                <title>Comanda #${o.id.substring(0,6).toUpperCase()}</title>
-                <style>
-                    body { font-family: 'Courier New', monospace; width: 280px; margin: 0 auto; padding: 10px; font-size: 13px; color: #000; }
-                    .center { text-align: center; }
-                    .line { border-top: 1px dashed #000; margin: 8px 0; }
-                    .bold { font-weight: bold; }
-                </style>
-            </head>
+        if (!win) { window.showToast("Permita pop-ups para imprimir."); return; }
+        win.document.write(`<html><head><title>Comanda #${o.id.substring(0,6).toUpperCase()}</title>
+            <style>body{font-family:'Courier New',monospace;width:280px;margin:0 auto;padding:10px;font-size:13px;color:#000;}.center{text-align:center;}.line{border-top:1px dashed #000;margin:8px 0;}.bold{font-weight:bold;}</style></head>
             <body onload="window.print(); setTimeout(()=>window.close(), 500);">
                 <div class="center bold" style="font-size:16px;">${lojaNome}</div>
-                <div class="center">COMANDA DE PEDIDO #${o.id.substring(0,6).toUpperCase()}</div>
-                <div class="center" style="font-size:11px;">${o.data || ''}</div>
+                <div class="center">COMANDA #${o.id.substring(0,6).toUpperCase()}</div>
+                <div class="center" style="font-size:11px;">${window.escapeHtml(o.data || '')}</div>
                 <div class="line"></div>
-                <div><span class="bold">CLIENTE:</span> ${o.cliente || ''}</div>
-                <div><span class="bold">FONE:</span> ${o.telefone || ''}</div>
-                <div><span class="bold">ENDERECO:</span> ${o.endereco || ''}</div>
+                <div><b>CLIENTE:</b> ${window.escapeHtml(o.cliente || '')}</div>
+                <div><b>FONE:</b> ${window.escapeHtml(o.telefone || '')}</div>
+                <div><b>ENDEREÇO:</b> ${window.escapeHtml(o.endereco || '')}</div>
                 <div class="line"></div>
                 <div class="bold">ITENS DO PEDIDO:</div>
-                <div style="margin:6px 0;">${o.itens || ''}</div>
+                <div style="margin:6px 0;">${itemsHtml}</div>
                 <div class="line"></div>
-                <div><span class="bold">PAGAMENTO:</span> ${o.pagamento || ''}</div>
-                <div class="bold" style="font-size:16px; margin-top:4px;">TOTAL: ${o.total || ''}</div>
-                <div class="line"></div>
-                <div class="center" style="font-size:11px;">JuabaDelivery</div>
-            </body>
-            </html>
-        `);
+                <div><b>PAGAMENTO:</b> ${window.escapeHtml(o.pagamento || '')}</div>
+                <div class="bold" style="font-size:16px; margin-top:4px;">TOTAL: ${window.escapeHtml(o.total || '')}</div>
+            </body></html>`);
         win.document.close();
     };
 
-    // Chat do Pedido (Lojista <-> Cliente) com suporte a Foto e PDF
-    window.openAttachmentViewer = function(dataUrl) {
-        const w = window.open();
-        if (w) w.document.write(`<iframe src="${dataUrl}" style="width:100%; height:100vh; border:none;"></iframe>`);
+    window.openAttachmentViewer = (dataUrl, isPdf = false) => {
+        const body = el('attachment-viewer-body'); if (!body) return;
+        body.innerHTML = (isPdf || String(dataUrl).startsWith('data:application/pdf'))
+            ? `<iframe src="${window.escapeHtml(dataUrl)}" style="width:100%; height:70vh; border:none; border-radius:10px;"></iframe>`
+            : `<img src="${window.escapeHtml(dataUrl)}" style="max-width:100%; max-height:72vh; border-radius:12px; object-fit:contain;">`;
+        el('modal-attachment-viewer').style.display = 'flex';
+    };
+    window.closeAttachmentViewer = () => { el('modal-attachment-viewer').style.display = 'none'; el('attachment-viewer-body').innerHTML = ''; };
+    window.openStoreChatMediaByIndex = (idx) => {
+        const o = window.storeOrders.find(x => x.id === window.activeOrderChatId);
+        const m = o?.chat?.[idx]; if (!m) return;
+        const src = m.fileData || m.img; if (src) window.openAttachmentViewer(src, m.fileType === 'pdf');
     };
 
-    window.openOrderChat = function(orderId) {
+    window.openOrderChat = (orderId) => {
         window.activeOrderChatId = orderId;
         const o = window.storeOrders.find(x => x.id === orderId);
-        const nomeCli = (o && o.cliente) ? o.cliente : 'Cliente';
-        document.getElementById('order-chat-title').innerText = `💬 Chat — ${nomeCli} (#${orderId.substring(0,6).toUpperCase()})`;
-        document.getElementById('modal-order-chat').style.display = 'flex';
-        window.renderOrderChatMsgs();
+        el('order-chat-title').innerText = `💬 Chat — ${o?.cliente || 'Cliente'} (#${orderId.substring(0,6).toUpperCase()})`;
+        el('modal-order-chat').style.display = 'flex';
+        window.markStoreOrderChatAsRead(orderId); window.renderOrderChatMsgs();
     };
+    window.closeOrderChat = () => { window.activeOrderChatId = null; el('modal-order-chat').style.display = 'none'; };
 
-    window.closeOrderChat = function() {
-        window.activeOrderChatId = null;
-        document.getElementById('modal-order-chat').style.display = 'none';
-    };
-
-    window.renderOrderChatMsgs = function() {
-        const box = document.getElementById('order-chat-msgs');
-        const o = window.storeOrders.find(x => x.id === window.activeOrderChatId);
+    window.renderOrderChatMsgs = () => {
+        const box = el('order-chat-msgs'), o = window.storeOrders.find(x => x.id === window.activeOrderChatId);
         if (!box || !o) return;
-        const nomeLoja = (window.currentStore && window.currentStore.nome_loja) || o.nomeLoja || 'Minha Loja';
-        const nomeCliente = o.cliente || 'Cliente';
-
         const msgs = Array.isArray(o.chat) ? o.chat : [];
-        if (msgs.length === 0) {
-            box.innerHTML = `<p style="text-align:center; color:#71717a; margin:auto; font-weight:700;">Nenhuma mensagem neste pedido ainda.</p>`;
-            return;
-        }
-        box.innerHTML = msgs.map(m => {
+        if (!msgs.length) { box.innerHTML = `<p style="text-align:center; color:#71717a; margin:auto; font-weight:700;">Nenhuma mensagem neste pedido ainda.</p>`; return; }
+        box.innerHTML = msgs.map((m, idx) => {
             const isMe = m.sender === 'loja';
-            const senderLabel = isMe
-                ? `🏪 ${m.senderName || nomeLoja} (Você)`
-                : `👤 ${m.senderName || nomeCliente}`;
-            let mediaHtml = '';
-            if (m.fileType === 'pdf' && m.fileData) {
-                mediaHtml = `
-                <div onclick="openAttachmentViewer('${m.fileData}')" style="background:rgba(0,0,0,0.08); padding:9px; border-radius:9px; margin-top:6px; cursor:pointer;">
-                    <div style="font-weight:900;">📄 ${m.fileName || 'Comprovante.pdf'}</div>
-                    <div style="font-size:0.72rem; text-decoration:underline;">Abrir PDF 🔍</div>
-                </div>`;
-            } else if (m.img || m.fileData) {
-                const src = m.img || m.fileData;
-                mediaHtml = `<img src="${src}" onclick="openAttachmentViewer('${src}')" style="max-width:100%; max-height:180px; border-radius:9px; margin-top:6px; cursor:pointer; display:block;">`;
-            }
-            return `
-            <div class="c-bubble ${isMe ? 'me' : 'them'}">
-                <div style="font-size:0.68rem; font-weight:900; opacity:0.85; margin-bottom:3px; border-bottom:1px solid ${isMe ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.06)'}; padding-bottom:2px;">
-                    ${senderLabel}
-                </div>
-                <div>${m.text || ''}</div>
-                ${mediaHtml}
-                <div style="font-size:0.65rem; opacity:0.7; text-align:right; margin-top:3px;">${m.time || ''}</div>
-            </div>`;
+            const lbl = isMe ? `🏪 ${window.escapeHtml(m.senderName || 'Minha Loja')}` : `👤 ${window.escapeHtml(m.senderName || o.cliente || 'Cliente')}`;
+            let media = '';
+            if (m.fileType === 'pdf' && m.fileData) media = `<div onclick="openStoreChatMediaByIndex(${idx})" style="background:rgba(0,0,0,0.08); padding:9px; border-radius:9px; margin-top:6px; cursor:pointer; font-weight:900;">📄 ${window.escapeHtml(m.fileName || 'Comprovante.pdf')}</div>`;
+            else if (m.img || m.fileData) media = `<img src="${window.escapeHtml(m.img || m.fileData)}" onclick="openStoreChatMediaByIndex(${idx})" style="max-width:100%; max-height:180px; border-radius:9px; margin-top:6px; cursor:pointer; display:block;">`;
+            return `<div class="c-bubble ${isMe ? 'me' : 'them'}"><div style="font-size:0.68rem; font-weight:900; opacity:0.85; margin-bottom:3px;">${lbl}</div><div>${window.escapeHtml(m.text || '')}</div>${media}<div style="font-size:0.65rem; opacity:0.7; text-align:right; margin-top:3px;">${window.escapeHtml(m.time || '')}</div></div>`;
         }).join('');
         box.scrollTop = box.scrollHeight;
     };
 
-    window.sendOrderChatMsg = async function() {
+    window.sendOrderChatMsg = async () => {
         if (!window.activeOrderChatId) return;
-        const inp = document.getElementById('order-chat-input');
-        const txt = inp.value.trim();
-        if (!txt) return;
+        const inp = el('order-chat-input'), txt = inp.value.trim(); if (!txt) return;
         inp.value = '';
         const o = window.storeOrders.find(x => x.id === window.activeOrderChatId);
-        const arr = (o && Array.isArray(o.chat)) ? [...o.chat] : [];
-        const nomeLoja = (window.currentStore && window.currentStore.nome_loja) || (o && o.nomeLoja) || 'Loja';
-        const now = new Date();
-        arr.push({
-            sender: 'loja',
-            senderName: nomeLoja,
-            text: txt,
-            time: now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0')
-        });
-        await setDoc(doc(db, "pedidos", window.activeOrderChatId), { chat: arr }, { merge: true });
+        const arr = Array.isArray(o?.chat) ? [...o.chat] : [];
+        const nomeLoja = window.currentStore?.nome_loja || 'Loja';
+        arr.push({ sender: 'loja', senderName: nomeLoja, text: txt, time: new Date().toTimeString().slice(0,5) });
+        await setDoc(doc(db, "pedidos", window.activeOrderChatId), { chat: arr, updatedAtMs: Date.now() }, { merge: true });
+        if (o?.fcmTokenCliente) {
+            window.dispatchPushToClient(o, `💬 Mensagem de ${nomeLoja}`, txt);
+        }
     };
 
-    // =========================================================================
-    // CHAT DE SUPORTE COM O SUPER ADMIN (DONO DO APP)
-    // =========================================================================
-    window.openSupportModal = function() {
-        document.getElementById('modal-support').style.display = 'flex';
-        document.getElementById('sup-unread-badge').style.display = 'none';
-        window.renderSupportChat();
-    };
-
-    window.closeSupportModal = function() {
-        document.getElementById('modal-support').style.display = 'none';
-    };
-
-    window.renderSupportChat = function() {
-        const box = document.getElementById('support-chat-msgs');
-        if (!box || !window.currentStore) return;
+    window.openSupportModal = () => { el('modal-support').style.display = 'flex'; el('sup-unread-badge').style.display = 'none'; window.renderSupportChat(); };
+    window.closeSupportModal = () => { el('modal-support').style.display = 'none'; };
+    window.renderSupportChat = () => {
+        const box = el('support-chat-msgs'); if (!box || !window.currentStore) return;
         const myMsgs = Array.isArray(window.currentStore.suporteChatLoja) ? window.currentStore.suporteChatLoja : [];
         const admMsgs = Array.isArray(window.adminSupportMsgsForMe) ? window.adminSupportMsgsForMe : [];
         const all = [...myMsgs, ...admMsgs].sort((a, b) => (a.ts || 0) - (b.ts || 0));
-
-        if (all.length === 0) {
-            box.innerHTML = `<p style="text-align:center; color:#71717a; margin:auto; font-weight:700;">Envie uma mensagem para falar diretamente com o dono do aplicativo.</p>`;
-            return;
-        }
+        if (!all.length) { box.innerHTML = `<p style="text-align:center; color:#71717a; margin:auto; font-weight:700;">Envie uma mensagem para falar com a administração.</p>`; return; }
         box.innerHTML = all.map(m => `
             <div class="c-bubble ${m.sender === 'loja' ? 'me' : 'them'}">
                 <div style="font-size:0.68rem; font-weight:800; opacity:0.75; margin-bottom:2px;">${m.sender === 'loja' ? '🏪 Minha Loja' : '👑 Suporte JuabaDelivery'}</div>
-                <div>${m.text}</div>
-                <div style="font-size:0.64rem; opacity:0.7; text-align:right; margin-top:3px;">${m.time || ''}</div>
-            </div>
-        `).join('');
+                <div>${window.escapeHtml(m.text)}</div>
+                <div style="font-size:0.64rem; opacity:0.7; text-align:right; margin-top:3px;">${window.escapeHtml(m.time || '')}</div>
+            </div>`).join('');
         box.scrollTop = box.scrollHeight;
     };
 
-    window.sendStoreSupportMsg = async function() {
+    window.sendStoreSupportMsg = async () => {
         if (!window.currentStore) return;
-        const inp = document.getElementById('support-chat-input');
-        const txt = inp.value.trim();
-        if (!txt) return;
+        const inp = el('support-chat-input'), txt = inp.value.trim(); if (!txt) return;
         inp.value = '';
         const arr = Array.isArray(window.currentStore.suporteChatLoja) ? [...window.currentStore.suporteChatLoja] : [];
-        const now = new Date();
-        arr.push({
-            id: 'loja_' + Date.now(),
-            sender: 'loja',
-            text: txt,
-            time: now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0'),
-            ts: Date.now()
-        });
-        await setDoc(doc(db, "lojas", window.currentStore.id), {
-            suporteChatLoja: arr,
-            lastLojaMsgMs: Date.now()
-        }, { merge: true });
+        arr.push({ id: 'loja_' + Date.now(), sender: 'loja', text: txt, time: new Date().toTimeString().slice(0,5), ts: Date.now() });
+        await setDoc(doc(db, "lojas", window.currentStore.id), { suporteChatLoja: arr, lastLojaMsgMs: Date.now() }, { merge: true });
     };
 
-    // =========================================================================
-    // PRODUTOS, CATEGORIAS COM BOTÃO '+' E UPLOAD DE FOTOS DA GALERIA
-    // =========================================================================
-    window.populateCategorySelect = function(selectedVal = 'Lanches') {
+    window.populateCategorySelect = (selectedVal = 'Lanches') => {
         const defaults = ['Lanches', 'Pizzas', 'Bebidas', 'Petiscos', 'Açaí', 'Refeições', 'Doces', 'Combos'];
         const fromProds = window.storeProducts.map(p => (p.categoria || '').trim()).filter(Boolean);
         const allCats = [...new Set([...defaults, ...fromProds, ...window.customCategories])];
-        const sel = document.getElementById('prod-cat');
-        sel.innerHTML = allCats.map(c => `<option value="${c}" ${c.toLowerCase() === String(selectedVal).toLowerCase() ? 'selected' : ''}>${c}</option>`).join('');
+        el('prod-cat').innerHTML = allCats.map(c => `<option value="${window.escapeHtml(c)}" ${c.toLowerCase() === String(selectedVal).toLowerCase() ? 'selected' : ''}>${window.escapeHtml(c)}</option>`).join('');
+    };
+    window.toggleNewCategoryBox = () => {
+        const b = el('new-cat-inline-box');
+        b.style.display = (b.style.display === 'none' || !b.style.display) ? 'flex' : 'none';
+    };
+    window.confirmAddCategory = () => {
+        const val = el('new-cat-input').value.trim(); if (!val) return;
+        window.customCategories.push(val); window.populateCategorySelect(val);
+        el('new-cat-input').value = ''; el('new-cat-inline-box').style.display = 'none';
     };
 
-    window.toggleNewCategoryBox = function() {
-        const box = document.getElementById('new-cat-inline-box');
-        box.style.display = (box.style.display === 'none' || !box.style.display) ? 'flex' : 'none';
-        if (box.style.display === 'flex') document.getElementById('new-cat-input').focus();
-    };
-
-    window.confirmAddCategory = function() {
-        const inp = document.getElementById('new-cat-input');
-        const val = inp.value.trim();
-        if (!val) return;
-        window.customCategories.push(val);
-        window.populateCategorySelect(val);
-        inp.value = '';
-        document.getElementById('new-cat-inline-box').style.display = 'none';
-        window.showToast(`✅ Categoria "${val}" selecionada!`);
-    };
-
-    window.handleProductImageUpload = function(fileInput) {
-        if (!fileInput.files || !fileInput.files[0]) return;
-        const file = fileInput.files[0];
-        window.showToast("📷 Comprimindo imagem do produto...");
-        const reader = new FileReader();
-        reader.onload = function(e) {
+    const compressImageInput = (fileInput, maxDim, quality, targetInputId) => {
+        const file = fileInput.files?.[0]; if (!file) return;
+        const r = new FileReader();
+        r.onload = (e) => {
             const img = new Image();
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const maxDim = 800;
+            img.onload = () => {
+                const c = document.createElement('canvas');
                 let w = img.width, h = img.height;
                 if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
                 else if (h >= w && h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
-                canvas.width = w; canvas.height = h;
-                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                document.getElementById('prod-img').value = canvas.toDataURL('image/jpeg', 0.78);
-                window.showToast("✅ Foto carregada com sucesso!");
+                c.width = w; c.height = h; c.getContext('2d').drawImage(img, 0, 0, w, h);
+                el(targetInputId).value = c.toDataURL('image/jpeg', quality);
+                window.showToast("✅ Imagem carregada!");
             };
             img.src = e.target.result;
         };
-        reader.readAsDataURL(file);
+        r.readAsDataURL(file);
     };
+    window.handleProductImageUpload = (inp) => compressImageInput(inp, 750, 0.76, 'prod-img');
+    window.handleStoreLogoUpload = (inp) => compressImageInput(inp, 450, 0.78, 'cfg-logo');
 
-    window.handleStoreLogoUpload = function(fileInput) {
-        if (!fileInput.files || !fileInput.files[0]) return;
-        const file = fileInput.files[0];
-        window.showToast("📷 Comprimindo logo...");
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = new Image();
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const maxDim = 500;
-                let w = img.width, h = img.height;
-                if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
-                else if (h >= w && h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
-                canvas.width = w; canvas.height = h;
-                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                document.getElementById('cfg-logo').value = canvas.toDataURL('image/jpeg', 0.8);
-                window.showToast("✅ Logo carregada com sucesso!");
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    };
-
-    window.addAddonGroup = function() {
-        window.currentAddonGroups.push({
-            id: 'grp_' + Date.now(),
-            name: '',
-            min: 0,
-            max: 1,
-            chargeType: 'sum',
-            items: [{ id: 'itm_' + Date.now(), name: '', price: 0 }]
-        });
+    window.addAddonGroup = () => {
+        window.currentAddonGroups.push({ id: 'grp_' + Date.now(), name: '', min: 0, max: 1, chargeType: 'sum', items: [{ id: 'itm_' + Date.now(), name: '', price: 0 }] });
         window.renderAddonGroups();
     };
-
-    window.renderAddonGroups = function() {
-        const box = document.getElementById('addon-groups-container');
-        if (!box) return;
+    window.renderAddonGroups = () => {
+        const box = el('addon-groups-container'); if (!box) return;
         box.innerHTML = (window.currentAddonGroups || []).map((g, gIdx) => `
             <div class="addon-group-card">
                 <div style="display:flex; gap:6px; margin-bottom:8px;">
-                    <input type="text" placeholder="Nome do Grupo (Ex: Escolha o Sabor)" value="${(g.name || '').replace(/"/g, '&quot;')}" oninput="window.currentAddonGroups[${gIdx}].name=this.value" style="flex:1; padding:8px; border:1px solid #d4d4d8; border-radius:8px; font-weight:800;">
+                    <input type="text" placeholder="Nome do Grupo (Ex: Adicionais)" value="${window.escapeHtml(g.name || '')}" oninput="window.currentAddonGroups[${gIdx}].name=this.value" style="flex:1; padding:8px; border:1px solid #d4d4d8; border-radius:8px; font-weight:800;">
                     <button type="button" onclick="window.currentAddonGroups.splice(${gIdx},1); renderAddonGroups();" style="background:#fee2e2; color:#dc2626; border:none; padding:0 10px; border-radius:8px; font-weight:900; cursor:pointer;">✕</button>
                 </div>
                 <div style="display:flex; gap:8px; margin-bottom:8px;">
-                    <div style="flex:1;"><small style="font-weight:800; font-size:0.7rem;">Mínimo</small><input type="number" value="${g.min || 0}" oninput="window.currentAddonGroups[${gIdx}].min=parseInt(this.value)||0" style="width:100%; padding:6px; border:1px solid #d4d4d8; border-radius:6px;"></div>
-                    <div style="flex:1;"><small style="font-weight:800; font-size:0.7rem;">Máximo</small><input type="number" value="${g.max || 1}" oninput="window.currentAddonGroups[${gIdx}].max=parseInt(this.value)||1" style="width:100%; padding:6px; border:1px solid #d4d4d8; border-radius:6px;"></div>
+                    <div style="flex:1;"><small style="font-weight:800; font-size:0.7rem;">Mínimo</small><input type="number" value="${parseInt(g.min)||0}" oninput="window.currentAddonGroups[${gIdx}].min=parseInt(this.value)||0" style="width:100%; padding:6px; border:1px solid #d4d4d8; border-radius:6px;"></div>
+                    <div style="flex:1;"><small style="font-weight:800; font-size:0.7rem;">Máximo</small><input type="number" value="${parseInt(g.max)||1}" oninput="window.currentAddonGroups[${gIdx}].max=parseInt(this.value)||1" style="width:100%; padding:6px; border:1px solid #d4d4d8; border-radius:6px;"></div>
                 </div>
                 ${(g.items || []).map((it, iIdx) => `
                     <div style="display:flex; gap:6px; margin-bottom:6px;">
-                        <input type="text" placeholder="Opção" value="${(it.name || '').replace(/"/g, '&quot;')}" oninput="window.currentAddonGroups[${gIdx}].items[${iIdx}].name=this.value" style="flex:2; padding:7px; border:1px solid #d4d4d8; border-radius:7px;">
-                        <input type="number" step="0.01" placeholder="R$" value="${it.price || 0}" oninput="window.currentAddonGroups[${gIdx}].items[${iIdx}].price=parseFloat(this.value)||0" style="flex:1; padding:7px; border:1px solid #d4d4d8; border-radius:7px;">
+                        <input type="text" placeholder="Opção" value="${window.escapeHtml(it.name || '')}" oninput="window.currentAddonGroups[${gIdx}].items[${iIdx}].name=this.value" style="flex:2; padding:7px; border:1px solid #d4d4d8; border-radius:7px;">
+                        <input type="number" step="0.01" placeholder="R$" value="${parseFloat(it.price)||0}" oninput="window.currentAddonGroups[${gIdx}].items[${iIdx}].price=parseFloat(this.value)||0" style="flex:1; padding:7px; border:1px solid #d4d4d8; border-radius:7px;">
                         <button type="button" onclick="window.currentAddonGroups[${gIdx}].items.splice(${iIdx},1); renderAddonGroups();" style="background:#f4f4f5; border:none; padding:0 8px; border-radius:7px; cursor:pointer;">🗑️</button>
-                    </div>
-                `).join('')}
+                    </div>`).join('')}
                 <button type="button" onclick="window.currentAddonGroups[${gIdx}].items.push({id:'itm_'+Date.now(),name:'',price:0}); renderAddonGroups();" style="background:#e4e4e7; border:none; padding:6px 10px; border-radius:7px; font-weight:800; font-size:0.75rem; cursor:pointer; width:100%;">+ Adicionar Opção</button>
-            </div>
-        `).join('');
+            </div>`).join('');
     };
 
-    window.openProductModal = function() {
-        document.getElementById('prod-id').value = '';
-        document.getElementById('prod-nome').value = '';
-        document.getElementById('prod-preco').value = '';
-        document.getElementById('prod-preco-antigo').value = '';
-        document.getElementById('new-cat-inline-box').style.display = 'none';
-        window.populateCategorySelect('Lanches');
-        document.getElementById('prod-img').value = '';
-        document.getElementById('prod-desc').value = '';
-        window.currentAddonGroups = [];
-        window.renderAddonGroups();
-        document.getElementById('modal-product').style.display = 'flex';
+    window.openProductModal = () => {
+        ['prod-id','prod-nome','prod-preco','prod-preco-antigo','prod-img','prod-desc'].forEach(id => el(id).value = '');
+        el('new-cat-inline-box').style.display = 'none'; window.populateCategorySelect('Lanches');
+        window.currentAddonGroups = []; window.renderAddonGroups(); el('modal-product').style.display = 'flex';
+    };
+    window.editProduct = (id) => {
+        const p = window.storeProducts.find(x => x.id === id); if (!p) return;
+        el('prod-id').value = p.id; el('prod-nome').value = p.nome || ''; el('prod-preco').value = p.preco || '';
+        el('prod-preco-antigo').value = p.precoAntigo || ''; el('new-cat-inline-box').style.display = 'none';
+        window.populateCategorySelect(p.categoria || 'Lanches'); el('prod-img').value = p.imagem || ''; el('prod-desc').value = p.descricao || '';
+        try { window.currentAddonGroups = JSON.parse(p.adicionais || "[]"); if (!Array.isArray(window.currentAddonGroups)) window.currentAddonGroups = []; } catch(e) { window.currentAddonGroups = []; }
+        window.renderAddonGroups(); el('modal-product').style.display = 'flex';
     };
 
-    window.editProduct = function(id) {
-        const p = window.storeProducts.find(x => x.id === id);
-        if (!p) return;
-        document.getElementById('prod-id').value = p.id;
-        document.getElementById('prod-nome').value = p.nome || '';
-        document.getElementById('prod-preco').value = p.preco || '';
-        document.getElementById('prod-preco-antigo').value = p.precoAntigo || '';
-        document.getElementById('new-cat-inline-box').style.display = 'none';
-        window.populateCategorySelect(p.categoria || 'Lanches');
-        document.getElementById('prod-img').value = p.imagem || '';
-        document.getElementById('prod-desc').value = p.descricao || '';
-        try {
-            window.currentAddonGroups = JSON.parse(p.adicionais || "[]");
-            if (!Array.isArray(window.currentAddonGroups)) window.currentAddonGroups = [];
-        } catch(e) { window.currentAddonGroups = []; }
-        window.renderAddonGroups();
-        document.getElementById('modal-product').style.display = 'flex';
-    };
-
-    window.saveProduct = async function() {
+    window.saveProduct = async () => {
         if (!window.currentStore) return;
-        const id = document.getElementById('prod-id').value;
+        const id = el('prod-id').value;
         const cleanGroups = (window.currentAddonGroups || []).map(g => ({
-            id: g.id || ('grp_' + Date.now()),
-            name: (g.name || 'Opções').trim(),
-            min: parseInt(g.min) || 0,
-            max: Math.max(1, parseInt(g.max) || 1),
+            id: g.id || ('grp_' + Date.now()), name: (g.name || 'Opções').trim(), min: parseInt(g.min) || 0, max: Math.max(1, parseInt(g.max) || 1),
             chargeType: g.chargeType === 'max' ? 'max' : 'sum',
-            items: (g.items || []).filter(i => i.name && i.name.trim() !== '').map(i => ({
-                id: i.id || ('itm_' + Date.now() + Math.floor(Math.random() * 1000)),
-                name: i.name.trim(),
-                price: parseFloat(i.price) || 0
-            }))
+            items: (g.items || []).filter(i => i.name && i.name.trim() !== '').map(i => ({ id: i.id || ('itm_' + Date.now()), name: i.name.trim(), price: parseFloat(i.price) || 0 }))
         }));
-
         const payload = {
-            lojaId: window.currentStore.id,
-            nome: document.getElementById('prod-nome').value.trim(),
-            preco: parseFloat(document.getElementById('prod-preco').value) || 0,
-            precoAntigo: parseFloat(document.getElementById('prod-preco-antigo').value) || 0,
-            categoria: document.getElementById('prod-cat').value.trim() || 'Geral',
-            imagem: document.getElementById('prod-img').value.trim(),
-            descricao: document.getElementById('prod-desc').value.trim(),
-            adicionais: JSON.stringify(cleanGroups),
-            ativo: true
+            lojaId: window.currentStore.id, nome: el('prod-nome').value.trim(), preco: parseFloat(el('prod-preco').value) || 0,
+            precoAntigo: parseFloat(el('prod-preco-antigo').value) || 0, categoria: el('prod-cat').value.trim() || 'Geral',
+            imagem: el('prod-img').value.trim(), descricao: el('prod-desc').value.trim(), adicionais: JSON.stringify(cleanGroups), ativo: true
         };
         if (!payload.nome) { window.showToast("Informe o nome do produto!"); return; }
         if (id) await setDoc(doc(db, "produtos", id), payload, { merge: true });
         else await addDoc(collection(db, "produtos"), payload);
-        document.getElementById('modal-product').style.display = 'none';
-        window.showToast("✅ Produto salvo!");
+        el('modal-product').style.display = 'none'; window.showToast("✅ Produto salvo!");
     };
+    window.deleteProduct = async (id) => { await deleteDoc(doc(db, "produtos", id)); window.showToast("🗑️ Produto excluído."); };
 
-    window.deleteProduct = async function(id) {
-        await deleteDoc(doc(db, "produtos", id));
-        window.showToast("🗑️ Produto excluído.");
-    };
-
-    window.renderStoreProducts = function() {
-        const box = document.getElementById('store-products-list');
-        if (!box) return;
-        if (window.storeProducts.length === 0) {
-            box.innerHTML = `<p style="text-align:center; padding:20px; color:#71717a; font-weight:700;">Nenhum produto cadastrado ainda.</p>`;
-            return;
-        }
+    window.renderStoreProducts = () => {
+        const box = el('store-products-list'); if (!box) return;
+        if (!window.storeProducts.length) { box.innerHTML = `<p style="text-align:center; padding:20px; color:#71717a; font-weight:700;">Nenhum produto cadastrado ainda.</p>`; return; }
         box.innerHTML = window.storeProducts.map(p => `
             <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #f1f5f9; gap:10px;">
                 <div style="display:flex; align-items:center; gap:10px; min-width:0; flex:1;">
-                    <img src="${p.imagem || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150'}" style="width:48px; height:48px; border-radius:10px; object-fit:contain; background:#f8fafc; border:1px solid #e4e4e7;">
+                    <img src="${window.escapeHtml(p.imagem || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150')}" style="width:48px; height:48px; border-radius:10px; object-fit:contain; background:#f8fafc; border:1px solid #e4e4e7;">
                     <div style="min-width:0;">
-                        <div style="font-weight:900; font-size:0.94rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.nome}</div>
-                        <div style="font-size:0.76rem; color:#71717a; font-weight:700;">${p.categoria || 'Geral'} • <b style="color:var(--success);">R$ ${parseFloat(p.preco || 0).toFixed(2).replace('.', ',')}</b></div>
+                        <div style="font-weight:900; font-size:0.94rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${window.escapeHtml(p.nome)}</div>
+                        <div style="font-size:0.76rem; color:#71717a; font-weight:700;">${window.escapeHtml(p.categoria || 'Geral')} • <b style="color:var(--success);">R$ ${parseFloat(p.preco || 0).toFixed(2).replace('.', ',')}</b></div>
                     </div>
                 </div>
                 <div style="display:flex; gap:6px;">
                     <button onclick="editProduct('${p.id}')" class="btn-icon-sq">✏️</button>
                     <button onclick="deleteProduct('${p.id}')" class="btn-icon-sq" style="background:#fee2e2; color:#dc2626;">🗑️</button>
                 </div>
-            </div>
-        `).join('');
+            </div>`).join('');
     };
 
-    // =========================================================================
-    // VENDAS, CUPONS E CONFIGURAÇÕES DA LOJA
-    // =========================================================================
-    window.renderSalesAndCoupons = function() {
+    window.renderSalesAndCoupons = () => {
         const done = window.storeOrders.filter(o => window.isOrderDone(o.status));
-        const total = done.reduce((acc, o) => {
-            const v = parseFloat(String(o.total || '0').replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0;
-            return acc + v;
-        }, 0);
-        document.getElementById('sales-total-val').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
-        document.getElementById('sales-done-count').innerText = done.length;
+        const total = done.reduce((acc, o) => acc + (parseFloat(String(o.total || '0').replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0), 0);
+        el('sales-total-val').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+        el('sales-done-count').innerText = done.length;
 
-        const cBox = document.getElementById('store-coupons-list');
-        if (window.storeCoupons.length === 0) {
-            cBox.innerHTML = `<p style="color:#71717a; font-size:0.8rem; font-weight:700;">Nenhum cupom ativo.</p>`;
-        } else {
-            cBox.innerHTML = window.storeCoupons.map(c => `
-                <div style="display:flex; justify-content:space-between; align-items:center; padding:9px 12px; background:#f8fafc; border-radius:10px; margin-bottom:6px; border:1px solid var(--border);">
-                    <span style="font-weight:900;">🎟️ ${c.codigo} (${c.porcentagem}% OFF)</span>
-                    <button onclick="deleteCoupon('${c.id}')" style="background:#fee2e2; color:#dc2626; border:none; padding:5px 10px; border-radius:8px; font-weight:800; cursor:pointer;">Excluir</button>
-                </div>
-            `).join('');
-        }
+        const cBox = el('store-coupons-list');
+        cBox.innerHTML = window.storeCoupons.length ? window.storeCoupons.map(c => `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:9px 12px; background:#f8fafc; border-radius:10px; margin-bottom:6px; border:1px solid var(--border);">
+                <span style="font-weight:900;">🎟️ ${window.escapeHtml(c.codigo)} (${parseFloat(c.porcentagem)||0}% OFF)</span>
+                <button onclick="deleteCoupon('${c.id}')" style="background:#fee2e2; color:#dc2626; border:none; padding:5px 10px; border-radius:8px; font-weight:800; cursor:pointer;">Excluir</button>
+            </div>`).join('') : `<p style="color:#71717a; font-size:0.8rem; font-weight:700;">Nenhum cupom ativo.</p>`;
     };
 
-    window.createCoupon = async function() {
+    window.createCoupon = async () => {
         if (!window.currentStore) return;
-        const codigo = document.getElementById('cupom-code').value.trim().toUpperCase();
-        const porcentagem = parseFloat(document.getElementById('cupom-pct').value) || 0;
-        if (!codigo || porcentagem <= 0) { window.showToast("Preencha o código e a % do cupom!"); return; }
+        const codigo = el('cupom-code').value.trim().toUpperCase(), porcentagem = parseFloat(el('cupom-pct').value) || 0;
+        if (!codigo || porcentagem <= 0 || porcentagem > 100) { window.showToast("Preencha o código e uma % válida (1 a 100)!"); return; }
         await addDoc(collection(db, "cupons"), { lojaId: window.currentStore.id, codigo, porcentagem });
-        document.getElementById('cupom-code').value = '';
-        document.getElementById('cupom-pct').value = '';
-        window.showToast("🎟️ Cupom criado!");
+        el('cupom-code').value = ''; el('cupom-pct').value = ''; window.showToast("🎟️ Cupom criado!");
     };
+    window.deleteCoupon = async (id) => { await deleteDoc(doc(db, "cupons", id)); window.showToast("🗑️ Cupom removido."); };
 
-    window.deleteCoupon = async function(id) {
-        await deleteDoc(doc(db, "cupons", id));
-        window.showToast("🗑️ Cupom removido.");
-    };
-
-    window.saveStoreSettings = async function() {
+    window.saveStoreSettings = async () => {
         if (!window.currentStore) return;
         const selectedDays = [];
-        document.querySelectorAll('#cfg-days-row .day-Check.active').forEach(el => {
-            selectedDays.push(Number(el.getAttribute('data-day')));
-        });
-
+        document.querySelectorAll('#cfg-days-row .day-Check.active').forEach(node => selectedDays.push(Number(node.getAttribute('data-day'))));
+        const apiKeyVal = el('cfg-wpp-apikey') ? el('cfg-wpp-apikey').value.trim() : '';
         const payload = {
-            nome_loja: document.getElementById('cfg-nome').value.trim(),
-            logo_loja: document.getElementById('cfg-logo').value.trim(),
-            whatsapp: document.getElementById('cfg-wpp').value.trim(),
-            chave_pix: document.getElementById('cfg-pix').value.trim(),
-            horarioAutoAtivo: document.getElementById('cfg-auto-sched').checked,
+            nome_loja: el('cfg-nome').value.trim(),
+            logo_loja: el('cfg-logo').value.trim(),
+            whatsapp: el('cfg-wpp').value.trim(),
+            whatsappApiKey: apiKeyVal,
+            wpp_api_key: apiKeyVal,
+            taxa_entrega: Math.max(0, parseFloat(el('cfg-taxa-entrega').value) || 0),
+            chave_pix: el('cfg-pix').value.trim(),
+            horarioAutoAtivo: el('cfg-auto-sched').checked,
             diasFuncionamento: selectedDays,
-            horarioAbre: document.getElementById('cfg-abre').value,
-            horarioFecha: document.getElementById('cfg-fecha').value
+            horarioAbre: el('cfg-abre').value,
+            horarioFecha: el('cfg-fecha').value
         };
         await setDoc(doc(db, "lojas", window.currentStore.id), payload, { merge: true });
         window.showToast("✅ Configurações salvas!");
     };
 
-    // =========================================================================
-    // LISTENERS EM TEMPO REAL DO LOJISTA
-    // =========================================================================
-    onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-            document.getElementById('auth-screen').style.display = 'flex';
+    window.testStoreWhatsappAutoAlert = async () => {
+        const rawWpp = el('cfg-wpp').value.trim().replace(/\D/g, '');
+        const apiKey = el('cfg-wpp-apikey') ? el('cfg-wpp-apikey').value.trim() : '';
+        if (!rawWpp || rawWpp.length < 10) {
+            window.showToast("⚠️ Preencha o WhatsApp da Loja com DDD primeiro!");
             return;
         }
-
-        // Impede que uma conta cadastrada como Cliente entre no Painel do Lojista
+        if (!apiKey) {
+            window.showToast("⚠️ Cole sua API Key do CallMeBot para testar o envio automático!");
+            return;
+        }
+        const phone = rawWpp.startsWith('55') ? rawWpp : '55' + rawWpp;
+        const msg = "🔔 Novo pedido no JuabaDelivery! Abra seu painel para aceitar.";
         try {
-            const cliSnap = await getDoc(doc(db, "clientes", user.uid));
-            if (cliSnap.exists()) {
-                await signOut(auth);
-                document.getElementById('auth-screen').style.display = 'flex';
-                window.showToast("👤 Conta de Cliente detectada! Acesse pelo App do Cliente.");
-                return;
-            }
+            const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(msg)}&apikey=${encodeURIComponent(apiKey)}`;
+            await fetch(url, { method: 'GET', mode: 'no-cors' });
+            window.showToast("📲 Alerta de teste disparado! Verifique seu WhatsApp.");
+        } catch (e) {
+            window.showToast("⚠️ Erro ao disparar teste.");
+        }
+    };
 
-            const lojaSnap = await getDoc(doc(db, "lojas", user.uid));
-            if (!lojaSnap.exists()) {
-                // Se entrou via Google pela primeira vez, abre o modal para completar os dados da loja
-                const isGoogleUser = (user.providerData || []).some(p => p.providerId === 'google.com');
-                if (isGoogleUser || window.isGoogleStoreLoginInProgress) {
-                    const displayParts = String(user.displayName || '').trim().split(/\s+/);
-                    document.getElementById('google-store-first-name').value = displayParts[0] || '';
-                    document.getElementById('google-store-last-name').value = displayParts.slice(1).join(' ') || '';
-                    document.getElementById('auth-screen').style.display = 'none';
-                    document.getElementById('modal-store-complete-google').style.display = 'flex';
-                } else {
-                    await signOut(auth);
-                    document.getElementById('auth-screen').style.display = 'flex';
-                    window.showToast("⚠️ Conta não encontrada como Lojista. Cadastre sua loja primeiro!");
-                    return;
-                }
-            }
-        } catch (e) {}
+    const clearStoreListeners = () => { _unsubscribes.forEach(u => u && u()); _unsubscribes = []; };
 
-        document.getElementById('auth-screen').style.display = 'none';
+    window.startStorePanelListeners = (user) => {
+        clearStoreListeners();
+        el('auth-screen').style.display = 'none';
+        window.enableStoreBackgroundKeepAlive();
+        window.initStorePushNotificationsEngine(user.uid);
 
-        onSnapshot(collection(db, "lojas"), (snap) => {
-            let latestConfigMs = -1;
-            let myAdminSupport = [];
-            let myOverride = {};
-            let sysBillingEnabled = true;
-
+        _unsubscribes.push(onSnapshot(collection(db, "lojas"), (snap) => {
+            let latestConfigMs = -1, myAdminSupport = [], myOverride = {}, sysBillingEnabled = true;
             snap.forEach(d => {
                 const data = d.data();
                 if (d.id === '_marketplace_config_' || data.isSystemConfig === true) {
                     const ms = data.updatedAtMs || 0;
                     if (ms >= latestConfigMs) {
                         latestConfigMs = ms;
-                        if (data.billingSystemEnabled !== undefined) {
-                            sysBillingEnabled = Boolean(data.billingSystemEnabled);
-                        }
-                        if (data.supportChats && data.supportChats[user.uid]) {
-                            myAdminSupport = data.supportChats[user.uid].messages || [];
-                        }
-                        if (data.storeOverrides && data.storeOverrides[user.uid]) {
-                            myOverride = data.storeOverrides[user.uid] || {};
-                        }
+                        if (data.billingSystemEnabled !== undefined) sysBillingEnabled = Boolean(data.billingSystemEnabled);
+                        if (data.supportChats?.[user.uid]) myAdminSupport = data.supportChats[user.uid].messages || [];
+                        if (data.storeOverrides?.[user.uid]) myOverride = data.storeOverrides[user.uid] || {};
                     }
                 }
             });
-
-            window.globalBillingEnabled = sysBillingEnabled;
-            window.adminSupportMsgsForMe = myAdminSupport;
-            window.sysStoreOverride = myOverride;
-
-            snap.forEach(d => {
-                if (d.id === user.uid) {
-                    window.currentStore = { id: d.id, ...d.data(), ...myOverride };
-                }
-            });
+            window.globalBillingEnabled = sysBillingEnabled; window.adminSupportMsgsForMe = myAdminSupport; window.sysStoreOverride = myOverride;
+            snap.forEach(d => { if (d.id === user.uid) window.currentStore = { id: d.id, ...d.data(), ...myOverride }; });
 
             if (window.currentStore) {
-                document.getElementById('hdr-name').innerText = window.currentStore.nome_loja || 'Minha Loja';
-                document.getElementById('hdr-logo').src = window.currentStore.logo_loja || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150';
-
-                // Preenche campos da aba Ajustes se não estiverem em foco
-                if (document.activeElement.id !== 'cfg-nome') document.getElementById('cfg-nome').value = window.currentStore.nome_loja || '';
-                if (document.activeElement.id !== 'cfg-logo') document.getElementById('cfg-logo').value = window.currentStore.logo_loja || '';
-                if (document.activeElement.id !== 'cfg-wpp') document.getElementById('cfg-wpp').value = window.currentStore.whatsapp || '';
-                if (document.activeElement.id !== 'cfg-pix') document.getElementById('cfg-pix').value = window.currentStore.chave_pix || '';
-                document.getElementById('cfg-auto-sched').checked = Boolean(window.currentStore.horarioAutoAtivo);
-                if (window.currentStore.horarioAbre) document.getElementById('cfg-abre').value = window.currentStore.horarioAbre;
-                if (window.currentStore.horarioFecha) document.getElementById('cfg-fecha').value = window.currentStore.horarioFecha;
+                el('hdr-name').innerText = window.currentStore.nome_loja || 'Minha Loja';
+                el('hdr-logo').src = window.currentStore.logo_loja || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150';
+                if (document.activeElement.id !== 'cfg-nome') el('cfg-nome').value = window.currentStore.nome_loja || '';
+                if (document.activeElement.id !== 'cfg-logo') el('cfg-logo').value = window.currentStore.logo_loja || '';
+                if (document.activeElement.id !== 'cfg-wpp') el('cfg-wpp').value = window.currentStore.whatsapp || '';
+                if (el('cfg-wpp-apikey') && document.activeElement.id !== 'cfg-wpp-apikey') el('cfg-wpp-apikey').value = window.currentStore.whatsappApiKey || window.currentStore.wpp_api_key || '';
+                if (document.activeElement.id !== 'cfg-taxa-entrega') el('cfg-taxa-entrega').value = window.currentStore.taxa_entrega ?? '';
+                if (document.activeElement.id !== 'cfg-pix') el('cfg-pix').value = window.currentStore.chave_pix || '';
+                el('cfg-auto-sched').checked = Boolean(window.currentStore.horarioAutoAtivo);
+                if (window.currentStore.horarioAbre) el('cfg-abre').value = window.currentStore.horarioAbre;
+                if (window.currentStore.horarioFecha) el('cfg-fecha').value = window.currentStore.horarioFecha;
 
                 if (Array.isArray(window.currentStore.diasFuncionamento)) {
-                    document.querySelectorAll('#cfg-days-row .day-Check').forEach(el => {
-                        const dNum = Number(el.getAttribute('data-day'));
-                        el.classList.toggle('active', window.currentStore.diasFuncionamento.includes(dNum));
+                    document.querySelectorAll('#cfg-days-row .day-Check').forEach(node => {
+                        node.classList.toggle('active', window.currentStore.diasFuncionamento.includes(Number(node.getAttribute('data-day'))));
                     });
                 }
-
                 window.checkAndRenderSubscriptionTimer();
-
                 const isOpen = !window.isAccountExpired && !(window.currentStore.aberto === false || String(window.currentStore.aberto).toLowerCase() === 'false');
-                const btnOpen = document.getElementById('btn-toggle-open');
-                btnOpen.style.background = isOpen ? '#dcfce7' : '#fee2e2';
-                btnOpen.style.color = isOpen ? '#15803d' : '#dc2626';
+                const btnOpen = el('btn-toggle-open');
+                btnOpen.style.background = isOpen ? '#dcfce7' : '#fee2e2'; btnOpen.style.color = isOpen ? '#15803d' : '#dc2626';
                 btnOpen.innerText = isOpen ? '🟢 Aberta' : '🔴 Fechada';
-
                 window.renderSupportChat();
             }
-        });
+        }, () => {}));
 
-        onSnapshot(collection(db, "pedidos"), (snap) => {
+        _unsubscribes.push(onSnapshot(query(collection(db, "pedidos"), where("lojaId", "==", user.uid)), (snap) => {
             window.storeOrders = [];
-            snap.forEach(d => {
-                const data = d.data();
-                if (data.lojaId === user.uid) window.storeOrders.push({ id: d.id, ...data });
+            snap.forEach(d => window.storeOrders.push({ id: d.id, ...d.data() }));
+            window.storeOrders.forEach(o => {
+                // Detecta Novo Pedido chegando em tempo real e envia aviso automático no WhatsApp do lojista
+                if (window.initialStoreOrdersLoaded && !window.knownOrderIds.has(o.id) && o.status === 'Novo') {
+                    const alertTxt = "🔔 Novo pedido no JuabaDelivery! Abra seu painel para aceitar.";
+                    window.showToast(alertTxt);
+                    window.triggerStoreNativeNotification(`🔔 Novo Pedido #${o.id.substring(0,6).toUpperCase()}`, alertTxt, o.id);
+                    window.triggerStoreOwnerWhatsappAlert(o);
+                }
+                window.knownOrderIds.add(o.id);
+
+                // Detecta nova mensagem do cliente no chat
+                const cliMsgs = window.getClientMessagesCountForOrder(o), prev = window.prevClientChatCounts[o.id];
+                if (window.activeOrderChatId === o.id && el('modal-order-chat').style.display === 'flex') {
+                    localStorage.setItem('juaba_store_seen_chat_' + o.id, String(cliMsgs));
+                } else if (window.initialStoreOrdersLoaded && prev !== undefined && cliMsgs > prev) {
+                    const lastCliMsg = Array.isArray(o.chat) ? [...o.chat].reverse().find(m => m.sender === 'cliente') : null;
+                    const msgPreview = lastCliMsg?.text || `Nova mensagem de ${o.cliente || 'Cliente'}!`;
+                    window.showToast(`💬 ${o.cliente || 'Cliente'}: ${msgPreview}`);
+                    window.triggerStoreNativeNotification(`💬 ${o.cliente || 'Cliente'}`, msgPreview, o.id);
+                }
+                window.prevClientChatCounts[o.id] = cliMsgs;
             });
-            window.renderKanban();
-            window.renderSalesAndCoupons();
+            window.initialStoreOrdersLoaded = true;
+            window.renderKanban(); window.renderSalesAndCoupons();
             if (window.activeOrderChatId) window.renderOrderChatMsgs();
-        });
+        }, () => {}));
 
-        onSnapshot(collection(db, "produtos"), (snap) => {
-            window.storeProducts = [];
-            snap.forEach(d => {
-                const data = d.data();
-                if (data.lojaId === user.uid) window.storeProducts.push({ id: d.id, ...data });
-            });
+        _unsubscribes.push(onSnapshot(query(collection(db, "produtos"), where("lojaId", "==", user.uid)), (snap) => {
+            window.storeProducts = []; snap.forEach(d => window.storeProducts.push({ id: d.id, ...d.data() }));
             window.renderStoreProducts();
-        });
+        }, () => {}));
 
-        onSnapshot(collection(db, "cupons"), (snap) => {
-            window.storeCoupons = [];
-            snap.forEach(d => {
-                const data = d.data();
-                if (data.lojaId === user.uid) window.storeCoupons.push({ id: d.id, ...data });
-            });
+        _unsubscribes.push(onSnapshot(query(collection(db, "cupons"), where("lojaId", "==", user.uid)), (snap) => {
+            window.storeCoupons = []; snap.forEach(d => window.storeCoupons.push({ id: d.id, ...d.data() }));
             window.renderSalesAndCoupons();
-        });
+        }, () => {}));
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+        if (window.isRegisteringStore) return;
+        clearStoreListeners();
+        if (!user) { el('auth-screen').style.display = 'flex'; return; }
+
+        try {
+            const lojaSnap = await getDoc(doc(db, "lojas", user.uid));
+            if (!lojaSnap.exists() || lojaSnap.data().isSystemConfig) {
+                if (window.isRegisteringStore) return;
+                await signOut(auth); el('auth-screen').style.display = 'flex';
+                window.showToast("⚠️ Conta não pertence a uma Loja cadastrada!"); return;
+            }
+        } catch (e) {}
+
+        window.startStorePanelListeners(user);
     });
 
-    setInterval(() => {
-        window.checkAutoScheduleOnPanel();
-    }, 30000);
+    setInterval(() => window.checkAutoScheduleOnPanel(), 30000);
 </script>
 </body>
 </html>
