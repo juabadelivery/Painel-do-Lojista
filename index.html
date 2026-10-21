@@ -316,20 +316,6 @@
         </div>
         <div class="input-group"><label>Chave PIX (CPF, CNPJ, Celular, E-mail ou Aleatória)</label><input type="text" id="cfg-pix" placeholder="Sua chave PIX para receber na hora"></div>
 
-        <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:14px; padding:14px; margin:14px 0;">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:6px;">
-                <div style="font-weight:900; font-size:0.92rem; color:#166534;">📲 Alerta Automático de Novo Pedido no seu WhatsApp (Grátis)</div>
-                <a href="https://wa.me/34644519523?text=I%20allow%20callmebot%20to%20send%20me%20messages" target="_blank" rel="noopener" style="background:#16a34a; color:#fff; text-decoration:none; padding:6px 10px; border-radius:8px; font-weight:800; font-size:0.74rem;">🔑 Gerar Chave Grátis no WhatsApp</a>
-            </div>
-            <p style="font-size:0.76rem; color:#15803d; font-weight:600; line-height:1.4; margin-bottom:10px;">
-                Receba uma mensagem automática no seu WhatsApp toda vez que um cliente finalizar um pedido! Para ativar grátis: toque em <b>"Gerar Chave Grátis"</b> acima, envie a mensagem automática para o robô do CallMeBot e cole abaixo a <b>API Key</b> numérica que ele te responder:
-            </p>
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                <input type="text" id="cfg-wpp-apikey" placeholder="Cole sua API Key (Ex: 1234567)" style="flex:1; min-width:160px; padding:10px 12px; border:1px solid #86efac; border-radius:10px; font-weight:800; background:#fff;">
-                <button type="button" onclick="testStoreWhatsappAutoAlert()" style="background:#15803d; color:#fff; border:none; padding:10px 14px; border-radius:10px; font-weight:900; font-size:0.78rem; cursor:pointer; white-space:nowrap;">🧪 Testar Alerta</button>
-            </div>
-        </div>
-
         <div style="border-top:1px dashed var(--border); margin:16px 0; padding-top:14px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                 <div>
@@ -1233,7 +1219,6 @@
             nome_loja: el('cfg-nome').value.trim(),
             logo_loja: el('cfg-logo').value.trim(),
             whatsapp: el('cfg-wpp').value.trim(),
-            whatsappApiKey: el('cfg-wpp-apikey') ? el('cfg-wpp-apikey').value.trim() : '',
             taxa_entrega: Math.max(0, parseFloat(el('cfg-taxa-entrega').value) || 0),
             chave_pix: el('cfg-pix').value.trim(),
             horarioAutoAtivo: el('cfg-auto-sched').checked,
@@ -1243,29 +1228,6 @@
         };
         await setDoc(doc(db, "lojas", window.currentStore.id), payload, { merge: true });
         window.showToast("✅ Configurações salvas!");
-    };
-
-    window.testStoreWhatsappAutoAlert = async () => {
-        const rawWpp = el('cfg-wpp').value.trim().replace(/\D/g, '');
-        const apiKey = el('cfg-wpp-apikey') ? el('cfg-wpp-apikey').value.trim() : '';
-        if (!rawWpp || rawWpp.length < 10) {
-            window.showToast("⚠️ Preencha o WhatsApp da Loja com DDD primeiro!");
-            return;
-        }
-        if (!apiKey) {
-            window.showToast("⚠️ Cole sua API Key do CallMeBot para testar o envio automático!");
-            return;
-        }
-        const phone = rawWpp.startsWith('55') ? rawWpp : '55' + rawWpp;
-        const nomeLoja = el('cfg-nome').value.trim() || window.currentStore?.nome_loja || 'Minha Loja';
-        const msg = `✅ *TESTE JUABADELIVERY - ${nomeLoja}*\nSeu alerta automático de novos pedidos no WhatsApp está configurado e funcionando!`;
-        try {
-            const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(msg)}&apikey=${encodeURIComponent(apiKey)}`;
-            await fetch(url, { method: 'GET', mode: 'no-cors' });
-            window.showToast("📲 Alerta de teste disparado! Verifique seu WhatsApp em instantes.");
-        } catch (e) {
-            window.showToast("⚠️ Erro ao disparar teste.");
-        }
     };
 
     // Listeners Otimizados e Isolados por Loja (Privacidade + Economia de Leituras)
@@ -1298,7 +1260,6 @@
                 if (document.activeElement.id !== 'cfg-nome') el('cfg-nome').value = window.currentStore.nome_loja || '';
                 if (document.activeElement.id !== 'cfg-logo') el('cfg-logo').value = window.currentStore.logo_loja || '';
                 if (document.activeElement.id !== 'cfg-wpp') el('cfg-wpp').value = window.currentStore.whatsapp || '';
-                if (el('cfg-wpp-apikey') && document.activeElement.id !== 'cfg-wpp-apikey') el('cfg-wpp-apikey').value = window.currentStore.whatsappApiKey || '';
                 if (document.activeElement.id !== 'cfg-taxa-entrega') el('cfg-taxa-entrega').value = window.currentStore.taxa_entrega ?? '';
                 if (document.activeElement.id !== 'cfg-pix') el('cfg-pix').value = window.currentStore.chave_pix || '';
                 el('cfg-auto-sched').checked = Boolean(window.currentStore.horarioAutoAtivo);
