@@ -222,7 +222,6 @@
     </div>
     <span style="background:#fff; color:#dc2626; padding:6px 10px; border-radius:10px; font-weight:900; font-size:0.74rem; white-space:nowrap;">Falar c/ Suporte</span>
 </div>
-
 <!-- ABA 1: PEDIDOS (KANBAN COMPACTO) -->
 <section id="sec-pedidos" class="view-section active">
     <div class="kanban-mobile-tabs">
@@ -323,7 +322,7 @@
                 <a href="https://wa.me/34644519523?text=I%20allow%20callmebot%20to%20send%20me%20messages" target="_blank" rel="noopener" style="background:#16a34a; color:#fff; text-decoration:none; padding:6px 10px; border-radius:8px; font-weight:800; font-size:0.74rem;">🔑 Gerar Chave Grátis no WhatsApp</a>
             </div>
             <p style="font-size:0.76rem; color:#15803d; font-weight:600; line-height:1.4; margin-bottom:10px;">
-                Receba a mensagem automática <b>"🔔 Novo pedido no JuabaDelivery! Abra seu painel para aceitar."</b> no seu WhatsApp toda vez que um cliente pedir! Toque em <b>"Gerar Chave Grátis"</b> acima, envie a mensagem para o CallMeBot e cole abaixo a <b>API Key</b>:
+                Receba uma mensagem automática no seu WhatsApp toda vez que um cliente finalizar um pedido! Para ativar grátis: toque em <b>"Gerar Chave Grátis"</b> acima, envie a mensagem automática para o robô do CallMeBot e cole abaixo a <b>API Key</b> numérica que ele te responder:
             </p>
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
                 <input type="text" id="cfg-wpp-apikey" placeholder="Cole sua API Key (Ex: 1234567)" style="flex:1; min-width:160px; padding:10px 12px; border:1px solid #86efac; border-radius:10px; font-weight:800; background:#fff;">
@@ -369,7 +368,6 @@
     <button class="b-tab" id="btab-vendas" onclick="switchPanelTab('vendas')"><span>📈</span><span>Vendas</span></button>
     <button class="b-tab" id="btab-ajustes" onclick="switchPanelTab('ajustes')"><span>⚙️</span><span>Ajustes</span></button>
 </nav>
-
 <!-- MODAL CONTA EXPIRADA -->
 <div class="modal-overlay" id="modal-expired-account" onclick="if(event.target===this) closeExpiredModal()">
     <div class="modal-box" style="text-align:center; max-width:420px; border:2px solid #dc2626;">
@@ -513,12 +511,10 @@
         <button class="btn-main" onclick="saveProduct()">Salvar Produto</button>
     </div>
 </div>
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, collection, doc, getDoc, setDoc, addDoc, deleteDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getMessaging, getToken, onMessage, isSupported } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBYRRtW1_lmoEMd89f7kQ-L6IzkhTkofR4",
@@ -536,7 +532,6 @@
 
     // Escopo Privado Blindado (Inacessível via DevTools Console)
     const GOOGLE_SCRIPT_URL = localStorage.getItem('juaba_gscript_url') || "https://script.google.com/macros/s/AKfycbzPwVthaJMg8GifsEy09DapU84EJzVrpuJeyD6EB4dGyIdv3VR6yCzW_1LR_Zdg1GYb/exec";
-    const FCM_VAPID_KEY = localStorage.getItem('juaba_vapid_key') || "";
     let _pendingStoreReg = null;
     let _storePinHash = null;
     let _unsubscribes = [];
@@ -549,10 +544,6 @@
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
-    }
 
     window.currentStore = null;
     window.storeOrders = [];
@@ -571,69 +562,8 @@
     window.hasShownExpiredModalThisSession = false;
     window.isAccountExpired = false;
     window.prevClientChatCounts = {};
-    window.knownOrderIds = new Set();
+    window.prevNewOrdersIds = new Set();
     window.initialStoreOrdersLoaded = false;
-    window.storeFcmToken = localStorage.getItem('juaba_store_fcm_token') || '';
-
-    window.storeKeepAliveAudioCtx = null;
-    window.enableStoreBackgroundKeepAlive = () => {
-        try {
-            if (navigator.locks && navigator.locks.request) {
-                navigator.locks.request('juaba_store_bg_lock', { mode: 'shared' }, () => new Promise(() => {}));
-            }
-            if (!window.storeKeepAliveAudioCtx) {
-                const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                if (AudioCtx) {
-                    const ctx = new AudioCtx();
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    gain.gain.value = 0.00001;
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start();
-                    window.storeKeepAliveAudioCtx = ctx;
-                }
-            } else if (window.storeKeepAliveAudioCtx.state === 'suspended') {
-                window.storeKeepAliveAudioCtx.resume().catch(() => {});
-            }
-        } catch (e) {}
-    };
-
-    window.syncStoreWithServiceWorker = (storeUid) => {
-        try {
-            const payload = {
-                type: 'JUABA_WATCH_STORE',
-                projectId: firebaseConfig.projectId,
-                lojaId: storeUid || window.currentStore?.id || ''
-            };
-            if (navigator.serviceWorker?.controller) {
-                navigator.serviceWorker.controller.postMessage(payload);
-            }
-            navigator.serviceWorker?.ready.then(reg => {
-                if (reg?.active) reg.active.postMessage(payload);
-                if (reg?.periodicSync) {
-                    reg.periodicSync.register('juaba-check-store-orders', { minInterval: 60000 }).catch(() => {});
-                }
-            }).catch(() => {});
-        } catch (e) {}
-    };
-
-    window.bindStoreFirstGestureNotification = () => {
-        const handler = async () => {
-            window.enableStoreBackgroundKeepAlive();
-            if ('Notification' in window && Notification.permission === 'default') {
-                try {
-                    const perm = await Notification.requestPermission();
-                    if (perm === 'granted' && auth.currentUser) {
-                        window.initStorePushNotificationsEngine(auth.currentUser.uid);
-                    }
-                } catch (e) {}
-            }
-        };
-        document.addEventListener('click', handler, { once: true });
-        document.addEventListener('touchend', handler, { once: true });
-    };
-    window.bindStoreFirstGestureNotification();
 
     window.showToast = (msg) => {
         const t = el('toast'); if (!t) return;
@@ -652,72 +582,6 @@
             gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
             osc.connect(gain); gain.connect(ctx.destination);
             osc.start(); osc.stop(ctx.currentTime + 0.4);
-        } catch (e) {}
-    };
-
-    window.triggerStoreNativeNotification = async (title, body, orderId = null) => {
-        window.playStoreChatSound();
-        if (navigator.vibrate) { try { navigator.vibrate([300, 100, 300, 100, 400]); } catch (e) {} }
-        if (!('Notification' in window) || Notification.permission !== 'granted') return;
-        const iconUrl = window.currentStore?.logo_loja || 'https://cdn-icons-png.flaticon.com/512/1046/1046784.png';
-        const options = {
-            body: String(body || ''),
-            icon: iconUrl,
-            badge: iconUrl,
-            tag: orderId ? `juaba_store_ord_${orderId}_${Date.now()}` : `juaba_store_notif_${Date.now()}`,
-            renotify: true,
-            requireInteraction: true,
-            vibrate: [300, 100, 300, 100, 400],
-            data: { orderId, url: window.location.href }
-        };
-        try {
-            const reg = await navigator.serviceWorker?.ready;
-            if (reg && reg.showNotification) {
-                await reg.showNotification(title, options);
-                return;
-            }
-        } catch (e) {}
-        try {
-            const n = new Notification(title, options);
-            n.onclick = () => {
-                window.focus();
-                if (orderId) window.openOrderDetailsModal(orderId);
-                n.close();
-            };
-        } catch (e) {}
-    };
-
-    window.initStorePushNotificationsEngine = async (storeUid) => {
-        try {
-            window.syncStoreWithServiceWorker(storeUid);
-            if (!('Notification' in window)) return;
-            if (Notification.permission === 'default') {
-                await Notification.requestPermission().catch(() => {});
-            }
-            if (Notification.permission !== 'granted') return;
-
-            const supported = await isSupported().catch(() => false);
-            if (!supported) return;
-
-            const messaging = getMessaging(app);
-            const swReg = await navigator.serviceWorker?.ready.catch(() => null);
-            const tokenOptions = swReg ? { serviceWorkerRegistration: swReg } : {};
-            if (FCM_VAPID_KEY) tokenOptions.vapidKey = FCM_VAPID_KEY;
-
-            const token = await getToken(messaging, tokenOptions).catch(() => '');
-            if (token) {
-                window.storeFcmToken = token;
-                localStorage.setItem('juaba_store_fcm_token', token);
-                if (storeUid) {
-                    setDoc(doc(db, "lojas", storeUid), { fcmTokenLoja: token }, { merge: true }).catch(() => {});
-                }
-            }
-
-            onMessage(messaging, (payload) => {
-                const title = payload?.notification?.title || payload?.data?.title || '🔔 Painel JuabaDelivery';
-                const body = payload?.notification?.body || payload?.data?.body || '🔔 Novo pedido no JuabaDelivery! Abra seu painel para aceitar.';
-                window.triggerStoreNativeNotification(title, body, payload?.data?.orderId);
-            });
         } catch (e) {}
     };
 
@@ -890,7 +754,6 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
     window.closeExpiredModal = () => { el('modal-expired-account').style.display = 'none'; };
-
     window.checkAndRenderSubscriptionTimer = async () => {
         if (!window.currentStore) return;
         const loja = { ...window.currentStore, ...(window.sysStoreOverride || {}) };
@@ -1059,75 +922,6 @@
         } catch (e) {}
     };
 
-    // Dispara mensagem automática no WhatsApp do Lojista quando chega novo pedido
-    window.triggerStoreOwnerWhatsappAlert = async (orderObj) => {
-        if (!window.currentStore || !orderObj?.id) return;
-        const sentKey = 'juaba_wpp_alert_sent_' + orderObj.id;
-        if (localStorage.getItem(sentKey)) return;
-        localStorage.setItem(sentKey, '1');
-
-        const rawWpp = String(window.currentStore.whatsapp || '').replace(/\D/g, '');
-        if (!rawWpp || rawWpp.length < 8) return;
-        const phone = rawWpp.startsWith('55') ? rawWpp : '55' + rawWpp;
-        const apiKey = String(window.currentStore.whatsappApiKey || window.currentStore.wpp_api_key || '').trim();
-        const msg = "🔔 Novo pedido no JuabaDelivery! Abra seu painel para aceitar.";
-
-        if (apiKey) {
-            try {
-                const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(msg)}&apikey=${encodeURIComponent(apiKey)}`;
-                fetch(url, { method: 'GET', mode: 'no-cors' }).catch(() => {});
-            } catch (e) {}
-        }
-
-        try {
-            const payload = {
-                acao: 'aviso_whatsapp_lojista',
-                telefoneLoja: phone,
-                nomeLoja: window.currentStore.nome_loja || 'Loja',
-                wppApiKey: apiKey,
-                fcmTokenLoja: window.storeFcmToken || window.currentStore.fcmTokenLoja || '',
-                orderId: orderObj.id,
-                mensagem: msg
-            };
-            const sep = GOOGLE_SCRIPT_URL.includes('?') ? '&' : '?';
-            await fetch(GOOGLE_SCRIPT_URL + sep + new URLSearchParams(payload).toString(), {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(payload)
-            });
-        } catch (e) {}
-    };
-
-    // Dispara mensagem automática no WhatsApp do Lojista quando chega novo pedido
-    window.triggerStoreOwnerWhatsappAlert = async (orderObj) => {
-        if (!window.currentStore || !orderObj?.id) return;
-        const sentKey = 'juaba_wpp_alert_sent_' + orderObj.id;
-        if (localStorage.getItem(sentKey)) return;
-        localStorage.setItem(sentKey, '1');
-
-        const rawWpp = String(window.currentStore.whatsapp || '').replace(/\D/g, '');
-        if (!rawWpp || rawWpp.length < 8) return;
-        const phone = rawWpp.startsWith('55') ? rawWpp : '55' + rawWpp;
-        const msg = "🔔 Novo pedido no JuabaDelivery! Abra seu painel para aceitar.";
-
-        try {
-            const payload = {
-                acao: 'aviso_whatsapp_lojista',
-                telefoneLoja: phone,
-                nomeLoja: window.currentStore.nome_loja || 'Loja',
-                wppApiKey: window.currentStore.wpp_api_key || '',
-                fcmTokenLoja: window.storeFcmToken || window.currentStore.fcmTokenLoja || '',
-                orderId: orderObj.id,
-                mensagem: msg
-            };
-            const sep = GOOGLE_SCRIPT_URL.includes('?') ? '&' : '?';
-            await fetch(GOOGLE_SCRIPT_URL + sep + new URLSearchParams(payload).toString(), {
-                method: 'POST', mode: 'no-cors', body: JSON.stringify(payload)
-            });
-        } catch (e) {}
-    };
-
     window.storeCancelTargetOrderId = null;
     window.deleteOrderCard = async (orderId) => {
         const o = window.storeOrders.find(x => x.id === orderId); if (!o) return;
@@ -1142,7 +936,6 @@
         el('modal-store-cancel-order').style.display = 'flex';
     };
     window.closeStoreCancelOrderModal = () => { window.storeCancelTargetOrderId = null; el('modal-store-cancel-order').style.display = 'none'; };
-
     window.confirmStoreCancelOrder = async () => {
         const id = window.storeCancelTargetOrderId, o = window.storeOrders.find(x => x.id === id); if (!o) return;
         const sel = el('store-cancel-reason-select').value, cust = el('store-cancel-custom-input').value.trim();
@@ -1150,14 +943,11 @@
         const arr = Array.isArray(o.chat) ? [...o.chat] : [];
         arr.push({ sender: 'loja', senderName: window.currentStore?.nome_loja || 'Loja', text: `❌ Pedido cancelado pela loja: ${motivo}`, time: new Date().toTimeString().slice(0,5) });
         try {
-            await setDoc(doc(db, "pedidos", id), { status: 'Cancelado', motivoCancelamento: motivo, canceladoPor: 'Loja', ocultoNoPainel: true, chat: arr }, { merge: true });
-            if (o?.fcmTokenCliente) {
-                window.dispatchPushToClient(o, `❌ Pedido Cancelado — ${window.currentStore?.nome_loja || 'Loja'}`, `Motivo: ${motivo}`);
-            }
+            await setDoc(doc(db, "pedidos", id), { status: 'Cancelado', motivoCancelamento: motivo, canceladoPor: 'Loja', ocultoNoPainel: true, chat: arr, updatedAtMs: Date.now() }, { merge: true });
+            window.dispatchPushToClient(o, `❌ Pedido Cancelado — ${window.currentStore?.nome_loja || 'Loja'}`, `Motivo: ${motivo}`, 'Cancelado');
             window.closeStoreCancelOrderModal(); window.showToast("❌ Pedido cancelado!");
         } catch (e) { window.showToast("⚠️ Erro ao cancelar."); }
     };
-
     window.formatOrderItemsLinesHtml = (o) => {
         if (!o) return '';
         if (Array.isArray(o.itensCart) && o.itensCart.length) {
@@ -1296,7 +1086,6 @@
         arr.push({ id: 'loja_' + Date.now(), sender: 'loja', text: txt, time: new Date().toTimeString().slice(0,5), ts: Date.now() });
         await setDoc(doc(db, "lojas", window.currentStore.id), { suporteChatLoja: arr, lastLojaMsgMs: Date.now() }, { merge: true });
     };
-
     window.populateCategorySelect = (selectedVal = 'Lanches') => {
         const defaults = ['Lanches', 'Pizzas', 'Bebidas', 'Petiscos', 'Açaí', 'Refeições', 'Doces', 'Combos'];
         const fromProds = window.storeProducts.map(p => (p.categoria || '').trim()).filter(Boolean);
@@ -1440,13 +1229,11 @@
         if (!window.currentStore) return;
         const selectedDays = [];
         document.querySelectorAll('#cfg-days-row .day-Check.active').forEach(node => selectedDays.push(Number(node.getAttribute('data-day'))));
-        const apiKeyVal = el('cfg-wpp-apikey') ? el('cfg-wpp-apikey').value.trim() : '';
         const payload = {
             nome_loja: el('cfg-nome').value.trim(),
             logo_loja: el('cfg-logo').value.trim(),
             whatsapp: el('cfg-wpp').value.trim(),
-            whatsappApiKey: apiKeyVal,
-            wpp_api_key: apiKeyVal,
+            whatsappApiKey: el('cfg-wpp-apikey') ? el('cfg-wpp-apikey').value.trim() : '',
             taxa_entrega: Math.max(0, parseFloat(el('cfg-taxa-entrega').value) || 0),
             chave_pix: el('cfg-pix').value.trim(),
             horarioAutoAtivo: el('cfg-auto-sched').checked,
@@ -1470,23 +1257,23 @@
             return;
         }
         const phone = rawWpp.startsWith('55') ? rawWpp : '55' + rawWpp;
-        const msg = "🔔 Novo pedido no JuabaDelivery! Abra seu painel para aceitar.";
+        const nomeLoja = el('cfg-nome').value.trim() || window.currentStore?.nome_loja || 'Minha Loja';
+        const msg = `✅ *TESTE JUABADELIVERY - ${nomeLoja}*\nSeu alerta automático de novos pedidos no WhatsApp está configurado e funcionando!`;
         try {
             const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(msg)}&apikey=${encodeURIComponent(apiKey)}`;
             await fetch(url, { method: 'GET', mode: 'no-cors' });
-            window.showToast("📲 Alerta de teste disparado! Verifique seu WhatsApp.");
+            window.showToast("📲 Alerta de teste disparado! Verifique seu WhatsApp em instantes.");
         } catch (e) {
             window.showToast("⚠️ Erro ao disparar teste.");
         }
     };
 
+    // Listeners Otimizados e Isolados por Loja (Privacidade + Economia de Leituras)
     const clearStoreListeners = () => { _unsubscribes.forEach(u => u && u()); _unsubscribes = []; };
 
     window.startStorePanelListeners = (user) => {
         clearStoreListeners();
         el('auth-screen').style.display = 'none';
-        window.enableStoreBackgroundKeepAlive();
-        window.initStorePushNotificationsEngine(user.uid);
 
         _unsubscribes.push(onSnapshot(collection(db, "lojas"), (snap) => {
             let latestConfigMs = -1, myAdminSupport = [], myOverride = {}, sysBillingEnabled = true;
@@ -1511,7 +1298,7 @@
                 if (document.activeElement.id !== 'cfg-nome') el('cfg-nome').value = window.currentStore.nome_loja || '';
                 if (document.activeElement.id !== 'cfg-logo') el('cfg-logo').value = window.currentStore.logo_loja || '';
                 if (document.activeElement.id !== 'cfg-wpp') el('cfg-wpp').value = window.currentStore.whatsapp || '';
-                if (el('cfg-wpp-apikey') && document.activeElement.id !== 'cfg-wpp-apikey') el('cfg-wpp-apikey').value = window.currentStore.whatsappApiKey || window.currentStore.wpp_api_key || '';
+                if (el('cfg-wpp-apikey') && document.activeElement.id !== 'cfg-wpp-apikey') el('cfg-wpp-apikey').value = window.currentStore.whatsappApiKey || '';
                 if (document.activeElement.id !== 'cfg-taxa-entrega') el('cfg-taxa-entrega').value = window.currentStore.taxa_entrega ?? '';
                 if (document.activeElement.id !== 'cfg-pix') el('cfg-pix').value = window.currentStore.chave_pix || '';
                 el('cfg-auto-sched').checked = Boolean(window.currentStore.horarioAutoAtivo);
@@ -1536,26 +1323,17 @@
             window.storeOrders = [];
             snap.forEach(d => window.storeOrders.push({ id: d.id, ...d.data() }));
             window.storeOrders.forEach(o => {
-                // Detecta Novo Pedido chegando em tempo real e envia aviso automático no WhatsApp do lojista
-                if (window.initialStoreOrdersLoaded && !window.knownOrderIds.has(o.id) && o.status === 'Novo') {
-                    const alertTxt = "🔔 Novo pedido no JuabaDelivery! Abra seu painel para aceitar.";
-                    window.showToast(alertTxt);
-                    window.triggerStoreNativeNotification(`🔔 Novo Pedido #${o.id.substring(0,6).toUpperCase()}`, alertTxt, o.id);
-                    window.triggerStoreOwnerWhatsappAlert(o);
-                }
-                window.knownOrderIds.add(o.id);
-
-                // Detecta nova mensagem do cliente no chat
                 const cliMsgs = window.getClientMessagesCountForOrder(o), prev = window.prevClientChatCounts[o.id];
-                if (window.activeOrderChatId === o.id && el('modal-order-chat').style.display === 'flex') {
-                    localStorage.setItem('juaba_store_seen_chat_' + o.id, String(cliMsgs));
-                } else if (window.initialStoreOrdersLoaded && prev !== undefined && cliMsgs > prev) {
-                    const lastCliMsg = Array.isArray(o.chat) ? [...o.chat].reverse().find(m => m.sender === 'cliente') : null;
-                    const msgPreview = lastCliMsg?.text || `Nova mensagem de ${o.cliente || 'Cliente'}!`;
-                    window.showToast(`💬 ${o.cliente || 'Cliente'}: ${msgPreview}`);
-                    window.triggerStoreNativeNotification(`💬 ${o.cliente || 'Cliente'}`, msgPreview, o.id);
-                }
+                if (window.activeOrderChatId === o.id && el('modal-order-chat').style.display === 'flex') localStorage.setItem('juaba_store_seen_chat_' + o.id, String(cliMsgs));
+                else if (window.initialStoreOrdersLoaded && prev !== undefined && cliMsgs > prev) { window.playStoreChatSound(); window.showToast(`💬 Nova mensagem de ${o.cliente || 'Cliente'}!`); }
                 window.prevClientChatCounts[o.id] = cliMsgs;
+
+                // Alerta sonoro imediato no painel quando chega um pedido Novo
+                if (window.initialStoreOrdersLoaded && !window.prevNewOrdersIds.has(o.id) && o.status === 'Novo') {
+                    window.playStoreChatSound();
+                    window.showToast(`🔔 NOVO PEDIDO de ${o.cliente || 'Cliente'} (${o.total || ''})!`);
+                }
+                window.prevNewOrdersIds.add(o.id);
             });
             window.initialStoreOrdersLoaded = true;
             window.renderKanban(); window.renderSalesAndCoupons();
